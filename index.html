@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemiverse - 3D Periodic Table</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Google Fonts for futuristic look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="title">
+        <h1>Chemiverse</h1>
+    </div>
+
+    <!-- UI Panel for Element details -->
+    <div id="info-panel">
+        <h2 id="element-name">Name</h2>
+        <div class="symbol" id="element-symbol">Sym</div>
+        <p><strong>Atomic Number:</strong> <span id="element-number"></span></p>
+        <p><strong>Mass:</strong> <span id="element-mass"></span></p>
+        <p><strong>Category:</strong> <span id="element-category"></span></p>
+    </div>
+
+    <!-- Three.js libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- Tween.js for smooth animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+
+    <script>
+        // 1. Scene Setup
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x050510, 0.0002); // Dikurangi agar kabut tidak terlalu tebal
+
+        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 10000);
+        camera.position.z = 3500; // Dijauhkan sedikit agar tabel periodik tidak terpotong
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+
+        // 2. Lighting (High-tech feel)
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // Diterangkan
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(0, 0, 2000);
+        scene.add(directionalLight);
+
+        const pointLight = new THREE.PointLight(0x00ffcc, 1, 5000);
+        pointLight.position.set(0, 0, 1000);
+        scene.add(pointLight);
+
+        // Raycaster for interactivity
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        
+        let elementsData = [];
+        const objects = [];
+
+        // 3. Data Fetching from PHP
+        // PHP-first approach: PHP handles the DB, JS just renders
+        async function fetchElements() {
+            try {
+                // Fetch from our PHP backend
+                const response = await fetch('api/elements.php');
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    elementsData = result.data;
+                    build3DTable();
+                } else {
+                    console.error('Error fetching data:', result.message);
+                }
+            } catch (error) {
+                console.error('Network or parsing error:', error);
+                // We don't alert here to avoid stopping the experience if it's just slow
+                console.warn("Failed to fetch data from API. Please ensure MySQL is running and the database is imported.");
+            }
+        }
+
+        // Helper to create text texture
+        function createLabelTexture(el) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 358; // Proporsional dengan BoxGeometry(100, 140)
+            const context = canvas.getContext('2d');
+
+            context.fillStyle = 'rgba(0, 0, 0, 0)';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            context.fillStyle = '#ffffff';
+            context.font = 'bold 36px Inter, sans-serif';
+            context.textAlign = 'left';
+            context.fillText(el.atomic_number, 20, 50);
+
+            context.font = 'bold 120px Inter, sans-serif';
+            context.textAlign = 'center';
+            context.fillText(el.symbol, canvas.width / 2, 170);
+
+            context.font = '28px Inter, sans-serif';
+            context.fillText(el.name, canvas.width / 2, 230);
+
+            context.font = '24px Inter, sans-serif';
+            context.fillText(parseFloat(el.atomic_mass).toFixed(3), canvas.width / 2, 280);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+            return texture;
+        }
+
+        // 4. Build 3D Objects
+        function build3DTable() {
+            // Standard periodic table spacing
+            const spacingX = 140;
+            const spacingY = 180;
+            const offsetX = - (18 * spacingX) / 2;
+            const offsetY = (10 * spacingY) / 2;
+
+            elementsData.forEach((el, i) => {
+                // Determine layout position based on xpos/ypos from database
+                const targetX = el.xpos * spacingX + offsetX;
+                const targetY = - (el.ypos * spacingY) + offsetY;
+                const targetZ = 0;
+
+                // Create a beautiful glass-like block
+                const geometry = new THREE.BoxGeometry(100, 140, 10);
+                
+                // Material setup using database color
+                const color = new THREE.Color(el.color_hex);
+                const texture = createLabelTexture(el);
+                
+                const frontMaterial = new THREE.MeshPhysicalMaterial({
+                    color: color,
+                    metalness: 0.3,
+                    roughness: 0.2,
+                    transparent: true,
+                    opacity: 0.9,
+                    emissive: color.clone().multiplyScalar(0.5),
+                    map: texture
+                });
+                
+                const sideMaterial = new THREE.MeshPhysicalMaterial({
+                    color: color,
+                    metalness: 0.3,
+                    roughness: 0.2,
+                    transparent: true,
+                    opacity: 0.6,
+                    emissive: color.clone().multiplyScalar(0.5)
+                });
+                
+                const materials = [
+                    sideMaterial, // right
+                    sideMaterial, // left
+                    sideMaterial, // top
+                    sideMaterial, // bottom
+                    frontMaterial, // front
+                    sideMaterial  // back
+                ];
+
+                const mesh = new THREE.Mesh(geometry, materials);
+                
+                // Set initial position randomly for cool intro animation
+                mesh.position.set(
+                    Math.random() * 4000 - 2000,
+                    Math.random() * 4000 - 2000,
+                    Math.random() * 4000 - 2000
+                );
+                
+                // Store data in userData for raycasting later
+                mesh.userData = el;
+                
+                scene.add(mesh);
+                objects.push(mesh);
+
+                // Animate to target position
+                new TWEEN.Tween(mesh.position)
+                    .to({ x: targetX, y: targetY, z: targetZ }, Math.random() * 2000 + 1000)
+                    .easing(TWEEN.Easing.Exponential.InOut)
+                    .start();
+            });
+        }
+
+        // 5. Interactivity (Hover/Click)
+        function onPointerMove(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        }
+
+        window.addEventListener('pointermove', onPointerMove);
+
+        // 6. Render Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            TWEEN.update();
+            controls.update();
+
+            // Raycasting for hover effects
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(objects);
+
+            // Reset emissive intensity
+            objects.forEach(obj => {
+                obj.material.forEach(mat => mat.emissiveIntensity = 1);
+            });
+
+            if (intersects.length > 0) {
+                const object = intersects[0].object;
+                object.material.forEach(mat => mat.emissiveIntensity = 3); // Glow on hover
+
+                // Update UI Panel
+                const data = object.userData;
+                document.getElementById('info-panel').style.display = 'block';
+                document.getElementById('element-name').textContent = data.name;
+                document.getElementById('element-symbol').textContent = data.symbol;
+                document.getElementById('element-number').textContent = data.atomic_number;
+                document.getElementById('element-mass').textContent = parseFloat(data.atomic_mass).toFixed(3);
+                document.getElementById('element-category').textContent = data.category;
+                
+                document.getElementById('element-symbol').style.color = data.color_hex;
+            } else {
+                document.getElementById('info-panel').style.display = 'none';
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // Handle Resize
+        window.addEventListener('resize', onWindowResize, false);
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // Init
+        animate();
+        fetchElements();
+    </script>
+</body>
+</html>

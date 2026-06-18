@@ -1,0 +1,26 @@
+{
+  "project_name": "Chemiverse",
+  "architecture_model": "PHP-Backend Hybrid with 3D Frontend",
+  "backend_system": {
+    "language": "PHP 8.x",
+    "database": "MySQL",
+    "role": "Manages all CRUD, data persistence, authentication, and API endpoints for elements, reactions, and compounds.",
+    "api_strategy": "PHP serves data as JSON via REST API endpoints (e.g., /api/elements.php)"
+  },
+  "frontend_system": {
+    "language": "JavaScript (Vanilla or React.js)",
+    "3d_engine": "Three.js",
+    "role": "Purely visual renderer. Fetches data from PHP endpoints and converts it into 3D objects using Three.js.",
+    "constraint": "Keep JS logic minimal, rely on PHP for business logic and data processing."
+  },
+  "integration_flow": {
+    "step_1": "Frontend sends a request to PHP API.",
+    "step_2": "PHP queries MySQL and returns structured JSON.",
+    "step_3": "JavaScript receives JSON and triggers Three.js to render/update the 3D scene."
+  },
+  "technical_requirements": {
+    "server": "Apache/Nginx (XAMPP/Laragon/Local server)",
+    "database_schema": "Tables for 'elements', 'reactions', 'compounds', 'categories'",
+    "design_aesthetic": "Minimalist luxury, dark mode, high-tech interface"
+  }
+}
