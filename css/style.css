@@ -1,16 +1,32 @@
-body {
+html, body {
     margin: 0;
-    overflow: hidden;
-    background-color: #050510; /* Deep dark tech background */
-    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 0;
+    width: 100%;
+}
+
+body {
+    font-family: 'Montserrat', 'Inter', sans-serif;
     color: #ffffff;
+    /* Elegant depth: Deep charcoal to midnight grey */
+    background: linear-gradient(to bottom, #1a1b22 0%, #08090b 100%);
+    background-attachment: fixed;
+}
+
+#canvas-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
 }
 
 #info-panel {
-    position: absolute;
+    position: fixed;
     top: 20px;
     left: 20px;
     background: rgba(10, 15, 30, 0.8);
+    z-index: 10;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 20px;
@@ -26,7 +42,8 @@ body {
 #info-panel h2 {
     margin: 0 0 10px 0;
     font-size: 24px;
-    color: #00ffcc;
+    color: #ffffff;
+    font-weight: 300;
     letter-spacing: 1px;
 }
 
@@ -38,27 +55,77 @@ body {
 
 #info-panel .symbol {
     font-size: 48px;
-    font-weight: bold;
+    font-weight: 300;
     margin: 10px 0;
     color: #ffffff;
-    text-shadow: 0 0 10px rgba(255,255,255,0.5);
 }
 
-.title {
-    position: absolute;
-    top: 20px;
-    width: 100%;
-    text-align: center;
-    pointer-events: none;
-    z-index: 5;
+/* Content Overlay */
+#content {
+    position: relative;
+    z-index: 2;
+    pointer-events: none; /* Let pointer pass to 3D canvas */
 }
 
-.title h1 {
+/* Hero Section */
+#hero-section {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start; /* Asimetris ke kiri */
+    text-align: left;
+    width: 55%; /* Leave right side for 3D hydrogen block */
+    padding-left: 8vw; /* Margin tebal dari kiri */
+    box-sizing: border-box;
+    transition: opacity 0.1s ease;
+}
+
+#hero-section h1 {
     margin: 0;
-    font-size: 32px;
-    font-weight: 300;
-    letter-spacing: 4px;
-    color: #ffffff;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 6vw;
+    font-weight: 400; /* Elegan */
+    letter-spacing: 16px;
+    color: #ffffff; /* Murni putih */
     text-transform: uppercase;
-    text-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
+}
+
+#hero-section h2 {
+    margin: 15px 0 0 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 2vw;
+    color: #b0b5c0;
+    letter-spacing: 2px;
+}
+
+#hero-section p {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.1vw;
+    font-weight: 300;
+    color: #8a8d98;
+    margin-top: 30px;
+    letter-spacing: 1px;
+    max-width: 550px;
+    line-height: 1.8;
+}
+
+/* Kursor berkedip untuk Typewriter effect */
+.cursor {
+    display: inline-block;
+    width: 4px;
+    background-color: #ffffff;
+    margin-left: 5px;
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+#table-section {
+    height: 100vh;
 }
