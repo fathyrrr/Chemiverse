@@ -1,79 +1,152 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chemiverse - 3D Periodic Table</title>
     <!-- Tambahkan versi ?v=7 agar browser melakukan reload CSS (Cache Busting) -->
-    <link rel="stylesheet" href="css/style.css?v=7">
+    <link rel="stylesheet" href="css/style.css?v=19" />
     <!-- Google Fonts for elegant look -->
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
-</head>
-<body>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Montserrat:wght@300;400&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <script>
+    // Fix scroll restoration: always land at top on refresh
+    if (history.scrollRestoration) {
+      history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+  </script>
+  <body>
     <!-- 3D Background Canvas -->
     <div id="canvas-container"></div>
 
     <!-- Navigation Bar -->
     <nav id="navbar">
-        <div class="nav-brand">
-            <span class="logo-icon">⬡</span> Chemiverse
-        </div>
-        <div class="nav-links">
-            <a href="#" class="active">Periodic Wiki</a>
-            <a href="#">Bond Simulator</a>
-            <a href="#">Molecular Viewer</a>
-            <a href="#">Reaction Lab</a>
-        </div>
-        <div class="nav-cta">
-            <a href="#" class="btn-primary">Launch Sandbox <span class="arrow">→</span></a>
-        </div>
+      <div class="nav-brand"><span class="logo-icon">⬡</span> Chemiverse</div>
+      <div class="nav-links">
+        <a href="#" class="active">Periodic Wiki</a>
+        <a href="#">Bond Simulator</a>
+        <a href="#">Molecular Viewer</a>
+        <a href="#">Reaction Lab</a>
+      </div>
+      <div class="nav-cta">
+        <a href="#" class="btn-primary"
+          >Launch Sandbox <span class="arrow">→</span></a
+        >
+      </div>
     </nav>
 
     <!-- Decorative Tech Details -->
     <div class="tech-deco top-left">
-        [ SYSTEM: ONLINE ]<br>
-        TEMP: 298.15K (STP)<br>
-        PRESSURE: 1 ATM
+      [ SYSTEM: ONLINE ]<br />
+      TEMP: 298.15K (STP)<br />
+      PRESSURE: 1 ATM
     </div>
     <div class="tech-deco bottom-left">
-        CHEMIVERSE V.1.0.4<br>
-        DATABASE: CONNECTED
+      CHEMIVERSE V.1.0.4<br />
+      DATABASE: CONNECTED
     </div>
     <div class="tech-deco bottom-right">
-        [ ENGINE: ACTIVE ]<br>
-        LATENCY: 12ms / EN: INCREASING
+      [ ENGINE: ACTIVE ]<br />
+      LATENCY: 12ms / EN: INCREASING
     </div>
 
     <!-- Scrollable Content Overlay -->
     <div id="content">
-        <section id="hero-section">
-            <h1 id="hero-title"></h1>
-            <h2 id="hero-subtitle"></h2>
-            <p id="hero-narration"></p>
-        </section>
-        <section id="table-section">
-            <!-- Ruang kosong untuk menscroll ke bawah menuju tabel -->
-        </section>
+      <section id="hero-section">
+        <h1 id="hero-title"></h1>
+        <h2 id="hero-subtitle"></h2>
+        <p id="hero-narration"></p>
+      </section>
+      <section id="table-section">
+        <!-- Ruang kosong untuk menscroll ke bawah menuju tabel -->
+      </section>
+
+      <!-- Tumpukan Section Vertikal -->
+      <!-- Setiap section memiliki tinggi 200vh. 100vh pertama adalah transisi masuk, 100vh kedua adalah sticky safe zone. -->
+      <section id="carbon-section" class="narrative-section">
+        <div class="narrative-content">
+          <h2 class="editorial-title">The Carbon Core</h2>
+          <p class="editorial-text">
+            Mendasari seluruh kehidupan yang kita kenal, atom Karbon membentuk
+            tulang punggung arsitektur molekuler. Di sinilah materi tak bernyawa
+            mulai menyusun pola kompleks menuju kesadaran.
+          </p>
+          <p class="editorial-text">
+            Satu atom dengan empat elektron valensi, membuka kemungkinan tak
+            terbatas untuk ikatan kosmik.
+          </p>
+        </div>
+      </section>
+
+      <section id="diamond-section" class="narrative-section">
+        <div class="narrative-content">
+          <h2 class="editorial-title">Diamond Lattice</h2>
+          <p class="editorial-text">
+            Kesempurnaan geometri murni. Melalui ikatan kovalen yang tak
+            terpatahkan, karbon mentransformasi dirinya menjadi salah satu
+            material terkeras di alam semesta.
+          </p>
+          <p class="editorial-text">
+            Struktur ini bukan sekadar bentuk fisik, melainkan manifestasi dari
+            harmoni matematika dan kestabilan ruang tiga dimensi.
+          </p>
+        </div>
+      </section>
+
+      <section id="dna-section" class="narrative-section">
+        <div class="narrative-content">
+          <h2 class="editorial-title">The Code of Life</h2>
+          <p class="editorial-text">
+            Dari kerangka karbon sederhana hingga kompleksitas DNA beruntai
+            ganda. Ini adalah bukti bahwa kosmos tidak berada di luar sana;
+            materi bintang menyusun Anda.
+          </p>
+          <p class="editorial-text">
+            Setiap putaran heliks menyimpan memori miliaran tahun evolusi
+            kimiawi.
+          </p>
+        </div>
+      </section>
+
+      <footer id="tech-footer">
+        <div class="footer-content">
+          <div class="footer-logo">
+            <span class="logo-icon">⬡</span> Chemiverse
+          </div>
+          <div class="footer-links">
+            <a href="#">System Architecture</a>
+            <a href="#">Data Protocols</a>
+            <a href="#">Privacy Directive</a>
+          </div>
+          <div class="footer-copy">
+            &copy; 2026 Chemiverse Simulation. All parameters secured.
+          </div>
+        </div>
+      </footer>
     </div>
 
     <!-- UI Panel for Element details -->
     <div id="info-panel">
-        <h2 id="element-name">Name</h2>
-        <div class="divider"></div>
-        <div class="symbol" id="element-symbol">Sym</div>
-        <p><strong>Atomic Number</strong> <span id="element-number"></span></p>
-        <p><strong>Atomic Mass</strong> <span id="element-mass"></span></p>
-        <p><strong>Category</strong> <span id="element-category"></span></p>
-        <button id="close-panel" aria-label="Close">&times;</button>
+      <h2 id="element-name">Name</h2>
+      <div class="divider"></div>
+      <div class="symbol" id="element-symbol">Sym</div>
+      <p><strong>Atomic Number</strong> <span id="element-number"></span></p>
+      <p><strong>Atomic Mass</strong> <span id="element-mass"></span></p>
+      <p><strong>Category</strong> <span id="element-category"></span></p>
+      <button id="close-panel" aria-label="Close">&times;</button>
     </div>
 
     <!-- Secondary Panel for Element Description -->
     <div id="detail-card">
-        <h3>About <span id="detail-title-name">Element</span></h3>
-        <div class="divider"></div>
-        <div class="scroll-area">
-            <div id="detail-content">Loading data from Wikipedia...</div>
-        </div>
+      <h3>About <span id="detail-title-name">Element</span></h3>
+      <div class="divider"></div>
+      <div class="scroll-area">
+        <div id="detail-content">Loading data from Wikipedia...</div>
+      </div>
     </div>
 
     <!-- Three.js libraries -->
@@ -83,631 +156,962 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
 
     <script>
-        // 1. Scene Setup
-        const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x050510, 0.0002); // Dikurangi agar kabut tidak terlalu tebal
+      // 1. Scene Setup
+      const scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x050510, 0.0002); // Dikurangi agar kabut tidak terlalu tebal
 
-        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 30000);
-        // Start camera slightly higher, we will animate it down on scroll
-        camera.position.z = 4500; // Diperdekat agar tabel terlihat sangat besar (3/4 layar landscape)
-        camera.position.y = 2000; // Posisi awal di atas Hero section
+      const camera = new THREE.PerspectiveCamera(
+        40,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        30000,
+      );
+      // Posisi awal di atas Hero section (jauh agar table tak bocor)
+      camera.position.z = 4500;
+      camera.position.y = 7000;
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
+      const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+      });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      document
+        .getElementById("canvas-container")
+        .appendChild(renderer.domElement);
 
-        // OrbitControls is removed so the table stays in a fixed position.
+      // OrbitControls is removed so the table stays in a fixed position.
 
-        // 1.5 Subtle Background Particles (Shooting stars/dust)
-        const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 500;
-        const posArray = new Float32Array(particlesCount * 3);
-        for(let i = 0; i < particlesCount * 3; i++) {
-            posArray[i * 3] = (Math.random() - 0.5) * 15000;
-            posArray[i * 3 + 1] = Math.random() * 15000 - 5000;
-            posArray[i * 3 + 2] = (Math.random() - 0.5) * 10000 - 2000;
+      // 1.5 Subtle Background Particles (Shooting stars/dust)
+      const particlesGeometry = new THREE.BufferGeometry();
+      const particlesCount = 500;
+      const posArray = new Float32Array(particlesCount * 3);
+      for (let i = 0; i < particlesCount * 3; i++) {
+        posArray[i * 3] = (Math.random() - 0.5) * 15000;
+        posArray[i * 3 + 1] = Math.random() * 15000 - 5000;
+        posArray[i * 3 + 2] = (Math.random() - 0.5) * 10000 - 2000;
+      }
+      particlesGeometry.setAttribute(
+        "position",
+        new THREE.BufferAttribute(posArray, 3),
+      );
+      const particlesMaterial = new THREE.PointsMaterial({
+        size: 8,
+        color: 0xaaaaaa,
+        transparent: true,
+        opacity: 0.3,
+      });
+      const particlesMesh = new THREE.Points(
+        particlesGeometry,
+        particlesMaterial,
+      );
+      scene.add(particlesMesh);
+
+      // 1.5.5 Jaring Molekuler (Wireframe Background)
+      const bgMoleculesGroup = new THREE.Group();
+      scene.add(bgMoleculesGroup);
+
+      const hexGeometry = new THREE.CylinderGeometry(300, 300, 10, 6);
+      const hexEdges = new THREE.EdgesGeometry(hexGeometry);
+      const hexMaterial = new THREE.LineBasicMaterial({
+        color: 0x334455,
+        transparent: true,
+        opacity: 0.4,
+      });
+
+      for (let i = 0; i < 60; i++) {
+        const hexLine = new THREE.LineSegments(hexEdges, hexMaterial);
+        // Distribusikan ke area yang sangat luas
+        hexLine.position.set(
+          (Math.random() - 0.5) * 16000,
+          (Math.random() - 0.5) * 16000,
+          (Math.random() - 0.5) * 16000 - 2000,
+        );
+        hexLine.rotation.set(
+          Math.random() * Math.PI,
+          Math.random() * Math.PI,
+          Math.random() * Math.PI,
+        );
+        // Simpan kecepatan rotasi acak
+        hexLine.userData = {
+          rx: (Math.random() - 0.5) * 0.004,
+          ry: (Math.random() - 0.5) * 0.004,
+          rz: (Math.random() - 0.5) * 0.004,
+        };
+        bgMoleculesGroup.add(hexLine);
+      }
+
+      // 1.6 The Perfect Silver Cube (Interactive Hero Object)
+      const heroGroup = new THREE.Group();
+
+      // Buat tekstur khusus untuk Bump Map (Ukiran)
+      const canvasH = document.createElement("canvas");
+      canvasH.width = 1024;
+      canvasH.height = 1024;
+      const contextH = canvasH.getContext("2d");
+
+      // Background putih (level permukaan teratas)
+      contextH.fillStyle = "#ffffff";
+      contextH.fillRect(0, 0, 1024, 1024);
+
+      // Teks hitam (lekukan ukiran / etched depth)
+      contextH.fillStyle = "#000000";
+
+      // Kiri Atas: Nomor atom presisi
+      contextH.font = 'bold 80px "Montserrat", sans-serif';
+      contextH.textAlign = "left";
+      contextH.fillText("119", 80, 150);
+
+      // Kanan Bawah: Berat atom presisi
+      contextH.textAlign = "right";
+      contextH.fillText("321.01", 944, 944);
+
+      // Tengah: Simbol "Cv"
+      contextH.font = 'bold 450px "Cormorant Garamond", serif';
+      contextH.textAlign = "center";
+      contextH.fillText("Cv", 512, 580);
+
+      // Bawah: Chemiverse (teknis & presisi)
+      contextH.font = '100px "Montserrat", sans-serif';
+      contextH.fillText("C H E M I V E R S E", 512, 720);
+
+      const bumpTexture = new THREE.CanvasTexture(canvasH);
+
+      // Material perak mengkilap (3D Silver) dengan ukiran,
+      // dikembalikan ke metalik namun shading-nya dikurangi agar lebih elegan (tidak gelap total).
+      const heroMaterial = new THREE.MeshStandardMaterial({
+        color: 0xe0e0e0, // Dasar silver terang
+        roughness: 0.15, // Sedikit licin untuk refleksi
+        metalness: 0.8, // Metalik tinggi tapi tidak 100% agar cahaya menyebar
+        bumpMap: bumpTexture,
+        bumpScale: -3.0, // Ukiran tidak terlalu dalam agar bayangan tidak over-shading
+      });
+
+      const heroBox = new THREE.Mesh(
+        new THREE.BoxGeometry(600, 600, 600),
+        heroMaterial,
+      );
+      heroGroup.add(heroBox);
+
+      // Position cube to the right, at Y=3000 to match initial camera view
+      heroGroup.position.set(2200, 7000, 0); // Jauh di atas
+      heroGroup.rotation.set(0.4, -0.6, 0.2); // Kembalikan rotasi awal yang tertimpa
+      scene.add(heroGroup);
+
+      // --- CINEMATIC LIGHTING ---
+      const cineLight = new THREE.PointLight(0x00ffff, 2, 15000);
+      cineLight.position.set(2000, 7000, 2000);
+      scene.add(cineLight);
+
+      // 1.7 Interactivity Drag Logic for Cube
+      let isDraggingCube = false;
+      let previousMousePosition = { x: 0, y: 0 };
+      let cubeVelocity = { x: 0.005, y: 0.002 }; // Inersia putaran awal
+
+      let targetParticleRotX = 0;
+      let targetParticleRotY = 0;
+
+      // Custom Mouse Handlers
+      window.addEventListener("mousedown", (e) => {
+        isDraggingCube = true;
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        // Background Particle Parallax
+        const mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+        const mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+
+        targetParticleRotY = mouseX * 0.15;
+        targetParticleRotX = mouseY * 0.15;
+
+        // Cube Drag Rotation
+        if (isDraggingCube) {
+          const deltaMove = {
+            x: e.clientX - previousMousePosition.x,
+            y: e.clientY - previousMousePosition.y,
+          };
+
+          // Akumulasi kecepatan rotasi
+          cubeVelocity.x = deltaMove.y * 0.005;
+          cubeVelocity.y = deltaMove.x * 0.005;
         }
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const particlesMaterial = new THREE.PointsMaterial({
-            size: 8,
-            color: 0xaaaaaa,
+
+        previousMousePosition = { x: e.clientX, y: e.clientY };
+      });
+
+      window.addEventListener("mouseup", () => {
+        isDraggingCube = false;
+      });
+
+      // Touch events for mobile support
+      window.addEventListener("touchstart", (e) => {
+        isDraggingCube = true;
+        previousMousePosition = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+        };
+      });
+      window.addEventListener("touchmove", (e) => {
+        if (isDraggingCube) {
+          const deltaMove = {
+            x: e.touches[0].clientX - previousMousePosition.x,
+            y: e.touches[0].clientY - previousMousePosition.y,
+          };
+          cubeVelocity.x = deltaMove.y * 0.005;
+          cubeVelocity.y = deltaMove.x * 0.005;
+        }
+        previousMousePosition = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+        };
+      });
+      window.addEventListener("touchend", () => {
+        isDraggingCube = false;
+      });
+
+      // 2. Bright & Even Lighting
+      // Menggunakan HemisphereLight untuk memberikan cahaya rata pada benda tanpa bayangan terlalu keras
+      const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
+      scene.add(hemiLight);
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+      scene.add(ambientLight);
+
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+      directionalLight.position.set(-2000, 1500, 2000);
+      scene.add(directionalLight);
+
+      // Tambahkan lampu sorot khusus ke arah kubus perak agar menonjol
+      const pointLight1 = new THREE.PointLight(0xffffff, 1.0, 5000);
+      pointLight1.position.set(2200, 3500, 2000);
+      scene.add(pointLight1);
+      const pointLight2 = new THREE.PointLight(0xaaaaaa, 0.8, 5000);
+      pointLight2.position.set(3000, 1000, 3000);
+      scene.add(pointLight2);
+
+      // Raycaster for interactivity
+      const raycaster = new THREE.Raycaster();
+      const mouse = new THREE.Vector2();
+
+      let elementsData = [];
+      const objects = [];
+
+      // 3. Data Fetching from PHP
+      // PHP-first approach: PHP handles the DB, JS just renders
+      async function fetchElements() {
+        try {
+          // Fetch from our PHP backend
+          const response = await fetch("api/elements.php");
+          const result = await response.json();
+
+          if (result.status === "success") {
+            elementsData = result.data;
+            build3DTable();
+          } else {
+            console.error("Error fetching data:", result.message);
+          }
+        } catch (error) {
+          console.error("Network or parsing error:", error);
+          // We don't alert here to avoid stopping the experience if it's just slow
+          console.warn(
+            "Failed to fetch data from API. Please ensure MySQL is running and the database is imported.",
+          );
+        }
+      }
+
+      // Helper to create text texture
+      function createLabelTexture(el) {
+        const canvas = document.createElement("canvas");
+        // MENGURANGI UKURAN CANVAS AGAR WEBGL TIDAK CRASH (Memory Overload)
+        const width = 256;
+        const height = 358;
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+
+        ctx.fillStyle = "rgba(255, 255, 255, 0.08)"; // Off-white tipis untuk kotak
+        ctx.fillRect(0, 0, width, height);
+
+        // Tepi garis tegas dan terang (Bright CPK Color Border)
+        ctx.lineWidth = 6;
+        ctx.strokeStyle = el.color_hex || "#ffffff";
+        ctx.strokeRect(3, 3, width - 6, height - 6);
+
+        // Nomor Atom
+        ctx.fillStyle = "#ffffff"; // Putih bersih untuk keterbacaan
+        ctx.font = 'bold 36px "Inter", sans-serif';
+        ctx.textAlign = "left";
+        ctx.fillText(el.atomic_number, 15, 45);
+
+        // Simbol
+        ctx.fillStyle = el.color_hex || "#ffffff"; // Warna simbol menggunakan CPK agar stand out
+        ctx.font = 'bold 110px "Inter", sans-serif';
+        ctx.textAlign = "center";
+        ctx.fillText(el.symbol, width / 2, 170, 220);
+
+        // Nama
+        ctx.fillStyle = "#e0e0e0";
+        ctx.font = '32px "Inter", sans-serif';
+        ctx.fillText(el.name, width / 2, 240, 220);
+
+        // Massa
+        ctx.fillStyle = "#cccccc";
+        ctx.font = '28px "Inter", sans-serif';
+        ctx.fillText(Number(el.atomic_mass).toFixed(2), width / 2, 290, 220);
+
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+        return texture;
+      }
+
+      // 4. Build 3D Objects
+      const periodicTableGroup = new THREE.Group();
+      // Tabel di titik tengah
+      periodicTableGroup.position.set(0, 0, 0);
+      scene.add(periodicTableGroup);
+
+      // 4.5 The Editorial 3D Objects
+      const editorialGroup = new THREE.Group();
+      // Tempatkan tepat di tengah layar (karena Tabel Periodik akan mundur ke belakang)
+      editorialGroup.position.set(0, 0, 0);
+      scene.add(editorialGroup);
+
+      // --- STEP 1: Single Carbon Atom ---
+      const singleAtomGroup = new THREE.Group();
+      singleAtomGroup.position.set(0, -8000, 0); // Posisi vertikal murni di bawah tabel
+      const nucleusGeometry = new THREE.SphereGeometry(150, 32, 32);
+      const nucleusMaterial = new THREE.MeshStandardMaterial({
+        color: 0x00ffff,
+        emissive: 0x00ffff,
+        emissiveIntensity: 0.8,
+        roughness: 0.2,
+        metalness: 0.8,
+      });
+      const nucleus = new THREE.Mesh(nucleusGeometry, nucleusMaterial);
+      singleAtomGroup.add(nucleus);
+
+      const ringGeometry = new THREE.RingGeometry(400, 405, 64);
+      const ringMaterial = new THREE.MeshBasicMaterial({
+        color: 0x00ffff,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.2,
+      });
+      const electronGeo = new THREE.SphereGeometry(25, 16, 16);
+      const electronMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+      const orbits = [];
+
+      for (let i = 0; i < 4; i++) {
+        const orbit = new THREE.Mesh(ringGeometry, ringMaterial);
+        orbit.rotation.x = Math.random() * Math.PI;
+        orbit.rotation.y = Math.random() * Math.PI;
+        const e = new THREE.Mesh(electronGeo, electronMat);
+        e.position.set(402, 0, 0);
+        orbit.add(e);
+        singleAtomGroup.add(orbit);
+        orbits.push({
+          mesh: orbit,
+          speed: (Math.random() - 0.5) * 0.05 + 0.02,
+        });
+      }
+      editorialGroup.add(singleAtomGroup);
+
+      // --- STEP 2: Diamond Lattice ---
+      const latticeGroup = new THREE.Group();
+      latticeGroup.position.set(0, -16000, 0); // Lantai Berlian
+      const atomPositions = [
+        new THREE.Vector3(0, 0, 0), // Center
+        new THREE.Vector3(600, 600, -600), // Top Right Back
+        new THREE.Vector3(-600, 600, 600), // Top Left Front
+        new THREE.Vector3(600, -600, 600), // Bottom Right Front
+        new THREE.Vector3(-600, -600, -600), // Bottom Left Back
+      ];
+      atomPositions.forEach((pos) => {
+        const node = new THREE.Mesh(nucleusGeometry, nucleusMaterial);
+        node.position.copy(pos);
+        node.scale.set(0.6, 0.6, 0.6);
+        latticeGroup.add(node);
+      });
+      const lineMat = new THREE.LineBasicMaterial({
+        color: 0x00ffff,
+        transparent: true,
+        opacity: 0.4,
+      });
+      for (let i = 1; i < atomPositions.length; i++) {
+        const lineGeo = new THREE.BufferGeometry().setFromPoints([
+          atomPositions[0],
+          atomPositions[i],
+        ]);
+        const line = new THREE.Line(lineGeo, lineMat);
+        latticeGroup.add(line);
+      }
+      latticeGroup.visible = false; // Hidden initially
+      editorialGroup.add(latticeGroup);
+
+      // --- STEP 3: DNA Helix ---
+      const dnaGroup = new THREE.Group();
+      dnaGroup.position.set(0, -24000, 0); // Lantai DNA
+      const dnaSphereGeo = new THREE.SphereGeometry(30, 16, 16);
+      const dnaMat1 = new THREE.MeshStandardMaterial({
+        color: 0x00ffff,
+        emissive: 0x00ffff,
+        emissiveIntensity: 0.8,
+      });
+      const dnaMat2 = new THREE.MeshStandardMaterial({
+        color: 0xff00ff,
+        emissive: 0xff00ff,
+        emissiveIntensity: 0.8,
+      });
+      const lineMatDNA = new THREE.LineBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.3,
+      });
+
+      for (let i = 0; i < 20; i++) {
+        const y = (i - 10) * 45;
+        const angle = i * 0.5;
+        const x1 = Math.cos(angle) * 150;
+        const z1 = Math.sin(angle) * 150;
+
+        const s1 = new THREE.Mesh(dnaSphereGeo, dnaMat1);
+        s1.position.set(x1, y, z1);
+        dnaGroup.add(s1);
+
+        const s2 = new THREE.Mesh(dnaSphereGeo, dnaMat2);
+        s2.position.set(-x1, y, -z1);
+        dnaGroup.add(s2);
+
+        const bondGeo = new THREE.BufferGeometry().setFromPoints([
+          s1.position,
+          s2.position,
+        ]);
+        const bond = new THREE.Line(bondGeo, lineMatDNA);
+        dnaGroup.add(bond);
+      }
+      dnaGroup.visible = false; // Hidden initially
+      editorialGroup.add(dnaGroup);
+
+      let introComplete = false;
+      setTimeout(() => (introComplete = true), 3500);
+
+      function build3DTable() {
+        // Standard periodic table spacing
+        const spacingX = 240;
+        const spacingY = 320;
+        const offsetX = -(18 * spacingX) / 2;
+        const offsetY = (10 * spacingY) / 2;
+
+        elementsData.forEach((el, i) => {
+          // Determine layout position based on xpos/ypos from database
+          const targetX = el.xpos * spacingX + offsetX;
+          const targetY = -(el.ypos * spacingY) + offsetY;
+          const targetZ = 0;
+
+          // Create a minimalist block
+          const geometry = new THREE.BoxGeometry(200, 280, 40);
+
+          // Bright & High-Visibility Table Materials
+          const texture = createLabelTexture(el);
+
+          // Gunakan MeshBasicMaterial agar tabel TIDAK terpengaruh gelapnya lampu (selalu menyala terang)
+          const frontMaterial = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
             transparent: true,
-            opacity: 0.3
+            opacity: 1.0,
+            map: texture,
+          });
+          frontMaterial.userData = { originalOpacity: 1.0 };
+
+          // Sisi balok transparan halus dengan warna CPK
+          const sideColor = el.color_hex
+            ? new THREE.Color(el.color_hex)
+            : new THREE.Color(0xaaaaaa);
+          const sideMaterial = new THREE.MeshBasicMaterial({
+            color: sideColor,
+            transparent: true,
+            opacity: 0.15,
+          });
+          sideMaterial.userData = { originalOpacity: 0.15 };
+
+          const materials = [
+            sideMaterial, // right
+            sideMaterial, // left
+            sideMaterial, // top
+            sideMaterial, // bottom
+            frontMaterial, // front
+            sideMaterial, // back
+          ];
+
+          const mesh = new THREE.Mesh(geometry, materials);
+
+          // Set initial position for scatter intro
+          mesh.position.set(
+            Math.random() * 4000 - 2000,
+            Math.random() * 4000 - 2000,
+            Math.random() * 4000 - 2000,
+          );
+
+          // Store data in userData for raycasting later
+          el.targetZ = 0;
+          el.targetRotX = 0;
+          el.targetRotY = 0;
+          mesh.userData = el;
+
+          periodicTableGroup.add(mesh);
+          objects.push(mesh);
+
+          // Animate to target position
+          new TWEEN.Tween(mesh.position)
+            .to(
+              { x: targetX, y: targetY, z: targetZ },
+              Math.random() * 2000 + 1000,
+            )
+            .easing(TWEEN.Easing.Exponential.InOut)
+            .start();
         });
-        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-        scene.add(particlesMesh);
+      }
 
-        // 1.6 The Perfect Silver Cube (Interactive Hero Object)
-        const heroGroup = new THREE.Group();
-        
-        // Buat tekstur khusus untuk Bump Map (Ukiran)
-        const canvasH = document.createElement('canvas');
-        canvasH.width = 1024;
-        canvasH.height = 1024;
-        const contextH = canvasH.getContext('2d');
-        
-        // Background putih (level permukaan teratas)
-        contextH.fillStyle = '#ffffff';
-        contextH.fillRect(0, 0, 1024, 1024);
-        
-        // Teks hitam (lekukan ukiran / etched depth)
-        contextH.fillStyle = '#000000';
-        
-        // Kiri Atas: Nomor atom presisi
-        contextH.font = 'bold 80px "Montserrat", sans-serif';
-        contextH.textAlign = 'left';
-        contextH.fillText('119', 80, 150);
-        
-        // Kanan Bawah: Berat atom presisi
-        contextH.textAlign = 'right';
-        contextH.fillText('321.01', 944, 944);
+      // 5. Interactivity (Hover/Click/Select)
+      let selectedElement = null;
+      let isTransitioning = false;
 
-        // Tengah: Simbol "Cv"
-        contextH.font = 'bold 450px "Cormorant Garamond", serif';
-        contextH.textAlign = 'center';
-        contextH.fillText('Cv', 512, 580);
-        
-        // Bawah: Chemiverse (teknis & presisi)
-        contextH.font = '100px "Montserrat", sans-serif';
-        contextH.fillText('C H E M I V E R S E', 512, 720);
-        
-        const bumpTexture = new THREE.CanvasTexture(canvasH);
+      function onPointerMove(event) {
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      }
 
-        // Material perak mengkilap (3D Silver) dengan ukiran, 
-        // dikembalikan ke metalik namun shading-nya dikurangi agar lebih elegan (tidak gelap total).
-        const heroMaterial = new THREE.MeshStandardMaterial({
-            color: 0xe0e0e0, // Dasar silver terang
-            roughness: 0.15, // Sedikit licin untuk refleksi
-            metalness: 0.8,  // Metalik tinggi tapi tidak 100% agar cahaya menyebar
-            bumpMap: bumpTexture,
-            bumpScale: -3.0  // Ukiran tidak terlalu dalam agar bayangan tidak over-shading
-        });
-        
-        const heroBox = new THREE.Mesh(new THREE.BoxGeometry(600, 600, 600), heroMaterial);
-        heroGroup.add(heroBox);
-        
-        // Position cube to the right, at Y=2000 to match initial camera view
-        heroGroup.position.set(2200, 2000, 0); 
-        // Rotasi awal
-        heroGroup.rotation.set(0.4, -0.6, 0.2);
-        scene.add(heroGroup);
+      window.addEventListener("pointermove", onPointerMove);
 
-        // 1.7 Interactivity Drag Logic for Cube
-        let isDraggingCube = false;
-        let previousMousePosition = { x: 0, y: 0 };
-        let cubeVelocity = { x: 0.005, y: 0.002 }; // Inersia putaran awal
-        
-        let targetParticleRotX = 0;
-        let targetParticleRotY = 0;
+      function selectElement(object) {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        selectedElement = object;
 
-        // Custom Mouse Handlers
-        window.addEventListener('mousedown', (e) => {
-            isDraggingCube = true;
-        });
+        const targetPos = new THREE.Vector3();
+        object.getWorldPosition(targetPos);
 
-        window.addEventListener('mousemove', (e) => {
-            // Background Particle Parallax
-            const mouseX = (e.clientX / window.innerWidth) * 2 - 1;
-            const mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
-            
-            targetParticleRotY = mouseX * 0.15;
-            targetParticleRotX = mouseY * 0.15;
+        // Kamera mendekat dan fokus ke elemen (Dibuat sedikit lebih jauh agar bisa mengklik elemen lain)
+        const camTargetZ = targetPos.z + 800;
+        const camTargetY = targetPos.y;
+        const camTargetX = targetPos.x;
 
-            // Cube Drag Rotation
-            if (isDraggingCube) {
-                const deltaMove = {
-                    x: e.clientX - previousMousePosition.x,
-                    y: e.clientY - previousMousePosition.y
-                };
+        new TWEEN.Tween(camera.position)
+          .to({ x: camTargetX, y: camTargetY, z: camTargetZ }, 1500)
+          .easing(TWEEN.Easing.Cubic.InOut)
+          .onComplete(() => {
+            isTransitioning = false;
+          })
+          .start();
 
-                // Akumulasi kecepatan rotasi
-                cubeVelocity.x = deltaMove.y * 0.005;
-                cubeVelocity.y = deltaMove.x * 0.005;
-            }
-
-            previousMousePosition = { x: e.clientX, y: e.clientY };
-        });
-
-        window.addEventListener('mouseup', () => {
-            isDraggingCube = false;
-        });
-        
-        // Touch events for mobile support
-        window.addEventListener('touchstart', (e) => {
-            isDraggingCube = true;
-            previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        });
-        window.addEventListener('touchmove', (e) => {
-            if (isDraggingCube) {
-                const deltaMove = {
-                    x: e.touches[0].clientX - previousMousePosition.x,
-                    y: e.touches[0].clientY - previousMousePosition.y
-                };
-                cubeVelocity.x = deltaMove.y * 0.005;
-                cubeVelocity.y = deltaMove.x * 0.005;
-            }
-            previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        });
-        window.addEventListener('touchend', () => { isDraggingCube = false; });
-
-        // 2. Bright & Even Lighting
-        // Menggunakan HemisphereLight untuk memberikan cahaya rata pada benda tanpa bayangan terlalu keras
-        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
-        scene.add(hemiLight);
-
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); 
-        scene.add(ambientLight);
-
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
-        directionalLight.position.set(-2000, 1500, 2000); 
-        scene.add(directionalLight);
-
-        // Tambahkan lampu sorot khusus ke arah kubus perak agar menonjol
-        const pointLight1 = new THREE.PointLight(0xffffff, 1.0, 5000);
-        pointLight1.position.set(2200, 2500, 2000);
-        scene.add(pointLight1);
-        const pointLight2 = new THREE.PointLight(0xaaaaaa, 0.8, 5000); 
-        pointLight2.position.set(3000, 1000, 3000);
-        scene.add(pointLight2);
-
-        // Raycaster for interactivity
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
-        
-        let elementsData = [];
-        const objects = [];
-
-        // 3. Data Fetching from PHP
-        // PHP-first approach: PHP handles the DB, JS just renders
-        async function fetchElements() {
-            try {
-                // Fetch from our PHP backend
-                const response = await fetch('api/elements.php');
-                const result = await response.json();
-                
-                if (result.status === 'success') {
-                    elementsData = result.data;
-                    build3DTable();
-                } else {
-                    console.error('Error fetching data:', result.message);
-                }
-            } catch (error) {
-                console.error('Network or parsing error:', error);
-                // We don't alert here to avoid stopping the experience if it's just slow
-                console.warn("Failed to fetch data from API. Please ensure MySQL is running and the database is imported.");
-            }
-        }
-
-        // Helper to create text texture
-        function createLabelTexture(el) {
-            const canvas = document.createElement('canvas');
-            // MENGURANGI UKURAN CANVAS AGAR WEBGL TIDAK CRASH (Memory Overload)
-            const width = 256;
-            const height = 358;
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.08)'; // Off-white tipis untuk kotak
-            ctx.fillRect(0, 0, width, height);
-
-            // Tepi garis tegas dan terang (Bright CPK Color Border)
-            ctx.lineWidth = 6;
-            ctx.strokeStyle = el.color_hex || '#ffffff';
-            ctx.strokeRect(3, 3, width - 6, height - 6);
-
-            // Nomor Atom
-            ctx.fillStyle = '#ffffff'; // Putih bersih untuk keterbacaan
-            ctx.font = 'bold 36px "Inter", sans-serif';
-            ctx.textAlign = 'left';
-            ctx.fillText(el.atomic_number, 15, 45);
-
-            // Simbol
-            ctx.fillStyle = el.color_hex || '#ffffff'; // Warna simbol menggunakan CPK agar stand out
-            ctx.font = 'bold 110px "Inter", sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText(el.symbol, width/2, 170, 220);
-
-            // Nama
-            ctx.fillStyle = '#e0e0e0';
-            ctx.font = '32px "Inter", sans-serif';
-            ctx.fillText(el.name, width/2, 240, 220);
-
-            // Massa
-            ctx.fillStyle = '#cccccc';
-            ctx.font = '28px "Inter", sans-serif';
-            ctx.fillText(Number(el.atomic_mass).toFixed(2), width/2, 290, 220);
-
-            const texture = new THREE.CanvasTexture(canvas);
-            texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-            return texture;
-        }
-
-        // 4. Build 3D Objects
-        const periodicTableGroup = new THREE.Group();
-        periodicTableGroup.position.y = -5000; // Sembunyikan jauh di bawah pada awalnya
-        scene.add(periodicTableGroup);
-
-        let introComplete = false;
-        setTimeout(() => introComplete = true, 3500);
-
-        function build3DTable() {
-            // Standard periodic table spacing
-            const spacingX = 240;
-            const spacingY = 320;
-            const offsetX = - (18 * spacingX) / 2;
-            const offsetY = (10 * spacingY) / 2;
-
-            elementsData.forEach((el, i) => {
-                // Determine layout position based on xpos/ypos from database
-                const targetX = el.xpos * spacingX + offsetX;
-                const targetY = - (el.ypos * spacingY) + offsetY;
-                const targetZ = 0;
-
-                // Create a minimalist block
-                const geometry = new THREE.BoxGeometry(200, 280, 40);
-                
-                // Bright & High-Visibility Table Materials
-                const texture = createLabelTexture(el);
-                
-                // Gunakan MeshBasicMaterial agar tabel TIDAK terpengaruh gelapnya lampu (selalu menyala terang)
-                const frontMaterial = new THREE.MeshBasicMaterial({
-                    color: 0xffffff,
-                    transparent: true,
-                    opacity: 1.0,
-                    map: texture
-                });
-                frontMaterial.userData = { originalOpacity: 1.0 };
-                
-                // Sisi balok transparan halus dengan warna CPK
-                const sideColor = el.color_hex ? new THREE.Color(el.color_hex) : new THREE.Color(0xaaaaaa);
-                const sideMaterial = new THREE.MeshBasicMaterial({
-                    color: sideColor,
-                    transparent: true,
-                    opacity: 0.15
-                });
-                sideMaterial.userData = { originalOpacity: 0.15 };
-                
-                const materials = [
-                    sideMaterial, // right
-                    sideMaterial, // left
-                    sideMaterial, // top
-                    sideMaterial, // bottom
-                    frontMaterial, // front
-                    sideMaterial  // back
-                ];
-
-                const mesh = new THREE.Mesh(geometry, materials);
-                
-                // Set initial position for scatter intro
-                mesh.position.set(
-                    Math.random() * 4000 - 2000,
-                    Math.random() * 4000 - 2000,
-                    Math.random() * 4000 - 2000
-                );
-                
-                // Store data in userData for raycasting later
-                el.targetZ = 0;
-                el.targetRotX = 0;
-                el.targetRotY = 0;
-                mesh.userData = el;
-                
-                periodicTableGroup.add(mesh);
-                objects.push(mesh);
-
-                // Animate to target position
-                new TWEEN.Tween(mesh.position)
-                    .to({ x: targetX, y: targetY, z: targetZ }, Math.random() * 2000 + 1000)
-                    .easing(TWEEN.Easing.Exponential.InOut)
-                    .start();
-            });
-        }
-
-        // 5. Interactivity (Hover/Click/Select)
-        let selectedElement = null;
-        let isTransitioning = false;
-
-        function onPointerMove(event) {
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-        }
-
-        window.addEventListener('pointermove', onPointerMove);
-
-        function selectElement(object) {
-            if (isTransitioning) return;
-            isTransitioning = true;
-            selectedElement = object;
-
-            const targetPos = new THREE.Vector3();
-            object.getWorldPosition(targetPos);
-            
-            // Kamera mendekat dan fokus ke elemen (Dibuat sedikit lebih jauh agar bisa mengklik elemen lain)
-            const camTargetZ = targetPos.z + 800; 
-            const camTargetY = targetPos.y;
-            const camTargetX = targetPos.x;
-
-            new TWEEN.Tween(camera.position)
-                .to({ x: camTargetX, y: camTargetY, z: camTargetZ }, 1500)
-                .easing(TWEEN.Easing.Cubic.InOut)
-                .onComplete(() => { isTransitioning = false; })
+        // Redupkan elemen lain untuk efek fokus sinematik
+        objects.forEach((obj) => {
+          if (obj !== object) {
+            obj.material.forEach((mat) => {
+              new TWEEN.Tween(mat)
+                .to({ opacity: 0.05 }, 1000) // Hampir tidak terlihat
                 .start();
-
-            // Redupkan elemen lain untuk efek fokus sinematik
-            objects.forEach(obj => {
-                if (obj !== object) {
-                    obj.material.forEach(mat => {
-                        new TWEEN.Tween(mat)
-                            .to({ opacity: 0.05 }, 1000) // Hampir tidak terlihat
-                            .start();
-                    });
-                } else {
-                    obj.material.forEach(mat => {
-                        new TWEEN.Tween(mat)
-                            .to({ opacity: 1.0 }, 1000)
-                            .start();
-                    });
-                }
             });
-
-            // Tampilkan UI Panel secara dramatis
-            const data = object.userData;
-            const panel = document.getElementById('info-panel');
-            panel.classList.add('active');
-            document.getElementById('close-panel').style.display = 'block';
-            
-            document.getElementById('element-name').textContent = data.name;
-            document.getElementById('element-symbol').textContent = data.symbol;
-            document.getElementById('element-number').textContent = data.atomic_number;
-            document.getElementById('element-mass').textContent = parseFloat(data.atomic_mass).toFixed(3);
-            document.getElementById('element-category').textContent = data.category;
-            document.getElementById('element-symbol').style.color = data.color_hex || '#ffffff';
-
-            // Tampilkan Detail Card di sisi kiri
-            const detailCard = document.getElementById('detail-card');
-            detailCard.classList.add('active');
-            document.getElementById('detail-title-name').textContent = data.name;
-            const detailContent = document.getElementById('detail-content');
-            detailContent.innerHTML = '<span class="cursor"></span> Mengambil deskripsi dari perpustakaan global...';
-
-            // Fetch Live Data dari Wikipedia API
-            fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(data.name)}`)
-                .then(response => response.json())
-                .then(wiki => {
-                    if (wiki.extract_html) {
-                        detailContent.innerHTML = wiki.extract_html;
-                    } else if (wiki.extract) {
-                        detailContent.textContent = wiki.extract;
-                    } else {
-                        detailContent.textContent = "Data deskripsi komprehensif belum tersedia untuk elemen ini.";
-                    }
-                })
-                .catch(err => {
-                    detailContent.textContent = "Gagal memuat deskripsi karena kendala jaringan.";
-                });
-        }
-
-        function closeElementDetail() {
-            if (isTransitioning || !selectedElement) return;
-            isTransitioning = true;
-            
-            // Sembunyikan Detail Card
-            document.getElementById('detail-card').classList.remove('active');
-            
-            // Tween kamera kembali ke posisi scroll yang semestinya
-            const maxScroll = window.innerHeight;
-            let scrollProgress = Math.min(scrollY / maxScroll, 1.0);
-            const targetCameraY = 2000 - (scrollProgress * 2000);
-
-            new TWEEN.Tween(camera.position)
-                .to({ x: 0, y: targetCameraY, z: 4500 }, 1500)
-                .easing(TWEEN.Easing.Cubic.InOut)
-                .onComplete(() => { 
-                    isTransitioning = false; 
-                    selectedElement = null; 
-                })
-                .start();
-
-            // Kembalikan opacity semua elemen sesuai scroll
-            let tableScrollProgress = Math.max(0, (scrollY - maxScroll * 0.4) / (maxScroll * 0.6));
-            if (tableScrollProgress > 1) tableScrollProgress = 1;
-
-            objects.forEach(obj => {
-                obj.material.forEach(mat => {
-                    const targetOpacity = (mat.userData.originalOpacity || 1) * tableScrollProgress;
-                    new TWEEN.Tween(mat)
-                        .to({ opacity: targetOpacity }, 1000)
-                        .start();
-                });
+          } else {
+            obj.material.forEach((mat) => {
+              new TWEEN.Tween(mat).to({ opacity: 1.0 }, 1000).start();
             });
+          }
+        });
 
-            // Sembunyikan UI Panel
-            const panel = document.getElementById('info-panel');
-            panel.classList.remove('active');
-            document.getElementById('close-panel').style.display = 'none';
-        }
+        // Tampilkan UI Panel secara dramatis
+        const data = object.userData;
+        const panel = document.getElementById("info-panel");
+        panel.classList.add("active");
+        document.getElementById("close-panel").style.display = "block";
 
-        window.addEventListener('click', (event) => {
-            if (isTransitioning) return;
+        document.getElementById("element-name").textContent = data.name;
+        document.getElementById("element-symbol").textContent = data.symbol;
+        document.getElementById("element-number").textContent =
+          data.atomic_number;
+        document.getElementById("element-mass").textContent = parseFloat(
+          data.atomic_mass,
+        ).toFixed(3);
+        document.getElementById("element-category").textContent = data.category;
+        document.getElementById("element-symbol").style.color =
+          data.color_hex || "#ffffff";
 
-            // Jika klik tombol close
-            if (event.target.id === 'close-panel') {
-                closeElementDetail();
-                return;
-            }
+        // Tampilkan Detail Card di sisi kiri
+        const detailCard = document.getElementById("detail-card");
+        detailCard.classList.add("active");
+        document.getElementById("detail-title-name").textContent = data.name;
+        const detailContent = document.getElementById("detail-content");
+        detailContent.innerHTML =
+          '<span class="cursor"></span> Mengambil deskripsi dari perpustakaan global...';
 
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(objects);
-
-            if (intersects.length > 0) {
-                const object = intersects[0].object;
-                if (selectedElement !== object) {
-                    selectElement(object);
-                }
+        // Fetch Live Data dari Wikipedia API
+        fetch(
+          `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(data.name)}`,
+        )
+          .then((response) => response.json())
+          .then((wiki) => {
+            if (wiki.extract_html) {
+              detailContent.innerHTML = wiki.extract_html;
+            } else if (wiki.extract) {
+              detailContent.textContent = wiki.extract;
             } else {
-                // Klik di luar tabel untuk deselect
-                if (selectedElement) {
-                    closeElementDetail();
-                }
+              detailContent.textContent =
+                "Data deskripsi komprehensif belum tersedia untuk elemen ini.";
             }
+          })
+          .catch((err) => {
+            detailContent.textContent =
+              "Gagal memuat deskripsi karena kendala jaringan.";
+          });
+      }
+
+      function closeElementDetail() {
+        if (isTransitioning || !selectedElement) return;
+        isTransitioning = true;
+
+        // Sembunyikan Detail Card
+        document.getElementById("detail-card").classList.remove("active");
+
+        // Tween kamera kembali ke posisi scroll yang semestinya
+        const maxScroll = window.innerHeight;
+        let totalScrollProgress = scrollY / maxScroll;
+        let camX = 0;
+        let camY = 3000;
+        let camZ = 4500;
+
+        if (totalScrollProgress <= 1) {
+          camY = 3000 - totalScrollProgress * 3000; // 3000 to 0
+        } else {
+          camY = 0;
+        }
+
+        new TWEEN.Tween(camera.rotation)
+          .to({ x: 0, y: 0, z: 0 }, 1500)
+          .easing(TWEEN.Easing.Cubic.InOut)
+          .start();
+
+        new TWEEN.Tween(camera.position)
+          .to({ x: camX, y: camY, z: camZ }, 1500)
+          .easing(TWEEN.Easing.Cubic.InOut)
+          .onComplete(() => {
+            isTransitioning = false;
+            selectedElement = null;
+          })
+          .start();
+
+        // Kembalikan opacity semua elemen sesuai scroll
+        let tableScrollProgress = Math.max(
+          0,
+          (scrollY - maxScroll * 0.4) / (maxScroll * 0.6),
+        );
+        if (tableScrollProgress > 1) tableScrollProgress = 1;
+
+        objects.forEach((obj) => {
+          obj.material.forEach((mat) => {
+            const targetOpacity =
+              (mat.userData.originalOpacity || 1) * tableScrollProgress;
+            new TWEEN.Tween(mat).to({ opacity: targetOpacity }, 1000).start();
+          });
         });
 
-        // 5.5 Scroll Interaction
-        let scrollY = 0;
-        const heroSection = document.getElementById('hero-section');
-        
-        window.addEventListener('scroll', () => {
-            scrollY = window.scrollY;
-            const maxScroll = window.innerHeight;
-            
-            // Fade out hero text
-            let opacity = 1 - (scrollY / (maxScroll * 0.5));
-            if (opacity < 0) opacity = 0;
-            heroSection.style.opacity = opacity;
+        // Sembunyikan UI Panel
+        const panel = document.getElementById("info-panel");
+        panel.classList.remove("active");
+        document.getElementById("close-panel").style.display = "none";
+      }
+
+      window.addEventListener("click", (event) => {
+        if (isTransitioning) return;
+
+        // Jika klik tombol close
+        if (event.target.id === "close-panel") {
+          closeElementDetail();
+          return;
+        }
+
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(objects);
+
+        if (intersects.length > 0) {
+          const object = intersects[0].object;
+          if (selectedElement !== object) {
+            selectElement(object);
+          }
+        } else {
+          // Klik di luar tabel untuk deselect
+          if (selectedElement) {
+            closeElementDetail();
+          }
+        }
+      });
+
+      // 5.5 Scroll Interaction
+      let scrollY = 0;
+      const heroSection = document.getElementById("hero-section");
+
+      window.addEventListener("scroll", () => {
+        scrollY = window.scrollY;
+        const maxScroll = window.innerHeight;
+
+        // Fade out hero text
+        let opacity = 1 - scrollY / (maxScroll * 0.5);
+        if (opacity < 0) opacity = 0;
+        heroSection.style.opacity = opacity;
+      });
+
+      // Typewriter Effect Logic
+      const titleEl = document.getElementById("hero-title");
+      const subtitleEl = document.getElementById("hero-subtitle");
+      const narrationEl = document.getElementById("hero-narration");
+
+      const titleText = "CHEMIVERSE";
+      const subtitleText = "Mapping the Architecture of Reality.";
+      const narrationText =
+        "Dive into the fundamental elements that construct our universe. Experience a seamless transition from abstract data to tangible periodic structure, meticulously crafted for scientists and visionaries.";
+
+      async function typeWriter(el, text, speed = 50) {
+        el.innerHTML = '<span class="cursor"></span>';
+        for (let i = 0; i < text.length; i++) {
+          el.innerHTML =
+            text.substring(0, i + 1) + '<span class="cursor"></span>';
+          await new Promise((r) => setTimeout(r, speed + Math.random() * 20)); // Cepat dan natural
+        }
+      }
+
+      async function startIntro() {
+        await typeWriter(titleEl, titleText, 120);
+        titleEl.innerHTML = titleText; // Hilangkan kursor dari judul
+        await typeWriter(subtitleEl, subtitleText, 40);
+        subtitleEl.innerHTML = subtitleText;
+        await typeWriter(narrationEl, narrationText, 20);
+      }
+      startIntro();
+
+      // 6. Render Loop
+      function animate() {
+        requestAnimationFrame(animate);
+        TWEEN.update();
+
+        // Animate particles falling slowly
+        const positions = particlesGeometry.attributes.position.array;
+        for (let i = 1; i < particlesCount * 3; i += 3) {
+          positions[i] -= 1.5; // fall down
+          if (positions[i] < -5000) {
+            positions[i] = 10000;
+          }
+        }
+        particlesGeometry.attributes.position.needsUpdate = true;
+
+        // Parallax interaktif pada partikel
+        particlesMesh.rotation.x +=
+          (targetParticleRotX - particlesMesh.rotation.x) * 0.05;
+        particlesMesh.rotation.y +=
+          (targetParticleRotY - particlesMesh.rotation.y) * 0.05;
+
+        // Animasi Jaring Molekuler Latar Belakang
+        bgMoleculesGroup.children.forEach((hex) => {
+          hex.rotation.x += hex.userData.rx;
+          hex.rotation.y += hex.userData.ry;
+          hex.rotation.z += hex.userData.rz;
         });
 
-        // Typewriter Effect Logic
-        const titleEl = document.getElementById('hero-title');
-        const subtitleEl = document.getElementById('hero-subtitle');
-        const narrationEl = document.getElementById('hero-narration');
-        
-        const titleText = "CHEMIVERSE";
-        const subtitleText = "Mapping the Architecture of Reality.";
-        const narrationText = "Dive into the fundamental elements that construct our universe. Experience a seamless transition from abstract data to tangible periodic structure, meticulously crafted for scientists and visionaries.";
-        
-        async function typeWriter(el, text, speed = 50) {
-            el.innerHTML = '<span class="cursor"></span>';
-            for (let i = 0; i < text.length; i++) {
-                el.innerHTML = text.substring(0, i+1) + '<span class="cursor"></span>';
-                await new Promise(r => setTimeout(r, speed + Math.random() * 20)); // Cepat dan natural
-            }
+        // Interaksi rotasi kubus (momentum & damping)
+        heroGroup.rotation.x += cubeVelocity.x;
+        heroGroup.rotation.y += cubeVelocity.y;
+
+        if (!isDraggingCube) {
+          // Friction (pelambatan)
+          cubeVelocity.x *= 0.95;
+          cubeVelocity.y *= 0.95;
+
+          // Pastikan selalu ada putaran minimal yang elegan
+          if (Math.abs(cubeVelocity.x) < 0.001)
+            cubeVelocity.x = Math.sign(cubeVelocity.x || 1) * 0.001;
+          if (Math.abs(cubeVelocity.y) < 0.003)
+            cubeVelocity.y = Math.sign(cubeVelocity.y || 1) * 0.003;
         }
 
-        async function startIntro() {
-            await typeWriter(titleEl, titleText, 120);
-            titleEl.innerHTML = titleText; // Hilangkan kursor dari judul
-            await typeWriter(subtitleEl, subtitleText, 40);
-            subtitleEl.innerHTML = subtitleText;
-            await typeWriter(narrationEl, narrationText, 20);
-        }
-        startIntro();
+        // Animasi Rotasi Objek Editorial (Scroll-Driven & Auto)
+        orbits.forEach((o) => {
+          o.mesh.rotation.z += o.speed;
+        });
 
-        // 6. Render Loop
-        function animate() {
-            requestAnimationFrame(animate);
-            TWEEN.update();
+        // Auto-spin base
+        singleAtomGroup.rotation.y += 0.005;
+        singleAtomGroup.rotation.x += 0.002;
+        latticeGroup.rotation.y += 0.003;
+        latticeGroup.rotation.z += 0.001;
+        dnaGroup.rotation.y += 0.01;
 
-            // Animate particles falling slowly
-            const positions = particlesGeometry.attributes.position.array;
-            for(let i = 1; i < particlesCount * 3; i += 3) {
-                positions[i] -= 1.5; // fall down
-                if(positions[i] < -5000) {
-                    positions[i] = 10000;
-                }
-            }
-            particlesGeometry.attributes.position.needsUpdate = true;
+        // Cinematic Lighting Follow Camera
+        cineLight.position.y = camera.position.y + 2000;
+        cineLight.position.x = Math.sin(Date.now() * 0.001) * 4000;
+        cineLight.position.z = 4500 + Math.cos(Date.now() * 0.001) * 2000;
 
-            // Parallax interaktif pada partikel
-            particlesMesh.rotation.x += (targetParticleRotX - particlesMesh.rotation.x) * 0.05;
-            particlesMesh.rotation.y += (targetParticleRotY - particlesMesh.rotation.y) * 0.05;
+        // Scroll animations: THE DEPTH WALK
+        const maxScroll = window.innerHeight;
+        let totalScrollProgress = scrollY / maxScroll;
+        let scrollProgress = Math.min(totalScrollProgress, 1.0);
 
-            // Interaksi rotasi kubus (momentum & damping)
-            heroGroup.rotation.x += cubeVelocity.x;
-            heroGroup.rotation.y += cubeVelocity.y;
+        if (!selectedElement && !isTransitioning) {
+          let camY = 7000;
 
-            if (!isDraggingCube) {
-                // Friction (pelambatan)
-                cubeVelocity.x *= 0.95;
-                cubeVelocity.y *= 0.95;
-                
-                // Pastikan selalu ada putaran minimal yang elegan
-                if (Math.abs(cubeVelocity.x) < 0.001) cubeVelocity.x = Math.sign(cubeVelocity.x || 1) * 0.001;
-                if (Math.abs(cubeVelocity.y) < 0.003) cubeVelocity.y = Math.sign(cubeVelocity.y || 1) * 0.003;
-            }
+          if (totalScrollProgress <= 1) {
+            // 0 -> 1: Turun lurus dari Hero ke Table
+            camY = 7000 - totalScrollProgress * 7000; // 7000 to 0
+          } else if (totalScrollProgress <= 2) {
+            // 1 -> 2: Table Safe Zone
+            camY = 0;
+          } else if (totalScrollProgress <= 3) {
+            // 2 -> 3: Transit ke Carbon Core
+            camY = 0 - (totalScrollProgress - 2) * 8000;
+          } else if (totalScrollProgress <= 4) {
+            // 3 -> 4: Carbon Core Safe Zone
+            camY = -8000;
+          } else if (totalScrollProgress <= 5) {
+            // 4 -> 5: Transit ke Diamond Lattice
+            camY = -8000 - (totalScrollProgress - 4) * 8000;
+          } else if (totalScrollProgress <= 6) {
+            // 5 -> 6: Diamond Lattice Safe Zone
+            camY = -16000;
+          } else if (totalScrollProgress <= 7) {
+            // 6 -> 7: Transit ke DNA
+            camY = -16000 - (totalScrollProgress - 6) * 8000;
+          } else {
+            // > 7: DNA Safe Zone
+            camY = -24000;
+          }
 
-            // Scroll animations
-            const maxScroll = window.innerHeight;
-            let scrollProgress = Math.min(scrollY / maxScroll, 1.0);
-            
-            if (!selectedElement && !isTransitioning) {
-                // Move camera y from 2000 down to 0
-                const targetCameraY = 2000 - (scrollProgress * 2000);
-                camera.position.y += (targetCameraY - camera.position.y) * 0.1;
-                // Pastikan kamera kembali ke poros tengah X dan Z jika habis di-tween
-                camera.position.x += (0 - camera.position.x) * 0.1;
-                camera.position.z += (4500 - camera.position.z) * 0.1;
-            }
+          // Scroll-Driven Model Rotation (Apple-style / 21.dev)
+          if (totalScrollProgress > 2) {
+            singleAtomGroup.rotation.y = totalScrollProgress * Math.PI * 0.5;
+            latticeGroup.rotation.y = totalScrollProgress * Math.PI * 0.5;
+            dnaGroup.rotation.x = totalScrollProgress * Math.PI * 0.2;
+          }
 
-            // Fade out hero block based on scroll
-            heroGroup.position.y = 2000 + (scrollProgress * 1000); // Move up and away
-            
-            // Slide periodic table up smoothly
-            let tableScrollProgress = Math.max(0, (scrollY - maxScroll * 0.4) / (maxScroll * 0.6));
-            if (tableScrollProgress > 1) tableScrollProgress = 1;
-            
-            // Tabel mulai dari -3000 (di bawah layar) naik ke 0
-            const targetTableY = -3000 + (tableScrollProgress * 3000);
-            periodicTableGroup.position.y += (targetTableY - periodicTableGroup.position.y) * 0.1;
+          // Terapkan pergerakan kamera dengan kelembutan (inertia)
+          camera.position.y += (camY - camera.position.y) * 0.08;
+          camera.position.z += (4500 - camera.position.z) * 0.08;
+          camera.position.x += (0 - camera.position.x) * 0.08;
 
-            // Hover Interactions (hanya jika tidak ada elemen yang diseleksi)
-            if (!selectedElement && !isTransitioning) {
-                raycaster.setFromCamera(mouse, camera);
-                const intersects = raycaster.intersectObjects(objects);
-
-                // Reset hover targets
-                objects.forEach(obj => {
-                    obj.material.forEach(mat => {
-                        if (mat.emissive) mat.emissive.setHex(0x000000); // Reset glow
-                    });
-                    obj.userData.targetZ = 0;
-                    obj.userData.targetRotX = 0;
-                    obj.userData.targetRotY = 0;
-                });
-
-                if (intersects.length > 0) {
-                    const object = intersects[0].object;
-                    object.material.forEach(mat => {
-                        if (mat.emissive) mat.emissive.setHex(0x333333); // Subtle white glow on hover
-                    });
-                    
-                    // Hover 3D effect: maju dan sedikit berputar
-                    object.userData.targetZ = 150;
-                    object.userData.targetRotX = (mouse.y * Math.PI) / 8;
-                    object.userData.targetRotY = (mouse.x * Math.PI) / 8;
-
-                    // Update UI Panel secara instan untuk hover preview
-                    // Tapi karena panel akan disembunyikan/tampil via opacity, kita set saja displaynya.
-                    // Namun, user ingin panel tampil dinamis. Jika belum selected, tampilkan hover info?
-                    // Karena kita pindah ke model 'Click', lebih baik hover tidak menimpa UI yang permanen,
-                    // Kita bisa abaikan update UI di hover agar click lebih punya arti yang eksklusif, 
-                    // namun efek glow/maju tetap ada.
-                }
-            }
-
-            // Smooth interpolation for 3D hover effects
-            if (introComplete) {
-                objects.forEach(obj => {
-                    obj.position.z += (obj.userData.targetZ - obj.position.z) * 0.15;
-                    obj.rotation.x += (obj.userData.targetRotX - obj.rotation.x) * 0.15;
-                    obj.rotation.y += (obj.userData.targetRotY - obj.rotation.y) * 0.15;
-                });
-            }
-
-            renderer.render(scene, camera);
+          camera.rotation.x += (0 - camera.rotation.x) * 0.1;
+          camera.rotation.y += (0 - camera.rotation.y) * 0.1;
         }
 
-        // Handle Resize
-        window.addEventListener('resize', onWindowResize, false);
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+        // --- CINEMATIC FADE: Simple opacity only, no blur for readability ---
+        // The narrative sections each occupy 200vh = 2 scroll units.
+        // Hero = 100vh (1 unit), Table = 120vh (~1.2 units)
+        // Carbon starts at ~2.2, Diamond at ~4.2, DNA at ~6.2
+        // Each narrative-section = 200vh = ~2 units of totalScrollProgress
+        // Fade-in only: sharp entrance, stay fully visible, simple fade-out at the end
+        const carbonContent = document.getElementById("carbon-section")?.querySelector('.narrative-content');
+        const diamondContent = document.getElementById("diamond-section")?.querySelector('.narrative-content');
+        const dnaContent = document.getElementById("dna-section")?.querySelector('.narrative-content');
+
+        function applySimpleFade(el, enterProg, exitProg, currentProg) {
+          if (!el) return;
+          const FADE_DURATION = 0.3; // How fast it fades in/out (in scroll units)
+          if (currentProg < enterProg || currentProg > exitProg) {
+            // Outside range: hidden
+            el.style.opacity = '0';
+            el.style.filter = 'none';
+            el.style.transform = 'translateY(40px)';
+            el.style.transition = 'none';
+          } else if (currentProg < enterProg + FADE_DURATION) {
+            // Fading in
+            const p = (currentProg - enterProg) / FADE_DURATION;
+            el.style.opacity = p.toString();
+            el.style.filter = 'none';
+            el.style.transform = `translateY(${(1-p)*40}px)`;
+            el.style.transition = 'none';
+          } else if (currentProg > exitProg - FADE_DURATION) {
+            // Fading out
+            const p = (exitProg - currentProg) / FADE_DURATION;
+            el.style.opacity = p.toString();
+            el.style.filter = 'none';
+            el.style.transform = `translateY(${(1-p)*-20}px)`;
+            el.style.transition = 'none';
+          } else {
+            // SAFE ZONE: fully visible, no blur, readable
+            el.style.opacity = '1';
+            el.style.filter = 'none';
+            el.style.transform = 'translateY(0)';
+            el.style.transition = 'none';
+          }
         }
 
-        // Init
-        animate();
-        fetchElements();
+        // Scroll unit mapping (totalScrollProgress):
+        // 0-1: Hero section (100vh)
+        // 1-2.2: Table section (120vh)
+        // 2.2-4.2: Carbon section (200vh)
+        // 4.2-6.2: Diamond section (200vh)
+        // 6.2-8.2: DNA section (200vh)
+        applySimpleFade(carbonContent, 2.2, 4.2, totalScrollProgress);
+        applySimpleFade(diamondContent, 4.2, 6.2, totalScrollProgress);
+        applySimpleFade(dnaContent, 6.2, 8.2, totalScrollProgress);
+
+        // Fade out hero block based on scroll
+        // Menjauh ke atas agar tidak menabrak table
+        heroGroup.position.y = 7000 + scrollProgress * 8000;
+
+        // Hover Interactions (hanya jika tidak ada elemen yang diseleksi)
+        if (!selectedElement && !isTransitioning) {
+          raycaster.setFromCamera(mouse, camera);
+          const intersects = raycaster.intersectObjects(objects);
+
+          // Reset hover targets
+          objects.forEach((obj) => {
+            obj.material.forEach((mat) => {
+              if (mat.emissive) mat.emissive.setHex(0x000000); // Reset glow
+            });
+            obj.userData.targetZ = 0;
+            obj.userData.targetRotX = 0;
+            obj.userData.targetRotY = 0;
+          });
+
+          if (intersects.length > 0) {
+            const object = intersects[0].object;
+            object.material.forEach((mat) => {
+              if (mat.emissive) mat.emissive.setHex(0x333333); // Subtle white glow on hover
+            });
+
+            // Hover 3D effect: maju dan sedikit berputar
+            object.userData.targetZ = 150;
+            object.userData.targetRotX = (mouse.y * Math.PI) / 8;
+            object.userData.targetRotY = (mouse.x * Math.PI) / 8;
+
+            // Update UI Panel secara instan untuk hover preview
+            // Tapi karena panel akan disembunyikan/tampil via opacity, kita set saja displaynya.
+            // Namun, user ingin panel tampil dinamis. Jika belum selected, tampilkan hover info?
+            // Karena kita pindah ke model 'Click', lebih baik hover tidak menimpa UI yang permanen,
+            // Kita bisa abaikan update UI di hover agar click lebih punya arti yang eksklusif,
+            // namun efek glow/maju tetap ada.
+          }
+        }
+
+        // Smooth interpolation for 3D hover effects
+        if (introComplete) {
+          objects.forEach((obj) => {
+            obj.position.z += (obj.userData.targetZ - obj.position.z) * 0.15;
+            obj.rotation.x += (obj.userData.targetRotX - obj.rotation.x) * 0.15;
+            obj.rotation.y += (obj.userData.targetRotY - obj.rotation.y) * 0.15;
+          });
+        }
+
+        renderer.render(scene, camera);
+      }
+
+      // Handle Resize
+      window.addEventListener("resize", onWindowResize, false);
+      function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+
+      // Init
+      animate();
+      fetchElements();
     </script>
-</body>
+  </body>
 </html>
