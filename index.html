@@ -4,14 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chemiverse - 3D Periodic Table</title>
-    <!-- Tambahkan versi ?v=4 agar browser melakukan reload CSS (Cache Busting) -->
-    <link rel="stylesheet" href="css/style.css?v=4">
+    <!-- Tambahkan versi ?v=7 agar browser melakukan reload CSS (Cache Busting) -->
+    <link rel="stylesheet" href="css/style.css?v=7">
     <!-- Google Fonts for elegant look -->
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- 3D Background Canvas -->
     <div id="canvas-container"></div>
+
+    <!-- Navigation Bar -->
+    <nav id="navbar">
+        <div class="nav-brand">
+            <span class="logo-icon">⬡</span> Chemiverse
+        </div>
+        <div class="nav-links">
+            <a href="#" class="active">Periodic Wiki</a>
+            <a href="#">Bond Simulator</a>
+            <a href="#">Molecular Viewer</a>
+            <a href="#">Reaction Lab</a>
+        </div>
+        <div class="nav-cta">
+            <a href="#" class="btn-primary">Launch Sandbox <span class="arrow">→</span></a>
+        </div>
+    </nav>
+
+    <!-- Decorative Tech Details -->
+    <div class="tech-deco top-left">
+        [ SYSTEM: ONLINE ]<br>
+        TEMP: 298.15K (STP)<br>
+        PRESSURE: 1 ATM
+    </div>
+    <div class="tech-deco bottom-left">
+        CHEMIVERSE V.1.0.4<br>
+        DATABASE: CONNECTED
+    </div>
+    <div class="tech-deco bottom-right">
+        [ ENGINE: ACTIVE ]<br>
+        LATENCY: 12ms / EN: INCREASING
+    </div>
 
     <!-- Scrollable Content Overlay -->
     <div id="content">
@@ -28,10 +59,21 @@
     <!-- UI Panel for Element details -->
     <div id="info-panel">
         <h2 id="element-name">Name</h2>
+        <div class="divider"></div>
         <div class="symbol" id="element-symbol">Sym</div>
-        <p><strong>Atomic Number:</strong> <span id="element-number"></span></p>
-        <p><strong>Mass:</strong> <span id="element-mass"></span></p>
-        <p><strong>Category:</strong> <span id="element-category"></span></p>
+        <p><strong>Atomic Number</strong> <span id="element-number"></span></p>
+        <p><strong>Atomic Mass</strong> <span id="element-mass"></span></p>
+        <p><strong>Category</strong> <span id="element-category"></span></p>
+        <button id="close-panel" aria-label="Close">&times;</button>
+    </div>
+
+    <!-- Secondary Panel for Element Description -->
+    <div id="detail-card">
+        <h3>About <span id="detail-title-name">Element</span></h3>
+        <div class="divider"></div>
+        <div class="scroll-area">
+            <div id="detail-content">Loading data from Wikipedia...</div>
+        </div>
     </div>
 
     <!-- Three.js libraries -->
@@ -76,64 +118,137 @@
         const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
         scene.add(particlesMesh);
 
-        // 1.6 Hero 3D Hydrogen Block (Polished Silver)
+        // 1.6 The Perfect Silver Cube (Interactive Hero Object)
         const heroGroup = new THREE.Group();
         
-        // Buat tekstur khusus untuk balok Hidrogen
+        // Buat tekstur khusus untuk Bump Map (Ukiran)
         const canvasH = document.createElement('canvas');
         canvasH.width = 1024;
-        canvasH.height = 1432;
+        canvasH.height = 1024;
         const contextH = canvasH.getContext('2d');
+        
+        // Background putih (level permukaan teratas)
         contextH.fillStyle = '#ffffff';
-        contextH.font = 'bold 160px "Montserrat", sans-serif';
+        contextH.fillRect(0, 0, 1024, 1024);
+        
+        // Teks hitam (lekukan ukiran / etched depth)
+        contextH.fillStyle = '#000000';
+        
+        // Kiri Atas: Nomor atom presisi
+        contextH.font = 'bold 80px "Montserrat", sans-serif';
         contextH.textAlign = 'left';
-        contextH.fillText('1', 60, 180);
-        contextH.font = 'bold 500px "Cormorant Garamond", serif';
-        contextH.textAlign = 'center';
-        contextH.fillText('H', canvasH.width / 2, 750);
-        contextH.font = '130px "Montserrat", sans-serif';
-        contextH.fillText('Hydrogen', canvasH.width / 2, 950);
-        contextH.font = '110px "Montserrat", sans-serif';
-        contextH.fillText('1.008', canvasH.width / 2, 1150);
-        const textureH = new THREE.CanvasTexture(canvasH);
+        contextH.fillText('119', 80, 150);
+        
+        // Kanan Bawah: Berat atom presisi
+        contextH.textAlign = 'right';
+        contextH.fillText('321.01', 944, 944);
 
-        const heroMaterialFront = new THREE.MeshStandardMaterial({
-            color: 0xdddddd, // Polished silver base
-            roughness: 0.1, // Sangat mengkilap
-            metalness: 1.0,
-            map: textureH
-        });
-        const heroMaterialSide = new THREE.MeshStandardMaterial({
-            color: 0xdddddd,
-            roughness: 0.1,
-            metalness: 1.0
+        // Tengah: Simbol "Cv"
+        contextH.font = 'bold 450px "Cormorant Garamond", serif';
+        contextH.textAlign = 'center';
+        contextH.fillText('Cv', 512, 580);
+        
+        // Bawah: Chemiverse (teknis & presisi)
+        contextH.font = '100px "Montserrat", sans-serif';
+        contextH.fillText('C H E M I V E R S E', 512, 720);
+        
+        const bumpTexture = new THREE.CanvasTexture(canvasH);
+
+        // Material perak mengkilap (3D Silver) dengan ukiran, 
+        // dikembalikan ke metalik namun shading-nya dikurangi agar lebih elegan (tidak gelap total).
+        const heroMaterial = new THREE.MeshStandardMaterial({
+            color: 0xe0e0e0, // Dasar silver terang
+            roughness: 0.15, // Sedikit licin untuk refleksi
+            metalness: 0.8,  // Metalik tinggi tapi tidak 100% agar cahaya menyebar
+            bumpMap: bumpTexture,
+            bumpScale: -3.0  // Ukiran tidak terlalu dalam agar bayangan tidak over-shading
         });
         
-        const heroBox = new THREE.Mesh(new THREE.BoxGeometry(600, 840, 120), [
-            heroMaterialSide, heroMaterialSide, heroMaterialSide, heroMaterialSide, heroMaterialFront, heroMaterialSide
-        ]);
+        const heroBox = new THREE.Mesh(new THREE.BoxGeometry(600, 600, 600), heroMaterial);
         heroGroup.add(heroBox);
         
-        // Position hydrogen block to the right, at Y=2000 to match initial camera view
+        // Position cube to the right, at Y=2000 to match initial camera view
         heroGroup.position.set(2200, 2000, 0); 
-        // Agak miring agar terlihat berdimensi
-        heroGroup.rotation.set(0.2, -0.4, 0.1);
+        // Rotasi awal
+        heroGroup.rotation.set(0.4, -0.6, 0.2);
         scene.add(heroGroup);
 
-        // 2. Elegant Gallery Lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4); 
+        // 1.7 Interactivity Drag Logic for Cube
+        let isDraggingCube = false;
+        let previousMousePosition = { x: 0, y: 0 };
+        let cubeVelocity = { x: 0.005, y: 0.002 }; // Inersia putaran awal
+        
+        let targetParticleRotX = 0;
+        let targetParticleRotY = 0;
+
+        // Custom Mouse Handlers
+        window.addEventListener('mousedown', (e) => {
+            isDraggingCube = true;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            // Background Particle Parallax
+            const mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+            const mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+            
+            targetParticleRotY = mouseX * 0.15;
+            targetParticleRotX = mouseY * 0.15;
+
+            // Cube Drag Rotation
+            if (isDraggingCube) {
+                const deltaMove = {
+                    x: e.clientX - previousMousePosition.x,
+                    y: e.clientY - previousMousePosition.y
+                };
+
+                // Akumulasi kecepatan rotasi
+                cubeVelocity.x = deltaMove.y * 0.005;
+                cubeVelocity.y = deltaMove.x * 0.005;
+            }
+
+            previousMousePosition = { x: e.clientX, y: e.clientY };
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDraggingCube = false;
+        });
+        
+        // Touch events for mobile support
+        window.addEventListener('touchstart', (e) => {
+            isDraggingCube = true;
+            previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        });
+        window.addEventListener('touchmove', (e) => {
+            if (isDraggingCube) {
+                const deltaMove = {
+                    x: e.touches[0].clientX - previousMousePosition.x,
+                    y: e.touches[0].clientY - previousMousePosition.y
+                };
+                cubeVelocity.x = deltaMove.y * 0.005;
+                cubeVelocity.y = deltaMove.x * 0.005;
+            }
+            previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        });
+        window.addEventListener('touchend', () => { isDraggingCube = false; });
+
+        // 2. Bright & Even Lighting
+        // Menggunakan HemisphereLight untuk memberikan cahaya rata pada benda tanpa bayangan terlalu keras
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
+        scene.add(hemiLight);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); 
         scene.add(ambientLight);
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
         directionalLight.position.set(-2000, 1500, 2000); 
         scene.add(directionalLight);
 
-        // Tambahkan lampu di sekitar balok untuk menciptakan pantulan (reflection) pada metal
-        const pointLight1 = new THREE.PointLight(0xffffff, 0.8, 5000);
-        pointLight1.position.set(3000, 3000, 2000);
+        // Tambahkan lampu sorot khusus ke arah kubus perak agar menonjol
+        const pointLight1 = new THREE.PointLight(0xffffff, 1.0, 5000);
+        pointLight1.position.set(2200, 2500, 2000);
         scene.add(pointLight1);
-        const pointLight2 = new THREE.PointLight(0xabcdef, 0.5, 5000); // Cool tone reflection
-        pointLight2.position.set(1000, 1000, 3000);
+        const pointLight2 = new THREE.PointLight(0xaaaaaa, 0.8, 5000); 
+        pointLight2.position.set(3000, 1000, 3000);
         scene.add(pointLight2);
 
         // Raycaster for interactivity
@@ -167,28 +282,42 @@
         // Helper to create text texture
         function createLabelTexture(el) {
             const canvas = document.createElement('canvas');
-            canvas.width = 1024;
-            canvas.height = 1432; 
-            const context = canvas.getContext('2d');
+            // MENGURANGI UKURAN CANVAS AGAR WEBGL TIDAK CRASH (Memory Overload)
+            const width = 256;
+            const height = 358;
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
 
-            context.fillStyle = 'rgba(0, 0, 0, 0)';
-            context.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.08)'; // Off-white tipis untuk kotak
+            ctx.fillRect(0, 0, width, height);
 
-            context.fillStyle = '#ffffff';
-            context.font = 'bold 160px Inter, sans-serif';
-            context.textAlign = 'left';
-            context.fillText(el.atomic_number, 60, 180);
+            // Tepi garis tegas dan terang (Bright CPK Color Border)
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = el.color_hex || '#ffffff';
+            ctx.strokeRect(3, 3, width - 6, height - 6);
 
-            context.font = 'bold 450px Inter, sans-serif';
-            context.textAlign = 'center';
-            // Tambahkan batas lebar max 900px agar huruf panjang tidak melebihi kotak
-            context.fillText(el.symbol, canvas.width / 2, 680, 900);
+            // Nomor Atom
+            ctx.fillStyle = '#ffffff'; // Putih bersih untuk keterbacaan
+            ctx.font = 'bold 36px "Inter", sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(el.atomic_number, 15, 45);
 
-            context.font = '130px Inter, sans-serif';
-            context.fillText(el.name, canvas.width / 2, 950, 900);
+            // Simbol
+            ctx.fillStyle = el.color_hex || '#ffffff'; // Warna simbol menggunakan CPK agar stand out
+            ctx.font = 'bold 110px "Inter", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(el.symbol, width/2, 170, 220);
 
-            context.font = '110px Inter, sans-serif';
-            context.fillText(parseFloat(el.atomic_mass).toFixed(3), canvas.width / 2, 1150, 900);
+            // Nama
+            ctx.fillStyle = '#e0e0e0';
+            ctx.font = '32px "Inter", sans-serif';
+            ctx.fillText(el.name, width/2, 240, 220);
+
+            // Massa
+            ctx.fillStyle = '#cccccc';
+            ctx.font = '28px "Inter", sans-serif';
+            ctx.fillText(Number(el.atomic_mass).toFixed(2), width/2, 290, 220);
 
             const texture = new THREE.CanvasTexture(canvas);
             texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
@@ -219,29 +348,26 @@
                 // Create a minimalist block
                 const geometry = new THREE.BoxGeometry(200, 280, 40);
                 
-                // Elegant CPK material setup
+                // Bright & High-Visibility Table Materials
                 const texture = createLabelTexture(el);
-                const baseColor = new THREE.Color(el.color_hex || '#aaaaaa');
-                const silverTone = new THREE.Color(0x888888);
-                // Blend color with silver to make it subtle and elegant
-                const elegantColor = baseColor.clone().lerp(silverTone, 0.5);
                 
-                const frontMaterial = new THREE.MeshStandardMaterial({
-                    color: elegantColor,
-                    metalness: 0.5,
-                    roughness: 0.3, // Terlihat seperti mineral/kaca yang mewah
+                // Gunakan MeshBasicMaterial agar tabel TIDAK terpengaruh gelapnya lampu (selalu menyala terang)
+                const frontMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xffffff,
                     transparent: true,
-                    opacity: 0.9,
+                    opacity: 1.0,
                     map: texture
                 });
+                frontMaterial.userData = { originalOpacity: 1.0 };
                 
-                const sideMaterial = new THREE.MeshStandardMaterial({
-                    color: elegantColor,
-                    metalness: 0.5,
-                    roughness: 0.3,
+                // Sisi balok transparan halus dengan warna CPK
+                const sideColor = el.color_hex ? new THREE.Color(el.color_hex) : new THREE.Color(0xaaaaaa);
+                const sideMaterial = new THREE.MeshBasicMaterial({
+                    color: sideColor,
                     transparent: true,
-                    opacity: 0.7
+                    opacity: 0.15
                 });
+                sideMaterial.userData = { originalOpacity: 0.15 };
                 
                 const materials = [
                     sideMaterial, // right
@@ -278,13 +404,154 @@
             });
         }
 
-        // 5. Interactivity (Hover/Click)
+        // 5. Interactivity (Hover/Click/Select)
+        let selectedElement = null;
+        let isTransitioning = false;
+
         function onPointerMove(event) {
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
         }
 
         window.addEventListener('pointermove', onPointerMove);
+
+        function selectElement(object) {
+            if (isTransitioning) return;
+            isTransitioning = true;
+            selectedElement = object;
+
+            const targetPos = new THREE.Vector3();
+            object.getWorldPosition(targetPos);
+            
+            // Kamera mendekat dan fokus ke elemen (Dibuat sedikit lebih jauh agar bisa mengklik elemen lain)
+            const camTargetZ = targetPos.z + 800; 
+            const camTargetY = targetPos.y;
+            const camTargetX = targetPos.x;
+
+            new TWEEN.Tween(camera.position)
+                .to({ x: camTargetX, y: camTargetY, z: camTargetZ }, 1500)
+                .easing(TWEEN.Easing.Cubic.InOut)
+                .onComplete(() => { isTransitioning = false; })
+                .start();
+
+            // Redupkan elemen lain untuk efek fokus sinematik
+            objects.forEach(obj => {
+                if (obj !== object) {
+                    obj.material.forEach(mat => {
+                        new TWEEN.Tween(mat)
+                            .to({ opacity: 0.05 }, 1000) // Hampir tidak terlihat
+                            .start();
+                    });
+                } else {
+                    obj.material.forEach(mat => {
+                        new TWEEN.Tween(mat)
+                            .to({ opacity: 1.0 }, 1000)
+                            .start();
+                    });
+                }
+            });
+
+            // Tampilkan UI Panel secara dramatis
+            const data = object.userData;
+            const panel = document.getElementById('info-panel');
+            panel.classList.add('active');
+            document.getElementById('close-panel').style.display = 'block';
+            
+            document.getElementById('element-name').textContent = data.name;
+            document.getElementById('element-symbol').textContent = data.symbol;
+            document.getElementById('element-number').textContent = data.atomic_number;
+            document.getElementById('element-mass').textContent = parseFloat(data.atomic_mass).toFixed(3);
+            document.getElementById('element-category').textContent = data.category;
+            document.getElementById('element-symbol').style.color = data.color_hex || '#ffffff';
+
+            // Tampilkan Detail Card di sisi kiri
+            const detailCard = document.getElementById('detail-card');
+            detailCard.classList.add('active');
+            document.getElementById('detail-title-name').textContent = data.name;
+            const detailContent = document.getElementById('detail-content');
+            detailContent.innerHTML = '<span class="cursor"></span> Mengambil deskripsi dari perpustakaan global...';
+
+            // Fetch Live Data dari Wikipedia API
+            fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(data.name)}`)
+                .then(response => response.json())
+                .then(wiki => {
+                    if (wiki.extract_html) {
+                        detailContent.innerHTML = wiki.extract_html;
+                    } else if (wiki.extract) {
+                        detailContent.textContent = wiki.extract;
+                    } else {
+                        detailContent.textContent = "Data deskripsi komprehensif belum tersedia untuk elemen ini.";
+                    }
+                })
+                .catch(err => {
+                    detailContent.textContent = "Gagal memuat deskripsi karena kendala jaringan.";
+                });
+        }
+
+        function closeElementDetail() {
+            if (isTransitioning || !selectedElement) return;
+            isTransitioning = true;
+            
+            // Sembunyikan Detail Card
+            document.getElementById('detail-card').classList.remove('active');
+            
+            // Tween kamera kembali ke posisi scroll yang semestinya
+            const maxScroll = window.innerHeight;
+            let scrollProgress = Math.min(scrollY / maxScroll, 1.0);
+            const targetCameraY = 2000 - (scrollProgress * 2000);
+
+            new TWEEN.Tween(camera.position)
+                .to({ x: 0, y: targetCameraY, z: 4500 }, 1500)
+                .easing(TWEEN.Easing.Cubic.InOut)
+                .onComplete(() => { 
+                    isTransitioning = false; 
+                    selectedElement = null; 
+                })
+                .start();
+
+            // Kembalikan opacity semua elemen sesuai scroll
+            let tableScrollProgress = Math.max(0, (scrollY - maxScroll * 0.4) / (maxScroll * 0.6));
+            if (tableScrollProgress > 1) tableScrollProgress = 1;
+
+            objects.forEach(obj => {
+                obj.material.forEach(mat => {
+                    const targetOpacity = (mat.userData.originalOpacity || 1) * tableScrollProgress;
+                    new TWEEN.Tween(mat)
+                        .to({ opacity: targetOpacity }, 1000)
+                        .start();
+                });
+            });
+
+            // Sembunyikan UI Panel
+            const panel = document.getElementById('info-panel');
+            panel.classList.remove('active');
+            document.getElementById('close-panel').style.display = 'none';
+        }
+
+        window.addEventListener('click', (event) => {
+            if (isTransitioning) return;
+
+            // Jika klik tombol close
+            if (event.target.id === 'close-panel') {
+                closeElementDetail();
+                return;
+            }
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(objects);
+
+            if (intersects.length > 0) {
+                const object = intersects[0].object;
+                if (selectedElement !== object) {
+                    selectElement(object);
+                }
+            } else {
+                // Klik di luar tabel untuk deselect
+                if (selectedElement) {
+                    closeElementDetail();
+                }
+            }
+        });
 
         // 5.5 Scroll Interaction
         let scrollY = 0;
@@ -334,23 +601,43 @@
             // Animate particles falling slowly
             const positions = particlesGeometry.attributes.position.array;
             for(let i = 1; i < particlesCount * 3; i += 3) {
-                positions[i] -= 2; // fall down
+                positions[i] -= 1.5; // fall down
                 if(positions[i] < -5000) {
                     positions[i] = 10000;
                 }
             }
             particlesGeometry.attributes.position.needsUpdate = true;
 
-            // Rotate Hydrogen block slowly (side-rotation)
-            heroGroup.rotation.y += 0.003;
+            // Parallax interaktif pada partikel
+            particlesMesh.rotation.x += (targetParticleRotX - particlesMesh.rotation.x) * 0.05;
+            particlesMesh.rotation.y += (targetParticleRotY - particlesMesh.rotation.y) * 0.05;
+
+            // Interaksi rotasi kubus (momentum & damping)
+            heroGroup.rotation.x += cubeVelocity.x;
+            heroGroup.rotation.y += cubeVelocity.y;
+
+            if (!isDraggingCube) {
+                // Friction (pelambatan)
+                cubeVelocity.x *= 0.95;
+                cubeVelocity.y *= 0.95;
+                
+                // Pastikan selalu ada putaran minimal yang elegan
+                if (Math.abs(cubeVelocity.x) < 0.001) cubeVelocity.x = Math.sign(cubeVelocity.x || 1) * 0.001;
+                if (Math.abs(cubeVelocity.y) < 0.003) cubeVelocity.y = Math.sign(cubeVelocity.y || 1) * 0.003;
+            }
 
             // Scroll animations
             const maxScroll = window.innerHeight;
             let scrollProgress = Math.min(scrollY / maxScroll, 1.0);
             
-            // Move camera y from 2000 down to 0
-            const targetCameraY = 2000 - (scrollProgress * 2000);
-            camera.position.y += (targetCameraY - camera.position.y) * 0.1;
+            if (!selectedElement && !isTransitioning) {
+                // Move camera y from 2000 down to 0
+                const targetCameraY = 2000 - (scrollProgress * 2000);
+                camera.position.y += (targetCameraY - camera.position.y) * 0.1;
+                // Pastikan kamera kembali ke poros tengah X dan Z jika habis di-tween
+                camera.position.x += (0 - camera.position.x) * 0.1;
+                camera.position.z += (4500 - camera.position.z) * 0.1;
+            }
 
             // Fade out hero block based on scroll
             heroGroup.position.y = 2000 + (scrollProgress * 1000); // Move up and away
@@ -363,39 +650,39 @@
             const targetTableY = -3000 + (tableScrollProgress * 3000);
             periodicTableGroup.position.y += (targetTableY - periodicTableGroup.position.y) * 0.1;
 
-            // Raycasting for hover effects
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(objects);
+            // Hover Interactions (hanya jika tidak ada elemen yang diseleksi)
+            if (!selectedElement && !isTransitioning) {
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(objects);
 
-            // Reset hover targets
-            objects.forEach(obj => {
-                obj.material.forEach(mat => mat.emissive.setHex(0x000000)); // Reset glow
-                obj.userData.targetZ = 0;
-                obj.userData.targetRotX = 0;
-                obj.userData.targetRotY = 0;
-            });
+                // Reset hover targets
+                objects.forEach(obj => {
+                    obj.material.forEach(mat => {
+                        if (mat.emissive) mat.emissive.setHex(0x000000); // Reset glow
+                    });
+                    obj.userData.targetZ = 0;
+                    obj.userData.targetRotX = 0;
+                    obj.userData.targetRotY = 0;
+                });
 
-            if (intersects.length > 0) {
-                const object = intersects[0].object;
-                object.material.forEach(mat => mat.emissive.setHex(0x333333)); // Subtle white glow on hover
-                
-                // Hover 3D effect: maju dan sedikit berputar
-                object.userData.targetZ = 150;
-                object.userData.targetRotX = 0.2; // putar sedikit ke atas
-                object.userData.targetRotY = 0.3; // putar sedikit ke samping
+                if (intersects.length > 0) {
+                    const object = intersects[0].object;
+                    object.material.forEach(mat => {
+                        if (mat.emissive) mat.emissive.setHex(0x333333); // Subtle white glow on hover
+                    });
+                    
+                    // Hover 3D effect: maju dan sedikit berputar
+                    object.userData.targetZ = 150;
+                    object.userData.targetRotX = (mouse.y * Math.PI) / 8;
+                    object.userData.targetRotY = (mouse.x * Math.PI) / 8;
 
-                // Update UI Panel
-                const data = object.userData;
-                document.getElementById('info-panel').style.display = 'block';
-                document.getElementById('element-name').textContent = data.name;
-                document.getElementById('element-symbol').textContent = data.symbol;
-                document.getElementById('element-number').textContent = data.atomic_number;
-                document.getElementById('element-mass').textContent = parseFloat(data.atomic_mass).toFixed(3);
-                document.getElementById('element-category').textContent = data.category;
-                
-                document.getElementById('element-symbol').style.color = '#ffffff';
-            } else {
-                document.getElementById('info-panel').style.display = 'none';
+                    // Update UI Panel secara instan untuk hover preview
+                    // Tapi karena panel akan disembunyikan/tampil via opacity, kita set saja displaynya.
+                    // Namun, user ingin panel tampil dinamis. Jika belum selected, tampilkan hover info?
+                    // Karena kita pindah ke model 'Click', lebih baik hover tidak menimpa UI yang permanen,
+                    // Kita bisa abaikan update UI di hover agar click lebih punya arti yang eksklusif, 
+                    // namun efek glow/maju tetap ada.
+                }
             }
 
             // Smooth interpolation for 3D hover effects
