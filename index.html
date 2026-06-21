@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chemiverse - 3D Periodic Table</title>
     <!-- Tambahkan versi ?v=7 agar browser melakukan reload CSS (Cache Busting) -->
-    <link rel="stylesheet" href="css/style.css?v=19" />
+    <link rel="stylesheet" href="css/style.css?v=22" />
     <!-- Google Fonts for elegant look -->
     <link
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Montserrat:wght@300;400&display=swap"
@@ -65,50 +65,147 @@
         <!-- Ruang kosong untuk menscroll ke bawah menuju tabel -->
       </section>
 
-      <!-- Tumpukan Section Vertikal -->
-      <!-- Setiap section memiliki tinggi 200vh. 100vh pertama adalah transisi masuk, 100vh kedua adalah sticky safe zone. -->
+      <!-- Narrative Sections: Alternating Layout -->
       <section id="carbon-section" class="narrative-section">
-        <div class="narrative-content">
-          <h2 class="editorial-title">The Carbon Core</h2>
-          <p class="editorial-text">
-            Mendasari seluruh kehidupan yang kita kenal, atom Karbon membentuk
-            tulang punggung arsitektur molekuler. Di sinilah materi tak bernyawa
-            mulai menyusun pola kompleks menuju kesadaran.
-          </p>
-          <p class="editorial-text">
-            Satu atom dengan empat elektron valensi, membuka kemungkinan tak
-            terbatas untuk ikatan kosmik.
-          </p>
+        <div class="narrative-content narrative-layout">
+          <div class="narrative-text-side narrative-from-left">
+            <h2 class="editorial-title typewrite-target">The Carbon Core</h2>
+            <p class="editorial-text">
+              Mendasari seluruh kehidupan yang kita kenal, atom Karbon membentuk
+              tulang punggung arsitektur molekuler. Di sinilah materi tak bernyawa
+              mulai menyusun pola kompleks menuju kesadaran.
+            </p>
+            <p class="editorial-text">
+              Satu atom dengan empat elektron valensi, membuka kemungkinan tak
+              terbatas untuk ikatan kosmik.
+            </p>
+          </div>
+          <div class="narrative-3d-side narrative-from-right">
+            <!-- 3D Carbon Atom renders here via Three.js -->
+          </div>
         </div>
       </section>
 
       <section id="diamond-section" class="narrative-section">
-        <div class="narrative-content">
-          <h2 class="editorial-title">Diamond Lattice</h2>
-          <p class="editorial-text">
-            Kesempurnaan geometri murni. Melalui ikatan kovalen yang tak
-            terpatahkan, karbon mentransformasi dirinya menjadi salah satu
-            material terkeras di alam semesta.
-          </p>
-          <p class="editorial-text">
-            Struktur ini bukan sekadar bentuk fisik, melainkan manifestasi dari
-            harmoni matematika dan kestabilan ruang tiga dimensi.
-          </p>
+        <div class="narrative-content narrative-layout narrative-reversed">
+          <div class="narrative-3d-side narrative-from-left">
+            <!-- 3D Diamond Lattice renders here via Three.js -->
+          </div>
+          <div class="narrative-text-side narrative-from-right">
+            <h2 class="editorial-title typewrite-target">Diamond Lattice</h2>
+            <p class="editorial-text">
+              Kesempurnaan geometri murni. Melalui ikatan kovalen yang tak
+              terpatahkan, karbon mentransformasi dirinya menjadi salah satu
+              material terkeras di alam semesta.
+            </p>
+            <p class="editorial-text">
+              Struktur ini bukan sekadar bentuk fisik, melainkan manifestasi dari
+              harmoni matematika dan kestabilan ruang tiga dimensi.
+            </p>
+          </div>
         </div>
       </section>
 
       <section id="dna-section" class="narrative-section">
-        <div class="narrative-content">
-          <h2 class="editorial-title">The Code of Life</h2>
-          <p class="editorial-text">
-            Dari kerangka karbon sederhana hingga kompleksitas DNA beruntai
-            ganda. Ini adalah bukti bahwa kosmos tidak berada di luar sana;
-            materi bintang menyusun Anda.
-          </p>
-          <p class="editorial-text">
-            Setiap putaran heliks menyimpan memori miliaran tahun evolusi
-            kimiawi.
-          </p>
+        <div class="narrative-content narrative-layout">
+          <div class="narrative-text-side narrative-from-left">
+            <h2 class="editorial-title typewrite-target">The Code of Life</h2>
+            <p class="editorial-text">
+              Dari kerangka karbon sederhana hingga kompleksitas DNA beruntai
+              ganda. Ini adalah bukti bahwa kosmos tidak berada di luar sana;
+              materi bintang menyusun Anda.
+            </p>
+            <p class="editorial-text">
+              Setiap putaran heliks menyimpan memori miliaran tahun evolusi
+              kimiawi.
+            </p>
+          </div>
+          <div class="narrative-3d-side narrative-from-right">
+            <!-- 3D DNA Helix renders here via Three.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Stats Section: Universe in Numbers -->
+      <section id="stats-section" class="narrative-section stats-special">
+        <div class="narrative-content narrative-layout">
+          <div class="stats-container narrative-from-left">
+            <h2 class="editorial-title typewrite-target">The Universe in Numbers</h2>
+            <p class="editorial-text">Angka-angka yang mendefinisikan realitas kita, dari skala subatomik hingga kosmik.</p>
+          </div>
+          <div class="stats-grid narrative-from-right">
+            <div class="stat-card">
+              <span class="stat-number">118</span>
+              <span class="stat-label">Unsur yang Ditemukan</span>
+              <span class="stat-detail">Dari Hidrogen hingga Oganesson</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number">7×10²⁷</span>
+              <span class="stat-label">Atom dalam Tubuh Manusia</span>
+              <span class="stat-detail">Sebagian besar Hidrogen & Oksigen</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number">99.99%</span>
+              <span class="stat-label">Ruang Kosong di Atom</span>
+              <span class="stat-detail">Materi sejatinya hampa</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number">13.8 B</span>
+              <span class="stat-label">Tahun Sejak Big Bang</span>
+              <span class="stat-detail">Seluruh elemen lahir dari bintang</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Fun Facts Section -->
+      <section id="facts-section" class="narrative-section">
+        <div class="narrative-content narrative-layout narrative-reversed">
+          <div class="facts-timeline narrative-from-left">
+            <div class="fact-item">
+              <div class="fact-icon">⚗️</div>
+              <div class="fact-body">
+                <h4>Emas dari Bintang Mati</h4>
+                <p>Seluruh emas di Bumi terbentuk dari tabrakan bintang neutron miliaran tahun silam.</p>
+              </div>
+            </div>
+            <div class="fact-item">
+              <div class="fact-icon">💎</div>
+              <div class="fact-body">
+                <h4>Hujan Berlian di Neptunus</h4>
+                <p>Tekanan atmosfer Neptunus begitu ekstrem sehingga metana terkompresi menjadi berlian.</p>
+              </div>
+            </div>
+            <div class="fact-item">
+              <div class="fact-icon">🧬</div>
+              <div class="fact-body">
+                <h4>DNA Sepanjang 600 Kali ke Matahari</h4>
+                <p>Jika seluruh DNA dalam tubuh Anda direntangkan, panjangnya mencapai 600 kali jarak Bumi-Matahari.</p>
+              </div>
+            </div>
+          </div>
+          <div class="narrative-text-side narrative-from-right">
+            <h2 class="editorial-title typewrite-target">Did You Know?</h2>
+            <p class="editorial-text">
+              Alam semesta menyimpan rahasia yang lebih aneh dari fiksi. 
+              Setiap atom karbon dalam tubuh Anda pernah berada di inti sebuah bintang raksasa.
+            </p>
+            <p class="editorial-text">
+              Anda secara harfiah terbuat dari debu bintang — sebuah kebenaran ilmiah 
+              yang lebih puitis daripada puisi itu sendiri.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA Section -->
+      <section id="cta-section" class="cta-special">
+        <div class="cta-content">
+          <h2 class="cta-title">Mulai Penjelajahan Anda</h2>
+          <p class="cta-text">Klik pada elemen mana pun di Tabel Periodik untuk mengungkap cerita di balik setiap atom. Dari Hidrogen yang menyalakan bintang, hingga Oganesson yang hanya bertahan sepersekian detik.</p>
+          <a href="#" class="cta-button" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;">
+            ↑ Kembali ke Tabel Periodik
+          </a>
         </div>
       </section>
 
@@ -478,7 +575,7 @@
 
       // --- STEP 1: Single Carbon Atom ---
       const singleAtomGroup = new THREE.Group();
-      singleAtomGroup.position.set(0, -8000, 0); // Posisi vertikal murni di bawah tabel
+      singleAtomGroup.position.set(4000, -8000, 0); // Start off-screen right
       const nucleusGeometry = new THREE.SphereGeometry(150, 32, 32);
       const nucleusMaterial = new THREE.MeshStandardMaterial({
         color: 0x00ffff,
@@ -518,7 +615,7 @@
 
       // --- STEP 2: Diamond Lattice ---
       const latticeGroup = new THREE.Group();
-      latticeGroup.position.set(0, -16000, 0); // Lantai Berlian
+      latticeGroup.position.set(-4000, -16000, 0); // Start off-screen left
       const atomPositions = [
         new THREE.Vector3(0, 0, 0), // Center
         new THREE.Vector3(600, 600, -600), // Top Right Back
@@ -545,12 +642,12 @@
         const line = new THREE.Line(lineGeo, lineMat);
         latticeGroup.add(line);
       }
-      latticeGroup.visible = false; // Hidden initially
+      latticeGroup.visible = false;
       editorialGroup.add(latticeGroup);
 
       // --- STEP 3: DNA Helix ---
       const dnaGroup = new THREE.Group();
-      dnaGroup.position.set(0, -24000, 0); // Lantai DNA
+      dnaGroup.position.set(4000, -24000, 0); // Start off-screen right
       const dnaSphereGeo = new THREE.SphereGeometry(30, 16, 16);
       const dnaMat1 = new THREE.MeshStandardMaterial({
         color: 0x00ffff,
@@ -589,11 +686,10 @@
         const bond = new THREE.Line(bondGeo, lineMatDNA);
         dnaGroup.add(bond);
       }
-      dnaGroup.visible = false; // Hidden initially
+      dnaGroup.visible = false;
       editorialGroup.add(dnaGroup);
 
       let introComplete = false;
-      setTimeout(() => (introComplete = true), 3500);
 
       function build3DTable() {
         // Standard periodic table spacing
@@ -645,7 +741,7 @@
 
           const mesh = new THREE.Mesh(geometry, materials);
 
-          // Set initial position for scatter intro
+          // Set initial position for scatter intro (will animate when scroll triggers)
           mesh.position.set(
             Math.random() * 4000 - 2000,
             Math.random() * 4000 - 2000,
@@ -657,19 +753,31 @@
           el.targetRotX = 0;
           el.targetRotY = 0;
           mesh.userData = el;
+          // Store the final target position so we can animate on scroll
+          mesh.userData._targetX = targetX;
+          mesh.userData._targetY = targetY;
+          mesh.userData._targetZ = targetZ;
 
           periodicTableGroup.add(mesh);
           objects.push(mesh);
+        });
+      }
 
-          // Animate to target position
+      // Flag: only trigger table intro animation once, on scroll
+      let tableIntroTriggered = false;
+      function triggerTableIntro() {
+        if (tableIntroTriggered) return;
+        tableIntroTriggered = true;
+        objects.forEach((mesh) => {
           new TWEEN.Tween(mesh.position)
             .to(
-              { x: targetX, y: targetY, z: targetZ },
+              { x: mesh.userData._targetX, y: mesh.userData._targetY, z: mesh.userData._targetZ },
               Math.random() * 2000 + 1000,
             )
             .easing(TWEEN.Easing.Exponential.InOut)
             .start();
         });
+        setTimeout(() => (introComplete = true), 3500);
       }
 
       // 5. Interactivity (Hover/Click/Select)
@@ -887,6 +995,102 @@
       }
       startIntro();
 
+      // --- NARRATIVE HANDLER (defined once, called from animate) ---
+      // Store original text for typewriter reset
+      document.querySelectorAll('.typewrite-target').forEach(function(el) {
+        el.dataset.originalText = el.textContent;
+      });
+
+      // Active typewriter intervals tracker (prevent duplicates)
+      const activeTypewriters = {};
+
+      function handleSingleNarrative(sectionId, enterProg, exitProg, currentProg) {
+        const section = document.getElementById(sectionId);
+        if (!section) return;
+        const slideEls = section.querySelectorAll('.narrative-from-left, .narrative-from-right');
+        const titleEl = section.querySelector('.typewrite-target');
+
+        const FADE_IN_DURATION = 0.4;
+        const FADE_OUT_DURATION = 0.4;
+        const FADE_IN_END = enterProg + FADE_IN_DURATION;
+        const FADE_OUT_START = exitProg - FADE_OUT_DURATION;
+
+        if (currentProg >= enterProg && currentProg <= exitProg) {
+          if (currentProg <= FADE_IN_END) {
+            // Sliding in
+            slideEls.forEach(function(el) {
+              el.classList.add('narrative-active');
+              el.style.transitionDuration = '0.8s';
+              el.style.opacity = '';
+            });
+          } else if (currentProg >= FADE_OUT_START) {
+            // Sliding out - fade + return to origin
+            const p = 1 - ((currentProg - FADE_OUT_START) / FADE_OUT_DURATION);
+            const clamped = Math.max(0, Math.min(1, p));
+            slideEls.forEach(function(el) {
+              el.classList.remove('narrative-active');
+              el.style.opacity = clamped.toString();
+              el.style.transitionDuration = '0.3s';
+            });
+          } else {
+            // Safe zone: fully visible
+            slideEls.forEach(function(el) {
+              el.classList.add('narrative-active');
+              el.style.opacity = '';
+            });
+          }
+
+          // Trigger typewriter on title (only once per entry)
+          if (titleEl && !titleEl.dataset.typed) {
+            titleEl.dataset.typed = 'true';
+            const fullText = titleEl.dataset.originalText || '';
+            titleEl.innerHTML = '';
+            let charIdx = 0;
+            // Clear any existing interval for this section
+            if (activeTypewriters[sectionId]) clearInterval(activeTypewriters[sectionId]);
+            activeTypewriters[sectionId] = setInterval(function() {
+              if (charIdx < fullText.length) {
+                titleEl.innerHTML = fullText.substring(0, charIdx + 1) + '<span class="typewrite-cursor"></span>';
+                charIdx++;
+              } else {
+                titleEl.innerHTML = fullText;
+                clearInterval(activeTypewriters[sectionId]);
+                delete activeTypewriters[sectionId];
+              }
+            }, 50);
+          }
+        } else {
+          // Outside: hidden, slide back
+          slideEls.forEach(function(el) {
+            el.classList.remove('narrative-active');
+            el.style.opacity = '0';
+            el.style.transitionDuration = '0.5s';
+          });
+          // Reset typewriter when far enough away
+          if (titleEl && titleEl.dataset.typed && (currentProg < enterProg - 0.3 || currentProg > exitProg + 0.3)) {
+            titleEl.dataset.typed = '';
+            if (activeTypewriters[sectionId]) {
+              clearInterval(activeTypewriters[sectionId]);
+              delete activeTypewriters[sectionId];
+            }
+            if (titleEl.dataset.originalText) {
+              titleEl.textContent = titleEl.dataset.originalText;
+            }
+          }
+        }
+      }
+
+      function handleAllNarratives(totalScrollProgress) {
+        // Scroll progress ranges for each section:
+        // 1.5-3.5: Carbon, 3.5-5.5: Diamond, 5.5-7.5: DNA
+        // 7.5-9.5: Stats, 9.5-11.5: Fun Facts
+        handleSingleNarrative('carbon-section', 1.5, 3.5, totalScrollProgress);
+        handleSingleNarrative('diamond-section', 3.5, 5.5, totalScrollProgress);
+        handleSingleNarrative('dna-section', 5.5, 7.5, totalScrollProgress);
+        handleSingleNarrative('stats-section', 7.5, 9.5, totalScrollProgress);
+        handleSingleNarrative('facts-section', 9.5, 11.5, totalScrollProgress);
+      }
+
       // 6. Render Loop
       function animate() {
         requestAnimationFrame(animate);
@@ -953,43 +1157,48 @@
         let totalScrollProgress = scrollY / maxScroll;
         let scrollProgress = Math.min(totalScrollProgress, 1.0);
 
+        // Trigger periodic table intro when user starts scrolling past 30%
+        if (totalScrollProgress > 0.3 && !tableIntroTriggered && objects.length > 0) {
+          triggerTableIntro();
+        }
+
         if (!selectedElement && !isTransitioning) {
           let camY = 7000;
 
+          // Scroll mapping:
+          // 0-1: Hero (100vh)
+          // 1-1.5: Table safe zone (50vh)
+          // 1.5-3.5: Carbon section (200vh)
+          // 3.5-5.5: Diamond section (200vh)
+          // 5.5-7.5: DNA section (200vh)
           if (totalScrollProgress <= 1) {
-            // 0 -> 1: Turun lurus dari Hero ke Table
-            camY = 7000 - totalScrollProgress * 7000; // 7000 to 0
-          } else if (totalScrollProgress <= 2) {
-            // 1 -> 2: Table Safe Zone
+            camY = 7000 - totalScrollProgress * 7000;
+          } else if (totalScrollProgress <= 1.5) {
             camY = 0;
-          } else if (totalScrollProgress <= 3) {
-            // 2 -> 3: Transit ke Carbon Core
-            camY = 0 - (totalScrollProgress - 2) * 8000;
-          } else if (totalScrollProgress <= 4) {
-            // 3 -> 4: Carbon Core Safe Zone
+          } else if (totalScrollProgress <= 2.5) {
+            // Transit to Carbon Core
+            camY = 0 - ((totalScrollProgress - 1.5) / 1.0) * 8000;
+          } else if (totalScrollProgress <= 3.5) {
             camY = -8000;
-          } else if (totalScrollProgress <= 5) {
-            // 4 -> 5: Transit ke Diamond Lattice
-            camY = -8000 - (totalScrollProgress - 4) * 8000;
-          } else if (totalScrollProgress <= 6) {
-            // 5 -> 6: Diamond Lattice Safe Zone
+          } else if (totalScrollProgress <= 4.5) {
+            // Transit to Diamond Lattice
+            camY = -8000 - ((totalScrollProgress - 3.5) / 1.0) * 8000;
+          } else if (totalScrollProgress <= 5.5) {
             camY = -16000;
-          } else if (totalScrollProgress <= 7) {
-            // 6 -> 7: Transit ke DNA
-            camY = -16000 - (totalScrollProgress - 6) * 8000;
+          } else if (totalScrollProgress <= 6.5) {
+            // Transit to DNA
+            camY = -16000 - ((totalScrollProgress - 5.5) / 1.0) * 8000;
           } else {
-            // > 7: DNA Safe Zone
             camY = -24000;
           }
 
-          // Scroll-Driven Model Rotation (Apple-style / 21.dev)
-          if (totalScrollProgress > 2) {
+          // Scroll-Driven Model Rotation
+          if (totalScrollProgress > 1.5) {
             singleAtomGroup.rotation.y = totalScrollProgress * Math.PI * 0.5;
             latticeGroup.rotation.y = totalScrollProgress * Math.PI * 0.5;
             dnaGroup.rotation.x = totalScrollProgress * Math.PI * 0.2;
           }
 
-          // Terapkan pergerakan kamera dengan kelembutan (inertia)
           camera.position.y += (camY - camera.position.y) * 0.08;
           camera.position.z += (4500 - camera.position.z) * 0.08;
           camera.position.x += (0 - camera.position.x) * 0.08;
@@ -998,57 +1207,40 @@
           camera.rotation.y += (0 - camera.rotation.y) * 0.1;
         }
 
-        // --- CINEMATIC FADE: Simple opacity only, no blur for readability ---
-        // The narrative sections each occupy 200vh = 2 scroll units.
-        // Hero = 100vh (1 unit), Table = 120vh (~1.2 units)
-        // Carbon starts at ~2.2, Diamond at ~4.2, DNA at ~6.2
-        // Each narrative-section = 200vh = ~2 units of totalScrollProgress
-        // Fade-in only: sharp entrance, stay fully visible, simple fade-out at the end
-        const carbonContent = document.getElementById("carbon-section")?.querySelector('.narrative-content');
-        const diamondContent = document.getElementById("diamond-section")?.querySelector('.narrative-content');
-        const dnaContent = document.getElementById("dna-section")?.querySelector('.narrative-content');
-
-        function applySimpleFade(el, enterProg, exitProg, currentProg) {
-          if (!el) return;
-          const FADE_DURATION = 0.3; // How fast it fades in/out (in scroll units)
-          if (currentProg < enterProg || currentProg > exitProg) {
-            // Outside range: hidden
-            el.style.opacity = '0';
-            el.style.filter = 'none';
-            el.style.transform = 'translateY(40px)';
-            el.style.transition = 'none';
-          } else if (currentProg < enterProg + FADE_DURATION) {
-            // Fading in
-            const p = (currentProg - enterProg) / FADE_DURATION;
-            el.style.opacity = p.toString();
-            el.style.filter = 'none';
-            el.style.transform = `translateY(${(1-p)*40}px)`;
-            el.style.transition = 'none';
-          } else if (currentProg > exitProg - FADE_DURATION) {
-            // Fading out
-            const p = (exitProg - currentProg) / FADE_DURATION;
-            el.style.opacity = p.toString();
-            el.style.filter = 'none';
-            el.style.transform = `translateY(${(1-p)*-20}px)`;
-            el.style.transition = 'none';
-          } else {
-            // SAFE ZONE: fully visible, no blur, readable
-            el.style.opacity = '1';
-            el.style.filter = 'none';
-            el.style.transform = 'translateY(0)';
-            el.style.transition = 'none';
-          }
+        // --- 3D OBJECT SLIDE IN/OUT (Three.js world) ---
+        // Push 3D far to the sides so they NEVER overlap text
+        // Carbon: slides from right (x=4000) to far right (x=1800)
+        let carbonTargetX = 4000;
+        if (totalScrollProgress >= 1.8 && totalScrollProgress <= 3.2) {
+          carbonTargetX = 1800;
+          singleAtomGroup.visible = true;
+        } else {
+          singleAtomGroup.visible = totalScrollProgress > 1.3 && totalScrollProgress < 3.7;
         }
+        singleAtomGroup.position.x += (carbonTargetX - singleAtomGroup.position.x) * 0.06;
 
-        // Scroll unit mapping (totalScrollProgress):
-        // 0-1: Hero section (100vh)
-        // 1-2.2: Table section (120vh)
-        // 2.2-4.2: Carbon section (200vh)
-        // 4.2-6.2: Diamond section (200vh)
-        // 6.2-8.2: DNA section (200vh)
-        applySimpleFade(carbonContent, 2.2, 4.2, totalScrollProgress);
-        applySimpleFade(diamondContent, 4.2, 6.2, totalScrollProgress);
-        applySimpleFade(dnaContent, 6.2, 8.2, totalScrollProgress);
+        // Diamond: slides from left (x=-4000) to far left (x=-1800)
+        let diamondTargetX = -4000;
+        if (totalScrollProgress >= 3.8 && totalScrollProgress <= 5.2) {
+          diamondTargetX = -1800;
+          latticeGroup.visible = true;
+        } else {
+          latticeGroup.visible = totalScrollProgress > 3.3 && totalScrollProgress < 5.7;
+        }
+        latticeGroup.position.x += (diamondTargetX - latticeGroup.position.x) * 0.06;
+
+        // DNA: slides from right (x=4000) to far right (x=1800)
+        let dnaTargetX = 4000;
+        if (totalScrollProgress >= 5.8 && totalScrollProgress <= 7.2) {
+          dnaTargetX = 1800;
+          dnaGroup.visible = true;
+        } else {
+          dnaGroup.visible = totalScrollProgress > 5.3 && totalScrollProgress < 7.7;
+        }
+        dnaGroup.position.x += (dnaTargetX - dnaGroup.position.x) * 0.06;
+
+        // --- NARRATIVE SECTION HANDLERS ---
+        handleAllNarratives(totalScrollProgress);
 
         // Fade out hero block based on scroll
         // Menjauh ke atas agar tidak menabrak table

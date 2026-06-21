@@ -1,6 +1,6 @@
 <?php
 $host = 'localhost';
-$db   = 'chemiverse';
+$db   = 'chemiverse_db';
 $user = 'root';
 $pass = ''; // Default XAMPP password is empty
 $charset = 'utf8mb4';
