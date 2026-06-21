@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Molecular Viewer — Chemiverse</title>
+    <meta name="description" content="Jelajahi struktur 3D molekul secara interaktif. Putar, zoom, dan pelajari bentuk molekul dari Air hingga Kafein." />
+    <link rel="stylesheet" href="css/style.css?v=22" />
+    <link rel="stylesheet" href="css/molecular-viewer.css?v=1" />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,700;1,300&family=Montserrat:wght@300;400&display=swap" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav id="navbar">
+      <div class="nav-brand">
+        <span class="logo-icon">⬡</span> Chemiverse
+      </div>
+      <div class="nav-links">
+        <a href="index.html">Periodic Wiki</a>
+        <a href="bond-simulator.html">Bond Simulator</a>
+        <a href="molecular-viewer.html" class="active">Molecular Viewer</a>
+        <a href="#">Reaction Lab</a>
+      </div>
+      <div class="nav-cta">
+        <a href="#" class="btn-primary">Launch Sandbox <span class="arrow">→</span></a>
+      </div>
+    </nav>
+
+    <main class="mol-page">
+      <!-- Full-screen 3D Canvas -->
+      <div id="mol-canvas-container"></div>
+
+      <!-- Center Hint (before molecule selected) -->
+      <div class="mol-hint" id="mol-hint">
+        <div class="mol-hint-icon">🔬</div>
+        <div class="mol-hint-text">Molecular Viewer</div>
+        <div class="mol-hint-sub">Pilih molekul dari panel kiri untuk memulai</div>
+      </div>
+
+      <!-- Loading Spinner -->
+      <div class="mol-loading" id="mol-loading">
+        <div class="mol-spinner"></div>
+      </div>
+
+      <!-- Left Panel: Molecule Selector (Glassmorphism) -->
+      <div class="mol-selector-panel glass" id="mol-selector">
+        <h2 class="mol-selector-title">Molecules</h2>
+
+        <!-- Category Filter -->
+        <div class="category-pills" id="cat-pills">
+          <button class="cat-pill active" data-cat="all">All</button>
+          <button class="cat-pill" data-cat="essential">Essential</button>
+          <button class="cat-pill" data-cat="organic">Organic</button>
+          <button class="cat-pill" data-cat="drug">Drug</button>
+        </div>
+
+        <!-- Molecule List -->
+        <div class="mol-list" id="mol-list">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+
+      <!-- Bottom Center: View Mode Toggle -->
+      <div class="view-toggle" id="view-toggle" style="display:none;">
+        <button class="view-btn active" data-mode="ball-stick" id="btn-ball-stick">Ball & Stick</button>
+        <button class="view-btn" data-mode="space-fill" id="btn-space-fill">Space-filling</button>
+      </div>
+
+      <!-- Right Panel: Molecule Info (Glassmorphism) -->
+      <div class="mol-info-panel glass" id="mol-info">
+        <h1 class="mol-info-name" id="info-name">—</h1>
+        <div class="mol-info-formula" id="info-formula">—</div>
+        <div class="mol-info-divider"></div>
+        <div class="mol-info-stats">
+          <div class="mol-stat">
+            <span class="mol-stat-label">Berat Molekul</span>
+            <span class="mol-stat-value" id="info-weight">—</span>
+          </div>
+          <div class="mol-stat">
+            <span class="mol-stat-label">Atom</span>
+            <span class="mol-stat-value" id="info-atoms">—</span>
+          </div>
+          <div class="mol-stat">
+            <span class="mol-stat-label">Ikatan</span>
+            <span class="mol-stat-value" id="info-bonds">—</span>
+          </div>
+        </div>
+        <p class="mol-info-desc" id="info-desc">—</p>
+      </div>
+    </main>
+
+    <script>
+      // ===================================================================
+      // MOLECULAR VIEWER — JavaScript
+      // Full-screen Three.js + OrbitControls + PHP API
+      // ===================================================================
+
+      const API_MOLECULES = 'api/molecules.php';
+
+      // CPK Atom Colors & Radii
+      const ATOM_COLORS = {
+        H:  0xffffff, C:  0x333333, N:  0x3050f8, O:  0xff0d0d,
+        F:  0x90e050, Cl: 0x1ff01f, Br: 0xa62929, I:  0x940094,
+        S:  0xffff30, P:  0xff8000, Na: 0xab5cf2, K:  0x8f40d4,
+        Ca: 0x3dff00, Fe: 0xe06633, Mg: 0x8aff00, Zn: 0x7d80b0
+      };
+      const ATOM_RADII = {
+        H: 0.31, C: 0.77, N: 0.71, O: 0.66, F: 0.57, Cl: 0.99,
+        Br: 1.14, I: 1.33, S: 1.05, P: 1.07, Na: 1.66, K: 2.03,
+        Ca: 1.76, Fe: 1.24, Mg: 1.41, Zn: 1.22
+      };
+
+      let allMolecules = [];
+      let currentMolecule = null;
+      let currentMode = 'ball-stick';
+
+      // Three.js globals
+      let scene, camera, renderer, controls, molGroup;
+      let animFrameId;
+
+      // ===========================
+      // 1. INIT THREE.JS SCENE
+      // ===========================
+      function initScene() {
+        const container = document.getElementById('mol-canvas-container');
+
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
+        camera.position.set(0, 0, 500);
+
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setClearColor(0x020208, 1);
+        container.appendChild(renderer.domElement);
+
+        // OrbitControls — user can rotate + zoom
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 1.5;
+        controls.enablePan = false;
+        controls.minDistance = 100;
+        controls.maxDistance = 2000;
+
+        // Lighting — studio setup
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        const keyLight = new THREE.DirectionalLight(0xeef6ff, 1.0);
+        keyLight.position.set(500, 500, 500);
+        scene.add(keyLight);
+
+        const fillLight = new THREE.DirectionalLight(0x88ccff, 0.4);
+        fillLight.position.set(-400, 200, 300);
+        scene.add(fillLight);
+
+        const rimLight = new THREE.DirectionalLight(0x00ffff, 0.3);
+        rimLight.position.set(0, -300, -500);
+        scene.add(rimLight);
+
+        // Subtle grid of particles in background
+        const starGeo = new THREE.BufferGeometry();
+        const starPositions = [];
+        for (let i = 0; i < 300; i++) {
+          starPositions.push(
+            (Math.random() - 0.5) * 4000,
+            (Math.random() - 0.5) * 4000,
+            (Math.random() - 0.5) * 4000
+          );
+        }
+        starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
+        const starMat = new THREE.PointsMaterial({ color: 0x334455, size: 2 });
+        scene.add(new THREE.Points(starGeo, starMat));
+
+        molGroup = new THREE.Group();
+        scene.add(molGroup);
+
+        // Handle resize
+        window.addEventListener('resize', function() {
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+      }
+
+      function animate() {
+        animFrameId = requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+
+      // ===========================
+      // 2. LOAD MOLECULES LIST
+      // ===========================
+      async function loadMolecules() {
+        try {
+          const res = await fetch(API_MOLECULES + '?action=list');
+          const json = await res.json();
+          if (json.status === 'success') {
+            allMolecules = json.data;
+            renderMoleculeList(allMolecules);
+          }
+        } catch (e) {
+          console.error('Failed to load molecules:', e);
+        }
+      }
+
+      function renderMoleculeList(molecules) {
+        const list = document.getElementById('mol-list');
+        list.innerHTML = molecules.map(function(mol) {
+          const catLabel = { essential: 'Essential', organic: 'Organic', drug: 'Drug', macro: 'Macro' };
+          return '<div class="mol-card' + (currentMolecule && currentMolecule.id == mol.id ? ' active' : '') + '" data-id="' + mol.id + '" onclick="selectMolecule(' + mol.id + ')">' +
+            '<div class="mol-card-name">' + mol.name + '</div>' +
+            '<div class="mol-card-formula">' + mol.formula + '</div>' +
+            '<div class="mol-card-cat">' + (catLabel[mol.category] || mol.category) + '</div>' +
+          '</div>';
+        }).join('');
+      }
+
+      // ===========================
+      // 3. CATEGORY FILTER
+      // ===========================
+      document.getElementById('cat-pills').addEventListener('click', function(e) {
+        if (!e.target.classList.contains('cat-pill')) return;
+
+        document.querySelectorAll('.cat-pill').forEach(function(p) { p.classList.remove('active'); });
+        e.target.classList.add('active');
+
+        var cat = e.target.getAttribute('data-cat');
+        if (cat === 'all') {
+          renderMoleculeList(allMolecules);
+        } else {
+          renderMoleculeList(allMolecules.filter(function(m) { return m.category === cat; }));
+        }
+      });
+
+      // ===========================
+      // 4. SELECT & LOAD MOLECULE
+      // ===========================
+      async function selectMolecule(id) {
+        // Show loading
+        document.getElementById('mol-loading').classList.add('active');
+        document.getElementById('mol-hint').classList.add('hidden');
+
+        try {
+          const res = await fetch(API_MOLECULES + '?action=get&id=' + id);
+          const json = await res.json();
+          if (json.status !== 'success') return;
+
+          currentMolecule = json.data;
+          var mol = json.data;
+
+          // Update info panel
+          document.getElementById('info-name').textContent = mol.name;
+          document.getElementById('info-formula').textContent = mol.formula;
+          document.getElementById('info-weight').textContent = mol.molecular_weight + ' g/mol';
+          document.getElementById('info-atoms').textContent = mol.structure_data.atoms.length;
+          document.getElementById('info-bonds').textContent = mol.structure_data.bonds.length;
+          document.getElementById('info-desc').textContent = mol.description;
+          document.getElementById('mol-info').classList.add('visible');
+
+          // Show view toggle
+          document.getElementById('view-toggle').style.display = 'flex';
+
+          // Highlight active card
+          document.querySelectorAll('.mol-card').forEach(function(c) { c.classList.remove('active'); });
+          var activeCard = document.querySelector('.mol-card[data-id="' + id + '"]');
+          if (activeCard) activeCard.classList.add('active');
+
+          // Build 3D
+          buildMolecule3D(mol.structure_data, currentMode);
+
+        } catch (e) {
+          console.error('Failed to load molecule:', e);
+        } finally {
+          document.getElementById('mol-loading').classList.remove('active');
+        }
+      }
+
+      // ===========================
+      // 5. BUILD 3D MOLECULE
+      // ===========================
+      function buildMolecule3D(structureData, mode) {
+        // Clear previous
+        while (molGroup.children.length > 0) {
+          var child = molGroup.children[0];
+          if (child.geometry) child.geometry.dispose();
+          if (child.material) child.material.dispose();
+          molGroup.remove(child);
+        }
+
+        var atoms = structureData.atoms;
+        var bonds = structureData.bonds;
+        var SCALE = 100; // Angstroms to Three.js units
+
+        var isBallStick = mode === 'ball-stick';
+
+        // Calculate center of mass for centering
+        var cx = 0, cy = 0, cz = 0;
+        atoms.forEach(function(a) { cx += a.x; cy += a.y; cz += a.z; });
+        cx /= atoms.length; cy /= atoms.length; cz /= atoms.length;
+
+        // Render atoms
+        atoms.forEach(function(atom, i) {
+          var el = atom.el;
+          var color = ATOM_COLORS[el] || 0xcccccc;
+          var baseRadius = ATOM_RADII[el] || 0.7;
+
+          var radius;
+          if (isBallStick) {
+            radius = baseRadius * 30; // Smaller balls for ball & stick
+          } else {
+            radius = baseRadius * 70; // Large spheres for space-filling
+          }
+
+          var geo = new THREE.SphereGeometry(radius, 32, 32);
+          var mat = new THREE.MeshStandardMaterial({
+            color: color,
+            emissive: color,
+            emissiveIntensity: 0.15,
+            roughness: 0.3,
+            metalness: 0.5
+          });
+          var mesh = new THREE.Mesh(geo, mat);
+          mesh.position.set(
+            (atom.x - cx) * SCALE,
+            (atom.y - cy) * SCALE,
+            (atom.z - cz) * SCALE
+          );
+          molGroup.add(mesh);
+        });
+
+        // Render bonds (only in ball & stick mode)
+        if (isBallStick) {
+          bonds.forEach(function(bond) {
+            var a1 = atoms[bond.a];
+            var a2 = atoms[bond.b];
+            var order = bond.order || 1;
+
+            var start = new THREE.Vector3((a1.x - cx) * SCALE, (a1.y - cy) * SCALE, (a1.z - cz) * SCALE);
+            var end = new THREE.Vector3((a2.x - cx) * SCALE, (a2.y - cy) * SCALE, (a2.z - cz) * SCALE);
+
+            for (var i = 0; i < order; i++) {
+              var offset = 0;
+              if (order === 2) offset = (i - 0.5) * 8;
+              if (order === 3) offset = (i - 1) * 8;
+
+              createBondCylinder(start, end, offset);
+            }
+          });
+        }
+
+        // Reset camera to fit molecule
+        var maxDist = 0;
+        atoms.forEach(function(a) {
+          var d = Math.sqrt(Math.pow(a.x - cx, 2) + Math.pow(a.y - cy, 2) + Math.pow(a.z - cz, 2));
+          if (d > maxDist) maxDist = d;
+        });
+        var camDist = Math.max(maxDist * SCALE * 3, 300);
+        camera.position.set(0, 0, camDist);
+        controls.target.set(0, 0, 0);
+        controls.update();
+      }
+
+      function createBondCylinder(start, end, offset) {
+        var dir = new THREE.Vector3().subVectors(end, start);
+        var length = dir.length();
+        var center = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
+
+        var geo = new THREE.CylinderGeometry(3, 3, length, 8);
+        var mat = new THREE.MeshStandardMaterial({
+          color: 0x888888,
+          roughness: 0.5,
+          metalness: 0.3
+        });
+        var cyl = new THREE.Mesh(geo, mat);
+
+        // Position and orient
+        cyl.position.copy(center);
+
+        // Offset for double/triple bonds
+        if (offset !== 0) {
+          var perp = new THREE.Vector3();
+          if (Math.abs(dir.x) < 0.9) {
+            perp.crossVectors(dir, new THREE.Vector3(1, 0, 0)).normalize();
+          } else {
+            perp.crossVectors(dir, new THREE.Vector3(0, 1, 0)).normalize();
+          }
+          cyl.position.add(perp.multiplyScalar(offset));
+        }
+
+        // Align cylinder to bond direction
+        var axis = new THREE.Vector3(0, 1, 0);
+        var quaternion = new THREE.Quaternion().setFromUnitVectors(axis, dir.clone().normalize());
+        cyl.setRotationFromQuaternion(quaternion);
+
+        molGroup.add(cyl);
+      }
+
+      // ===========================
+      // 6. VIEW MODE TOGGLE
+      // ===========================
+      document.getElementById('view-toggle').addEventListener('click', function(e) {
+        if (!e.target.classList.contains('view-btn')) return;
+        var mode = e.target.getAttribute('data-mode');
+        if (mode === currentMode) return;
+
+        currentMode = mode;
+        document.querySelectorAll('.view-btn').forEach(function(b) { b.classList.remove('active'); });
+        e.target.classList.add('active');
+
+        if (currentMolecule) {
+          buildMolecule3D(currentMolecule.structure_data, currentMode);
+        }
+      });
+
+      // ===========================
+      // INIT
+      // ===========================
+      initScene();
+      loadMolecules();
+    </script>
+  </body>
+</html>
