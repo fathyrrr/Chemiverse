@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bond Simulator — Chemiverse</title>
+    <meta name="description" content="Simulasikan ikatan kimia antar elemen. Jelajahi ikatan ionik, kovalen, dan metalik secara interaktif dengan visualisasi 3D." />
+    <link rel="stylesheet" href="css/style.css?v=22" />
+    <link rel="stylesheet" href="css/bond-simulator.css?v=2" />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,700;1,300&family=Montserrat:wght@300;400&display=swap" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  </head>
+  <body>
+    <!-- Navigation (same as index.html) -->
+    <nav id="navbar">
+      <div class="nav-brand">
+        <span class="logo-icon">⬡</span> Chemiverse
+      </div>
+      <div class="nav-links">
+        <a href="index.html">Periodic Wiki</a>
+        <a href="bond-simulator.html" class="active">Bond Simulator</a>
+        <a href="#">Molecular Viewer</a>
+        <a href="#">Reaction Lab</a>
+      </div>
+      <div class="nav-cta">
+        <a href="#" class="btn-primary">Launch Sandbox <span class="arrow">→</span></a>
+      </div>
+    </nav>
+
+    <main class="bond-page">
+      <!-- Hero -->
+      <section class="bond-hero">
+        <h1>Bond Simulator</h1>
+        <p class="tagline">Jelajahi Ikatan Kimia Antar Elemen</p>
+      </section>
+
+      <div class="simulator-container">
+        <!-- Element Selectors -->
+        <div class="selector-panel">
+          <div class="element-picker" id="picker1">
+            <label>Element 1</label>
+            <select id="select-el1">
+              <option value="">— Pilih Elemen —</option>
+            </select>
+            <div class="element-preview" id="preview1"></div>
+          </div>
+
+          <div class="bond-connector">
+            <div class="bond-icon" id="bond-icon">⚡</div>
+          </div>
+
+          <div class="element-picker" id="picker2">
+            <label>Element 2</label>
+            <select id="select-el2">
+              <option value="">— Pilih Elemen —</option>
+            </select>
+            <div class="element-preview" id="preview2"></div>
+          </div>
+        </div>
+
+        <!-- Prediction Result -->
+        <div class="prediction-panel" id="prediction-panel">
+          <div class="prediction-header">
+            <span class="prediction-title" id="pred-title">—</span>
+            <span class="prediction-badge" id="pred-badge">—</span>
+          </div>
+          <div class="prediction-body">
+            <div class="prediction-details">
+              <div class="detail-row">
+                <span class="detail-label">Element 1</span>
+                <span class="detail-value" id="pred-el1">—</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Element 2</span>
+                <span class="detail-value" id="pred-el2">—</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Electronegativity Δ</span>
+                <span class="detail-value" id="pred-en-diff">—</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Electron Behavior</span>
+                <span class="detail-value" id="pred-behavior">—</span>
+              </div>
+              <p class="prediction-description" id="pred-description">—</p>
+
+              <!-- Save Form (CREATE) -->
+              <div class="save-form" id="save-form">
+                <div class="form-group">
+                  <label>Bond Count</label>
+                  <select id="save-bond-count">
+                    <option value="1">Single (1)</option>
+                    <option value="2">Double (2)</option>
+                    <option value="3">Triple (3)</option>
+                  </select>
+                </div>
+                <div class="form-group notes-group">
+                  <label>Notes (Opsional)</label>
+                  <input type="text" id="save-notes" placeholder="Catatan experiment..." />
+                </div>
+                <button class="btn-save" id="btn-save" onclick="saveExperiment()">
+                  ✦ Simpan
+                </button>
+              </div>
+            </div>
+            <div class="prediction-3d" id="bond-3d-container">
+              <!-- Three.js renders here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Saved Experiments (READ + UPDATE + DELETE) -->
+        <div class="experiments-section">
+          <div class="experiments-header">
+            <h2 class="experiments-title">Saved Experiments</h2>
+            <span class="experiments-count" id="exp-count">0 experiments</span>
+          </div>
+          <div class="experiments-table-wrap">
+            <table class="experiments-table" id="experiments-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Element 1</th>
+                  <th>Element 2</th>
+                  <th>Bond Type</th>
+                  <th>Count</th>
+                  <th>ΔEN</th>
+                  <th>Notes</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="experiments-body">
+                <tr><td colspan="9" class="empty-state"><div class="empty-icon">⚗️</div>Belum ada experiment. Pilih dua elemen untuk memulai.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Edit Modal (UPDATE) -->
+    <div class="modal-overlay" id="edit-modal">
+      <div class="modal-card">
+        <h3>Edit Experiment</h3>
+        <input type="hidden" id="edit-id" />
+        <div class="form-group" style="margin-bottom:16px;">
+          <label>Bond Count</label>
+          <select id="edit-bond-count">
+            <option value="1">Single (1)</option>
+            <option value="2">Double (2)</option>
+            <option value="3">Triple (3)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="edit-notes" rows="3" placeholder="Catatan experiment..."></textarea>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-cancel" onclick="closeEditModal()">Batal</button>
+          <button class="btn-save" onclick="updateExperiment()">✦ Simpan Perubahan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Footer (same as index.html) -->
+    <footer id="tech-footer">
+      <div class="footer-content">
+        <div class="footer-logo">
+          <span class="logo-icon">⬡</span> Chemiverse
+        </div>
+        <div class="footer-links">
+          <a href="#">System Architecture</a>
+          <a href="#">API Documentation</a>
+          <a href="#">Source Code</a>
+        </div>
+        <div class="footer-status">
+          <span>[ ENGINE: ACTIVE ]</span>
+          <span>LATENCY: 12ms / ER: INCREASING</span>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // ===================================================================
+      // BOND SIMULATOR — JavaScript
+      // All CUD operations route through PHP API (api/bonds.php)
+      // ===================================================================
+
+      const API_BONDS = 'api/bonds.php';
+      const API_ELEMENTS = 'api/elements.php';
+
+      // Cache
+      let allElements = [];
+      let currentPrediction = null;
+
+      // ===========================
+      // 1. LOAD ELEMENTS INTO SELECTS
+      // ===========================
+      async function loadElements() {
+        try {
+          const res = await fetch(API_ELEMENTS);
+          const json = await res.json();
+          if (json.status === 'success') {
+            allElements = json.data;
+            const select1 = document.getElementById('select-el1');
+            const select2 = document.getElementById('select-el2');
+            allElements.forEach(el => {
+              const opt1 = new Option(`${el.atomic_number}. ${el.symbol} — ${el.name}`, el.symbol);
+              const opt2 = new Option(`${el.atomic_number}. ${el.symbol} — ${el.name}`, el.symbol);
+              select1.add(opt1);
+              select2.add(opt2);
+            });
+          }
+        } catch (e) {
+          console.error('Failed to load elements:', e);
+        }
+      }
+
+      // ===========================
+      // 2. ELEMENT PREVIEW ON SELECT
+      // ===========================
+      function showPreview(selectId, previewId) {
+        const select = document.getElementById(selectId);
+        const preview = document.getElementById(previewId);
+        const symbol = select.value;
+        if (!symbol) { preview.innerHTML = ''; return; }
+        const el = allElements.find(e => e.symbol === symbol);
+        if (!el) return;
+        preview.innerHTML = `
+          <div class="element-badge" style="border-color: ${el.color_hex}40; background: ${el.color_hex}15; color: ${el.color_hex};">${el.symbol}</div>
+          <div class="element-info-mini">
+            <span class="el-name">${el.name}</span>
+            <span class="el-category">${el.category}</span>
+          </div>
+        `;
+        tryPredict();
+      }
+
+      document.getElementById('select-el1').addEventListener('change', () => showPreview('select-el1', 'preview1'));
+      document.getElementById('select-el2').addEventListener('change', () => showPreview('select-el2', 'preview2'));
+
+      // ===========================
+      // 3. PREDICT BOND TYPE (via PHP)
+      // ===========================
+      async function tryPredict() {
+        const s1 = document.getElementById('select-el1').value;
+        const s2 = document.getElementById('select-el2').value;
+        const panel = document.getElementById('prediction-panel');
+        const bondIcon = document.getElementById('bond-icon');
+
+        if (!s1 || !s2) {
+          panel.classList.remove('visible');
+          bondIcon.classList.remove('active');
+          return;
+        }
+
+        try {
+          const res = await fetch(`${API_BONDS}?action=predict&e1=${s1}&e2=${s2}`);
+          const json = await res.json();
+          if (json.status !== 'success') return;
+
+          currentPrediction = json.data;
+          const d = json.data;
+
+          // Update UI
+          bondIcon.classList.add('active');
+          panel.classList.add('visible');
+
+          document.getElementById('pred-title').textContent = d.bond_type_name;
+          document.getElementById('pred-el1').textContent = `${d.element1.symbol} — ${d.element1.name} (EN: ${d.electronegativity1})`;
+          document.getElementById('pred-el2').textContent = `${d.element2.symbol} — ${d.element2.name} (EN: ${d.electronegativity2})`;
+          document.getElementById('pred-en-diff').textContent = d.electronegativity_diff;
+          document.getElementById('pred-behavior').textContent = d.bond_type.electron_behavior.replace(/_/g, ' ');
+          document.getElementById('pred-description').textContent = d.bond_type.description;
+
+          // Badge styling
+          const badge = document.getElementById('pred-badge');
+          badge.textContent = d.bond_type_name;
+          badge.className = 'prediction-badge';
+          const cls = d.bond_type_name.toLowerCase().replace(' ', '-');
+          badge.classList.add(cls);
+
+          // Update 3D visualization
+          update3DBond(d.bond_type.electron_behavior);
+        } catch (e) {
+          console.error('Prediction failed:', e);
+        }
+      }
+
+      // ===========================
+      // 4. THREE.JS BOND VISUALIZATION
+      // ===========================
+      let bondScene, bondCamera, bondRenderer, bondAnimId;
+      let bondGroup;
+      let bond3DInitialized = false;
+
+      function init3D() {
+        const container = document.getElementById('bond-3d-container');
+        // CRITICAL: Only init when container has real dimensions
+        if (container.clientWidth === 0 || container.clientHeight === 0) {
+          return false;
+        }
+
+        bondScene = new THREE.Scene();
+        bondCamera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 1, 5000);
+        bondCamera.position.set(0, 0, 600);
+
+        bondRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        bondRenderer.setSize(container.clientWidth, container.clientHeight);
+        bondRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        bondRenderer.setClearColor(0x000000, 0);
+        container.appendChild(bondRenderer.domElement);
+
+        // Strong lighting so objects are clearly visible
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        bondScene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0x00ffff, 1.5, 3000);
+        pointLight.position.set(400, 400, 600);
+        bondScene.add(pointLight);
+
+        const pointLight2 = new THREE.PointLight(0xff6666, 1.0, 3000);
+        pointLight2.position.set(-400, -300, 500);
+        bondScene.add(pointLight2);
+
+        const fillLight = new THREE.PointLight(0xffffff, 0.4, 2000);
+        fillLight.position.set(0, 0, 800);
+        bondScene.add(fillLight);
+
+        bondGroup = new THREE.Group();
+        bondScene.add(bondGroup);
+
+        bond3DInitialized = true;
+        startBondAnimation();
+        return true;
+      }
+
+      function startBondAnimation() {
+        function animate() {
+          bondAnimId = requestAnimationFrame(animate);
+          if (bondGroup) {
+            bondGroup.rotation.y += 0.006;
+          }
+          // Animate electrons
+          if (bondGroup) {
+            bondGroup.children.forEach(function(child) {
+              if (child.userData && child.userData.angle !== undefined) {
+                child.userData.angle += child.userData.speed;
+                child.position.x = child.userData.center + Math.cos(child.userData.angle) * child.userData.radius;
+                child.position.y = Math.sin(child.userData.angle) * child.userData.radius;
+              }
+              if (child.userData && child.userData.type === 'sea') {
+                child.position.x += child.userData.vx;
+                child.position.y += child.userData.vy;
+                child.position.z += child.userData.vz;
+                if (Math.abs(child.position.x) > 250) child.userData.vx *= -1;
+                if (Math.abs(child.position.y) > 200) child.userData.vy *= -1;
+                if (Math.abs(child.position.z) > 150) child.userData.vz *= -1;
+              }
+            });
+          }
+          bondRenderer.render(bondScene, bondCamera);
+        }
+        if (bondAnimId) cancelAnimationFrame(bondAnimId);
+        animate();
+      }
+
+      function clearBondGroup() {
+        while (bondGroup.children.length > 0) {
+          const child = bondGroup.children[0];
+          if (child.geometry) child.geometry.dispose();
+          if (child.material) {
+            if (Array.isArray(child.material)) child.material.forEach(function(m) { m.dispose(); });
+            else child.material.dispose();
+          }
+          bondGroup.remove(child);
+        }
+      }
+
+      function update3DBond(behavior) {
+        // Lazy init — only now is the container visible with real dimensions
+        if (!bond3DInitialized) {
+          // Use small delay to ensure CSS display:block has been applied
+          setTimeout(function() {
+            if (init3D()) {
+              buildBondVisualization(behavior);
+            }
+          }, 100);
+          return;
+        }
+        buildBondVisualization(behavior);
+      }
+
+      function buildBondVisualization(behavior) {
+        if (!bondGroup) return;
+        clearBondGroup();
+
+        const atomGeo = new THREE.SphereGeometry(60, 32, 32);
+        const mat1 = new THREE.MeshStandardMaterial({
+          color: 0x00ffff, emissive: 0x00ffff, emissiveIntensity: 0.5,
+          roughness: 0.2, metalness: 0.8
+        });
+        const mat2 = new THREE.MeshStandardMaterial({
+          color: 0xff6666, emissive: 0xff6666, emissiveIntensity: 0.4,
+          roughness: 0.2, metalness: 0.8
+        });
+
+        const atom1 = new THREE.Mesh(atomGeo, mat1);
+        atom1.position.set(-120, 0, 0);
+        bondGroup.add(atom1);
+
+        const atom2 = new THREE.Mesh(atomGeo, mat2);
+        atom2.position.set(120, 0, 0);
+        bondGroup.add(atom2);
+
+        // Bond line between atoms
+        const bondLineMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
+        const lineGeo = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(-60, 0, 0),
+          new THREE.Vector3(60, 0, 0)
+        ]);
+        const bondLine = new THREE.Line(lineGeo, bondLineMat);
+        bondGroup.add(bondLine);
+
+        // Electrons based on behavior type
+        const electronGeo = new THREE.SphereGeometry(10, 16, 16);
+        const electronMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+        if (behavior === 'transfer') {
+          // Ionic: electrons orbit only around atom2 (the more electronegative one)
+          for (var i = 0; i < 4; i++) {
+            var e = new THREE.Mesh(electronGeo, electronMat.clone());
+            var angle = (i / 4) * Math.PI * 2;
+            e.position.set(120 + Math.cos(angle) * 100, Math.sin(angle) * 100, Math.sin(angle + i) * 40);
+            e.userData = { center: 120, radius: 100, angle: angle, speed: 0.03 + i * 0.007 };
+            bondGroup.add(e);
+          }
+        } else if (behavior === 'sharing') {
+          // Covalent: electrons orbit the midpoint between atoms (shared equally)
+          for (var i = 0; i < 4; i++) {
+            var e = new THREE.Mesh(electronGeo, electronMat.clone());
+            var angle = (i / 4) * Math.PI * 2;
+            e.position.set(Math.cos(angle) * 80, Math.sin(angle) * 80, Math.sin(angle) * 30);
+            e.userData = { center: 0, radius: 80, angle: angle, speed: 0.04 + i * 0.01 };
+            bondGroup.add(e);
+          }
+        } else if (behavior === 'unequal_sharing') {
+          // Polar covalent: electrons orbit closer to atom2 (unequal sharing)
+          for (var i = 0; i < 4; i++) {
+            var e = new THREE.Mesh(electronGeo, electronMat.clone());
+            var angle = (i / 4) * Math.PI * 2;
+            e.position.set(50 + Math.cos(angle) * 90, Math.sin(angle) * 90, Math.sin(angle + i) * 30);
+            e.userData = { center: 50, radius: 90, angle: angle, speed: 0.035 + i * 0.008 };
+            bondGroup.add(e);
+          }
+        } else if (behavior === 'sea_of_electrons') {
+          // Metallic: many electrons floating freely in a "sea"
+          for (var i = 0; i < 12; i++) {
+            var e = new THREE.Mesh(electronGeo, electronMat.clone());
+            e.position.set((Math.random() - 0.5) * 350, (Math.random() - 0.5) * 250, (Math.random() - 0.5) * 150);
+            e.userData = {
+              type: 'sea',
+              vx: (Math.random() - 0.5) * 2.5,
+              vy: (Math.random() - 0.5) * 2.5,
+              vz: (Math.random() - 0.5) * 1.5
+            };
+            bondGroup.add(e);
+          }
+        }
+      }
+
+      // ===========================
+      // 5. CREATE — Save Experiment (PHP POST)
+      // ===========================
+      async function saveExperiment() {
+        if (!currentPrediction) return;
+        const d = currentPrediction;
+        const bondCount = document.getElementById('save-bond-count').value;
+        const notes = document.getElementById('save-notes').value;
+
+        const formData = new FormData();
+        formData.append('action', 'create');
+        formData.append('element1_symbol', d.element1.symbol);
+        formData.append('element1_name', d.element1.name);
+        formData.append('element2_symbol', d.element2.symbol);
+        formData.append('element2_name', d.element2.name);
+        formData.append('bond_type_id', d.bond_type_id);
+        formData.append('bond_type_name', d.bond_type_name);
+        formData.append('bond_count', bondCount);
+        formData.append('electronegativity_diff', d.electronegativity_diff);
+        formData.append('notes', notes);
+
+        try {
+          const res = await fetch(API_BONDS, { method: 'POST', body: formData });
+          const json = await res.json();
+          if (json.status === 'success') {
+            showToast('Experiment berhasil disimpan!', 'success');
+            document.getElementById('save-notes').value = '';
+            document.getElementById('save-bond-count').value = '1';
+            loadExperiments();
+          } else {
+            showToast('Gagal menyimpan: ' + json.message, 'error');
+          }
+        } catch (e) {
+          showToast('Error: ' + e.message, 'error');
+        }
+      }
+
+      // ===========================
+      // 6. READ — Load Saved Experiments (PHP GET)
+      // ===========================
+      async function loadExperiments() {
+        try {
+          const res = await fetch(`${API_BONDS}?action=list`);
+          const json = await res.json();
+          const tbody = document.getElementById('experiments-body');
+          const countEl = document.getElementById('exp-count');
+
+          if (json.status !== 'success' || json.data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="empty-state"><div class="empty-icon">⚗️</div>Belum ada experiment. Pilih dua elemen untuk memulai.</td></tr>';
+            countEl.textContent = '0 experiments';
+            return;
+          }
+
+          countEl.textContent = json.data.length + ' experiment' + (json.data.length > 1 ? 's' : '');
+          tbody.innerHTML = json.data.map((sim, i) => {
+            const bondClass = (sim.bond_type_name || '').toLowerCase().replace(' ', '-');
+            const date = new Date(sim.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+            return `<tr>
+              <td>${i + 1}</td>
+              <td><strong>${sim.element1_symbol}</strong> ${sim.element1_name}</td>
+              <td><strong>${sim.element2_symbol}</strong> ${sim.element2_name}</td>
+              <td><span class="bond-badge prediction-badge ${bondClass}">${sim.bond_type_name || '—'}</span></td>
+              <td>${sim.bond_count}</td>
+              <td>${sim.electronegativity_diff}</td>
+              <td>${sim.notes || '—'}</td>
+              <td>${date}</td>
+              <td class="actions">
+                <button class="btn-edit" onclick="openEditModal(${sim.id}, ${sim.bond_count}, '${(sim.notes || '').replace(/'/g, "\\'")}')">Edit</button>
+                <button class="btn-delete" onclick="deleteExperiment(${sim.id})">Delete</button>
+              </td>
+            </tr>`;
+          }).join('');
+        } catch (e) {
+          console.error('Failed to load experiments:', e);
+        }
+      }
+
+      // ===========================
+      // 7. UPDATE — Edit Experiment (PHP POST)
+      // ===========================
+      function openEditModal(id, bondCount, notes) {
+        document.getElementById('edit-id').value = id;
+        document.getElementById('edit-bond-count').value = bondCount;
+        document.getElementById('edit-notes').value = notes;
+        document.getElementById('edit-modal').classList.add('visible');
+      }
+
+      function closeEditModal() {
+        document.getElementById('edit-modal').classList.remove('visible');
+      }
+
+      async function updateExperiment() {
+        const id = document.getElementById('edit-id').value;
+        const bondCount = document.getElementById('edit-bond-count').value;
+        const notes = document.getElementById('edit-notes').value;
+
+        const formData = new FormData();
+        formData.append('action', 'update');
+        formData.append('id', id);
+        formData.append('bond_count', bondCount);
+        formData.append('notes', notes);
+
+        try {
+          const res = await fetch(API_BONDS, { method: 'POST', body: formData });
+          const json = await res.json();
+          if (json.status === 'success') {
+            showToast('Experiment berhasil diperbarui!', 'success');
+            closeEditModal();
+            loadExperiments();
+          } else {
+            showToast('Gagal update: ' + json.message, 'error');
+          }
+        } catch (e) {
+          showToast('Error: ' + e.message, 'error');
+        }
+      }
+
+      // ===========================
+      // 8. DELETE — Remove Experiment (PHP POST)
+      // ===========================
+      async function deleteExperiment(id) {
+        if (!confirm('Hapus experiment ini? Tindakan tidak dapat dibatalkan.')) return;
+
+        const formData = new FormData();
+        formData.append('action', 'delete');
+        formData.append('id', id);
+
+        try {
+          const res = await fetch(API_BONDS, { method: 'POST', body: formData });
+          const json = await res.json();
+          if (json.status === 'success') {
+            showToast('Experiment berhasil dihapus.', 'success');
+            loadExperiments();
+          } else {
+            showToast('Gagal menghapus: ' + json.message, 'error');
+          }
+        } catch (e) {
+          showToast('Error: ' + e.message, 'error');
+        }
+      }
+
+      // ===========================
+      // 9. TOAST NOTIFICATION
+      // ===========================
+      function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = 'toast ' + type + ' visible';
+        setTimeout(() => { toast.classList.remove('visible'); }, 3000);
+      }
+
+      // ===========================
+      // INIT
+      // ===========================
+      loadElements();
+      loadExperiments();
+      // Note: 3D initializes lazily in update3DBond() when container is visible
+    </script>
+  </body>
+</html>
