@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reaction Lab — Chemiverse</title>
+    <meta name="description" content="Simulasikan reaksi kimia secara interaktif. Lihat reaktan bertemu dan berubah menjadi produk dalam visualisasi 3D real-time." />
+    <link rel="stylesheet" href="css/style.css?v=22" />
+    <link rel="stylesheet" href="css/reaction-lab.css?v=3" />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,700;1,300&family=Montserrat:wght@300;400&display=swap" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav id="navbar">
+      <div class="nav-brand">
+        <span class="logo-icon">⬡</span> Chemiverse
+      </div>
+      <div class="nav-links">
+        <a href="index.html">Periodic Wiki</a>
+        <a href="bond-simulator.html">Bond Simulator</a>
+        <a href="molecular-viewer.html">Molecular Viewer</a>
+        <a href="reaction-lab.html" class="active">Reaction Lab</a>
+      </div>
+      <div class="nav-cta">
+        <a href="#" class="btn-primary">Launch Sandbox <span class="arrow">→</span></a>
+      </div>
+    </nav>
+
+    <main class="rxn-page">
+      <!-- Full-screen 3D Canvas -->
+      <div id="rxn-canvas-container"></div>
+
+      <!-- Center Hint -->
+      <div class="rxn-hint" id="rxn-hint">
+        <div class="rxn-hint-icon">⚗️</div>
+        <div class="rxn-hint-text">Reaction Lab</div>
+        <div class="rxn-hint-sub">Ketik reaktan atau pilih reaksi populer dari panel kiri</div>
+      </div>
+
+      <!-- Loading -->
+      <div class="rxn-loading" id="rxn-loading"><div class="rxn-spinner"></div></div>
+
+      <!-- Left Panel: Reaction Selector -->
+      <div class="rxn-left-panel rxn-glass" id="rxn-selector">
+        <h2 class="rxn-panel-title">Reaction Lab</h2>
+
+        <!-- Element Selector -->
+        <div class="rxn-custom-input">
+          <div class="rxn-custom-label">Pilih Reaktan dari Tabel Periodik</div>
+          <div class="rxn-selected-elements">
+            <div class="rxn-sel-slot" id="slot-r1" onclick="openPeriodicTable(1)">
+              <span class="rxn-sel-placeholder">Reaktan 1</span>
+            </div>
+            <span class="rxn-input-plus">+</span>
+            <div class="rxn-sel-slot" id="slot-r2" onclick="openPeriodicTable(2)">
+              <span class="rxn-sel-placeholder">Reaktan 2</span>
+            </div>
+          </div>
+          <button class="rxn-react-btn" id="btn-react" onclick="predictFromElements()">
+            ⚡ Reaksikan!
+          </button>
+          <div class="rxn-predict-msg" id="predict-msg"></div>
+        </div>
+
+        <div class="rxn-separator">
+          <span class="rxn-separator-text">Reaksi Populer</span>
+        </div>
+
+        <div class="rxn-type-pills" id="rxn-type-pills">
+          <button class="rxn-pill active" data-type="all">All</button>
+          <button class="rxn-pill" data-type="synthesis">Sintesis</button>
+          <button class="rxn-pill" data-type="decomposition">Dekomposisi</button>
+          <button class="rxn-pill" data-type="single_replacement">Penggantian</button>
+          <button class="rxn-pill" data-type="double_replacement">Pengg. Ganda</button>
+          <button class="rxn-pill" data-type="combustion">Pembakaran</button>
+          <button class="rxn-pill" data-type="acid_base">Asam-Basa</button>
+        </div>
+
+        <div class="rxn-list" id="rxn-list"></div>
+      </div>
+
+      <!-- Center Top: Equation Display -->
+      <div class="rxn-equation-bar rxn-glass" id="rxn-equation-bar">
+        <div class="rxn-eq-label">Persamaan Setara</div>
+        <div class="rxn-eq-text" id="rxn-eq-text">—</div>
+      </div>
+
+      <!-- Right Panel: Reaction Info -->
+      <div class="rxn-right-panel rxn-glass" id="rxn-info-panel">
+        <h1 class="rxn-info-name" id="rxn-info-name">—</h1>
+        <div class="rxn-info-divider"></div>
+        <div class="rxn-info-badges" id="rxn-badges"></div>
+        <div id="rxn-info-rows"></div>
+        <p class="rxn-info-desc" id="rxn-info-desc">—</p>
+
+        <!-- Save Experiment -->
+        <div class="rxn-save-bar">
+          <input type="text" class="rxn-save-input" id="rxn-save-notes" placeholder="Catatan eksperimen..." />
+          <button class="rxn-save-btn" id="rxn-save-btn" onclick="saveExperiment()">Simpan</button>
+        </div>
+      </div>
+
+      <!-- Bottom Left: Saved Experiments -->
+      <div class="rxn-exp-toggle rxn-glass" id="rxn-exp-panel">
+        <div class="rxn-exp-header" onclick="toggleExperiments()">
+          <span class="rxn-exp-header-text">Eksperimen Tersimpan (<span id="exp-count">0</span>)</span>
+          <span class="rxn-exp-header-icon" id="exp-icon">▼</span>
+        </div>
+        <div class="rxn-exp-list" id="exp-list"></div>
+      </div>
+      <!-- Periodic Table Modal Overlay -->
+      <div class="pt-modal-overlay" id="pt-modal" onclick="closePeriodicTable(event)">
+        <div class="pt-modal rxn-glass" onclick="event.stopPropagation()">
+          <div class="pt-modal-header">
+            <h2 class="pt-modal-title">Pilih Elemen</h2>
+            <div class="pt-modal-selecting" id="pt-selecting">Memilih: <span id="pt-slot-label">Reaktan 1</span></div>
+            <button class="pt-modal-close" onclick="closePeriodicTable()">&times;</button>
+          </div>
+          <div class="pt-grid" id="pt-grid">
+            <!-- Filled by JS -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      // ===================================================================
+      // REACTION LAB — Full 3D Interactive
+      // ===================================================================
+      var API = 'api/reactions.php';
+      var allReactions = [];
+      var currentReaction = null;
+
+      // Three.js globals
+      var scene, camera, renderer, controls, rxnGroup;
+      var animFrameId;
+      var reactionPhase = 'idle'; // idle, reacting, products
+      var phaseTimer = 0;
+      var reactantMeshes = [];
+      var productMeshes = [];
+      var particleSystem = null;
+
+      // Color palettes for reactants/products
+      var REACTANT_COLORS = [0x00ffff, 0xff6666, 0x66ff66, 0xffaa00];
+      var PRODUCT_COLORS = [0xaa66ff, 0x66ffcc, 0xff66aa, 0xffff66];
+
+      // ===========================
+      // 1. INIT THREE.JS SCENE
+      // ===========================
+      function initScene() {
+        var container = document.getElementById('rxn-canvas-container');
+
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
+        camera.position.set(0, 80, 500);
+
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setClearColor(0x020208, 1);
+        container.appendChild(renderer.domElement);
+
+        // OrbitControls
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.8;
+        controls.enablePan = false;
+        controls.minDistance = 150;
+        controls.maxDistance = 1500;
+
+        // Lighting
+        scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+
+        var keyLight = new THREE.DirectionalLight(0xeef6ff, 1.0);
+        keyLight.position.set(400, 500, 400);
+        scene.add(keyLight);
+
+        var fillLight = new THREE.DirectionalLight(0x88ccff, 0.3);
+        fillLight.position.set(-300, 200, 300);
+        scene.add(fillLight);
+
+        var rimLight = new THREE.PointLight(0x00ffff, 0.5, 2000);
+        rimLight.position.set(0, -200, -400);
+        scene.add(rimLight);
+
+        // Background particles
+        var starGeo = new THREE.BufferGeometry();
+        var starPos = [];
+        for (var i = 0; i < 400; i++) {
+          starPos.push((Math.random()-0.5)*5000, (Math.random()-0.5)*5000, (Math.random()-0.5)*5000);
+        }
+        starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
+        scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0x223344, size: 1.5 })));
+
+        rxnGroup = new THREE.Group();
+        scene.add(rxnGroup);
+
+        window.addEventListener('resize', function() {
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+      }
+
+      function animate() {
+        animFrameId = requestAnimationFrame(animate);
+        controls.update();
+        updateReactionAnimation();
+        renderer.render(scene, camera);
+      }
+
+      // ===========================
+      // 2. REACTION ANIMATION ENGINE
+      // ===========================
+      function updateReactionAnimation() {
+        if (reactionPhase === 'idle') return;
+
+        phaseTimer++;
+
+        if (reactionPhase === 'approaching') {
+          // Reactants move toward center
+          var speed = 0.8;
+          var allArrived = true;
+          reactantMeshes.forEach(function(mesh) {
+            var dx = mesh.userData.targetX - mesh.position.x;
+            var dy = mesh.userData.targetY - mesh.position.y;
+            var dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist > 2) {
+              mesh.position.x += dx * 0.03;
+              mesh.position.y += dy * 0.03;
+              allArrived = false;
+            }
+            mesh.rotation.y += 0.02;
+            mesh.rotation.x += 0.01;
+          });
+
+          if (allArrived || phaseTimer > 120) {
+            reactionPhase = 'colliding';
+            phaseTimer = 0;
+            createCollisionParticles();
+          }
+        }
+
+        else if (reactionPhase === 'colliding') {
+          // Flash + particle explosion
+          if (particleSystem) {
+            var positions = particleSystem.geometry.attributes.position.array;
+            var velocities = particleSystem.userData.velocities;
+            for (var i = 0; i < velocities.length; i++) {
+              positions[i*3] += velocities[i].x;
+              positions[i*3+1] += velocities[i].y;
+              positions[i*3+2] += velocities[i].z;
+              velocities[i].x *= 0.97;
+              velocities[i].y *= 0.97;
+              velocities[i].z *= 0.97;
+            }
+            particleSystem.geometry.attributes.position.needsUpdate = true;
+            particleSystem.material.opacity = Math.max(0, 1 - phaseTimer / 80);
+          }
+
+          // Fade out reactants
+          reactantMeshes.forEach(function(mesh) {
+            if (mesh.material.opacity > 0) {
+              mesh.material.opacity -= 0.02;
+              mesh.material.transparent = true;
+            }
+            mesh.scale.multiplyScalar(0.98);
+          });
+
+          if (phaseTimer > 80) {
+            reactionPhase = 'forming';
+            phaseTimer = 0;
+            // Remove reactants
+            reactantMeshes.forEach(function(m) { rxnGroup.remove(m); });
+            reactantMeshes = [];
+            if (particleSystem) { rxnGroup.remove(particleSystem); particleSystem = null; }
+            // Show products
+            showProducts();
+          }
+        }
+
+        else if (reactionPhase === 'forming') {
+          // Products fade in and grow
+          productMeshes.forEach(function(mesh) {
+            if (mesh.scale.x < mesh.userData.finalScale) {
+              mesh.scale.multiplyScalar(1.03);
+              mesh.material.opacity = Math.min(1, mesh.material.opacity + 0.025);
+            }
+            mesh.rotation.y += 0.015;
+          });
+
+          if (phaseTimer > 60) {
+            reactionPhase = 'done';
+            phaseTimer = 0;
+          }
+        }
+
+        else if (reactionPhase === 'done') {
+          // Gentle rotation
+          productMeshes.forEach(function(mesh) {
+            mesh.rotation.y += 0.008;
+          });
+          reactantMeshes.forEach(function(mesh) {
+            mesh.rotation.y += 0.008;
+          });
+        }
+      }
+
+      function createCollisionParticles() {
+        var count = 80;
+        var geo = new THREE.BufferGeometry();
+        var positions = new Float32Array(count * 3);
+        var velocities = [];
+
+        for (var i = 0; i < count; i++) {
+          positions[i*3] = 0;
+          positions[i*3+1] = 0;
+          positions[i*3+2] = 0;
+          velocities.push({
+            x: (Math.random()-0.5) * 8,
+            y: (Math.random()-0.5) * 8,
+            z: (Math.random()-0.5) * 8
+          });
+        }
+
+        geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        var mat = new THREE.PointsMaterial({
+          color: 0xffcc00,
+          size: 4,
+          transparent: true,
+          opacity: 1
+        });
+
+        particleSystem = new THREE.Points(geo, mat);
+        particleSystem.userData.velocities = velocities;
+        rxnGroup.add(particleSystem);
+      }
+
+      // ===========================
+      // 3. BUILD REACTION VISUALIZATION
+      // ===========================
+      function buildReaction3D(reaction) {
+        clearRxnGroup();
+        reactionPhase = 'approaching';
+        phaseTimer = 0;
+        reactantMeshes = [];
+        productMeshes = [];
+
+        var reactants = reaction.reactants;
+        var products = reaction.products;
+
+        // Create reactant spheres (positioned at edges, will move toward center)
+        var spacing = 180;
+        var startX = -(reactants.length - 1) * spacing / 2;
+
+        reactants.forEach(function(formula, i) {
+          var color = REACTANT_COLORS[i % REACTANT_COLORS.length];
+          var size = 30 + formula.length * 5;
+
+          // Main sphere
+          var geo = new THREE.SphereGeometry(size, 32, 32);
+          var mat = new THREE.MeshStandardMaterial({
+            color: color,
+            emissive: color,
+            emissiveIntensity: 0.35,
+            roughness: 0.2,
+            metalness: 0.6,
+            transparent: true,
+            opacity: 1
+          });
+          var mesh = new THREE.Mesh(geo, mat);
+
+          // Start far away
+          var angle = (i / reactants.length) * Math.PI * 2;
+          mesh.position.set(
+            Math.cos(angle) * 350,
+            Math.sin(angle) * 150,
+            0
+          );
+          mesh.userData.targetX = 0;
+          mesh.userData.targetY = 0;
+          mesh.userData.formula = formula;
+
+          rxnGroup.add(mesh);
+          reactantMeshes.push(mesh);
+
+          // Glow ring around sphere
+          var ringGeo = new THREE.RingGeometry(size + 5, size + 8, 64);
+          var ringMat = new THREE.MeshBasicMaterial({
+            color: color,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.3
+          });
+          var ring = new THREE.Mesh(ringGeo, ringMat);
+          ring.position.copy(mesh.position);
+          ring.userData.targetX = 0;
+          ring.userData.targetY = 0;
+          rxnGroup.add(ring);
+          reactantMeshes.push(ring);
+
+          // Label using sprite
+          var canvas = document.createElement('canvas');
+          canvas.width = 256;
+          canvas.height = 128;
+          var ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 36px Montserrat, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(formula, 128, 64);
+
+          var texture = new THREE.CanvasTexture(canvas);
+          var spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.9 });
+          var sprite = new THREE.Sprite(spriteMat);
+          sprite.scale.set(120, 60, 1);
+          sprite.position.set(mesh.position.x, mesh.position.y + size + 35, 0);
+          sprite.userData.targetX = 0;
+          sprite.userData.targetY = size + 35;
+          sprite.userData.isLabel = true;
+          rxnGroup.add(sprite);
+          reactantMeshes.push(sprite);
+        });
+
+        // Pre-create product meshes (hidden, shown after collision)
+        var prodSpacing = 160;
+        var prodStartX = -(products.length - 1) * prodSpacing / 2;
+
+        products.forEach(function(formula, i) {
+          var color = PRODUCT_COLORS[i % PRODUCT_COLORS.length];
+          var size = 30 + formula.length * 5;
+
+          var geo = new THREE.IcosahedronGeometry(size, 1);
+          var mat = new THREE.MeshStandardMaterial({
+            color: color,
+            emissive: color,
+            emissiveIntensity: 0.35,
+            roughness: 0.15,
+            metalness: 0.7,
+            transparent: true,
+            opacity: 0
+          });
+          var mesh = new THREE.Mesh(geo, mat);
+          mesh.position.set(prodStartX + i * prodSpacing, 0, 0);
+          mesh.scale.set(0.1, 0.1, 0.1);
+          mesh.userData.finalScale = 1;
+          mesh.userData.formula = formula;
+
+          // Don't add to scene yet — added in showProducts()
+          productMeshes.push(mesh);
+        });
+
+        camera.position.set(0, 80, 500);
+        controls.target.set(0, 0, 0);
+        controls.update();
+      }
+
+      function showProducts() {
+        productMeshes.forEach(function(mesh, i) {
+          rxnGroup.add(mesh);
+
+          // Product label
+          var canvas = document.createElement('canvas');
+          canvas.width = 256;
+          canvas.height = 128;
+          var ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 36px Montserrat, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(mesh.userData.formula, 128, 64);
+
+          var texture = new THREE.CanvasTexture(canvas);
+          var spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.9 });
+          var sprite = new THREE.Sprite(spriteMat);
+          var size = 30 + mesh.userData.formula.length * 5;
+          sprite.scale.set(120, 60, 1);
+          sprite.position.set(mesh.position.x, mesh.position.y + size + 35, 0);
+          rxnGroup.add(sprite);
+          productMeshes.push(sprite);
+        });
+      }
+
+      function clearRxnGroup() {
+        while (rxnGroup.children.length > 0) {
+          var child = rxnGroup.children[0];
+          if (child.geometry) child.geometry.dispose();
+          if (child.material) {
+            if (child.material.map) child.material.map.dispose();
+            child.material.dispose();
+          }
+          rxnGroup.remove(child);
+        }
+        reactantMeshes = [];
+        productMeshes = [];
+        particleSystem = null;
+        reactionPhase = 'idle';
+      }
+
+      // ===========================
+      // 4. LOAD REACTIONS LIST
+      // ===========================
+      function loadReactions() {
+        fetch(API + '?action=list')
+          .then(function(r) { return r.json(); })
+          .then(function(json) {
+            if (json.status === 'success') {
+              allReactions = json.data;
+              renderReactionList(allReactions);
+            }
+          })
+          .catch(function(e) { console.error('Failed:', e); });
+      }
+
+      function renderReactionList(reactions) {
+        var typeLabels = {
+          synthesis: 'Sintesis', decomposition: 'Dekomposisi',
+          single_replacement: 'Penggantian Tunggal', double_replacement: 'Penggantian Ganda',
+          combustion: 'Pembakaran', acid_base: 'Asam-Basa'
+        };
+        var list = document.getElementById('rxn-list');
+        list.innerHTML = reactions.map(function(rx) {
+          return '<div class="rxn-card' + (currentReaction && currentReaction.id == rx.id ? ' active' : '') + '" data-id="' + rx.id + '" onclick="selectReaction(' + rx.id + ')">' +
+            '<div class="rxn-card-name">' + rx.name + '</div>' +
+            '<div class="rxn-card-eq">' + rx.equation + '</div>' +
+            '<div class="rxn-card-type">' + (typeLabels[rx.type] || rx.type) + '</div>' +
+          '</div>';
+        }).join('');
+      }
+
+      // ===========================
+      // 5. TYPE FILTER
+      // ===========================
+      document.getElementById('rxn-type-pills').addEventListener('click', function(e) {
+        if (!e.target.classList.contains('rxn-pill')) return;
+        document.querySelectorAll('.rxn-pill').forEach(function(p) { p.classList.remove('active'); });
+        e.target.classList.add('active');
+
+        var type = e.target.getAttribute('data-type');
+        if (type === 'all') {
+          renderReactionList(allReactions);
+        } else {
+          renderReactionList(allReactions.filter(function(r) { return r.type === type; }));
+        }
+      });
+
+      // ===========================
+      // 6. SELECT REACTION
+      // ===========================
+      function selectReaction(id) {
+        document.getElementById('rxn-loading').classList.add('active');
+        document.getElementById('rxn-hint').classList.add('hidden');
+
+        fetch(API + '?action=get&id=' + id)
+          .then(function(r) { return r.json(); })
+          .then(function(json) {
+            if (json.status !== 'success') return;
+            currentReaction = json.data;
+            var rx = json.data;
+
+            // Equation display
+            formatEquation(rx.equation);
+            document.getElementById('rxn-equation-bar').classList.add('visible');
+
+            // Info panel
+            document.getElementById('rxn-info-name').textContent = rx.name;
+            document.getElementById('rxn-info-desc').textContent = rx.description;
+
+            // Badges
+            var typeLabels = {
+              synthesis: 'Sintesis', decomposition: 'Dekomposisi',
+              single_replacement: 'Penggantian Tunggal', double_replacement: 'Penggantian Ganda',
+              combustion: 'Pembakaran', acid_base: 'Asam-Basa'
+            };
+            var badgesHtml = '<span class="rxn-badge type-badge">' + (typeLabels[rx.type] || rx.type) + '</span>';
+            badgesHtml += '<span class="rxn-badge ' + (rx.energy === 'exothermic' ? 'energy-exo' : 'energy-endo') + '">' +
+              (rx.energy === 'exothermic' ? '🔥 Eksoterm' : '❄️ Endoterm') + '</span>';
+            if (rx.reversible == 1) {
+              badgesHtml += '<span class="rxn-badge reversible-badge">⇌ Reversibel</span>';
+            }
+            document.getElementById('rxn-badges').innerHTML = badgesHtml;
+
+            // Info rows
+            var rowsHtml = '';
+            rowsHtml += '<div class="rxn-info-row"><span class="rxn-info-label">Reaktan</span><span class="rxn-info-value">' + rx.reactants.join(' + ') + '</span></div>';
+            rowsHtml += '<div class="rxn-info-row"><span class="rxn-info-label">Produk</span><span class="rxn-info-value">' + rx.products.join(' + ') + '</span></div>';
+            rowsHtml += '<div class="rxn-info-row"><span class="rxn-info-label">Kondisi</span><span class="rxn-info-value">' + rx.conditions + '</span></div>';
+            document.getElementById('rxn-info-rows').innerHTML = rowsHtml;
+
+            document.getElementById('rxn-info-panel').classList.add('visible');
+
+            // Highlight card
+            document.querySelectorAll('.rxn-card').forEach(function(c) { c.classList.remove('active'); });
+            var card = document.querySelector('.rxn-card[data-id="' + id + '"]');
+            if (card) card.classList.add('active');
+
+            // 3D Animation
+            buildReaction3D(rx);
+          })
+          .catch(function(e) { console.error('Failed:', e); })
+          .finally(function() {
+            document.getElementById('rxn-loading').classList.remove('active');
+          });
+      }
+
+      function formatEquation(eq) {
+        // Style the equation with colored coefficients and arrow
+        var html = eq
+          .replace(/(→|⇌)/g, '<span class="arrow">$1</span>')
+          .replace(/\+/g, '<span class="plus">+</span>')
+          .replace(/(\d+)(?=[A-Z])/g, '<span class="coeff">$1</span>');
+        document.getElementById('rxn-eq-text').innerHTML = html;
+      }
+
+      // ===========================
+      // 7. SAVE EXPERIMENT (CUD)
+      // ===========================
+      function saveExperiment() {
+        if (!currentReaction) return;
+        var notes = document.getElementById('rxn-save-notes').value.trim();
+
+        var formData = new FormData();
+        formData.append('action', 'save');
+        formData.append('reaction_id', currentReaction.id);
+        formData.append('notes', notes);
+
+        fetch(API, { method: 'POST', body: formData })
+          .then(function(r) { return r.json(); })
+          .then(function(json) {
+            if (json.status === 'success') {
+              document.getElementById('rxn-save-notes').value = '';
+              loadExperiments();
+              // Quick flash the button
+              var btn = document.getElementById('rxn-save-btn');
+              btn.textContent = '✓ Tersimpan';
+              btn.style.color = '#66ff66';
+              btn.style.borderColor = 'rgba(100,255,100,0.3)';
+              setTimeout(function() {
+                btn.textContent = 'Simpan';
+                btn.style.color = '';
+                btn.style.borderColor = '';
+              }, 2000);
+            }
+          })
+          .catch(function(e) { console.error('Save failed:', e); });
+      }
+
+      // ===========================
+      // 8. LOAD EXPERIMENTS
+      // ===========================
+      function loadExperiments() {
+        fetch(API + '?action=experiments')
+          .then(function(r) { return r.json(); })
+          .then(function(json) {
+            if (json.status !== 'success') return;
+            var exps = json.data;
+            document.getElementById('exp-count').textContent = exps.length;
+
+            var html = exps.map(function(exp) {
+              return '<div class="rxn-exp-item">' +
+                '<div class="rxn-exp-info">' +
+                  '<div class="rxn-exp-name">' + exp.reaction_name + '</div>' +
+                  '<div class="rxn-exp-note">' + (exp.notes || 'Tanpa catatan') + '</div>' +
+                '</div>' +
+                '<button class="rxn-exp-del" onclick="deleteExperiment(' + exp.id + ')">✕</button>' +
+              '</div>';
+            }).join('');
+            document.getElementById('exp-list').innerHTML = html;
+          });
+      }
+
+      function deleteExperiment(id) {
+        var formData = new FormData();
+        formData.append('action', 'delete');
+        formData.append('id', id);
+
+        fetch(API, { method: 'POST', body: formData })
+          .then(function(r) { return r.json(); })
+          .then(function(json) {
+            if (json.status === 'success') loadExperiments();
+          });
+      }
+
+      function toggleExperiments() {
+        var list = document.getElementById('exp-list');
+        var icon = document.getElementById('exp-icon');
+        list.classList.toggle('open');
+        icon.classList.toggle('open');
+      }
+
+      // ===========================
+      // 9. PERIODIC TABLE MODAL
+      // ===========================
+      var selectedSlot = 1; // which slot we're filling (1 or 2)
+      var selectedElements = { 1: null, 2: null };
+      var allElements = [];
+
+      function getCategoryClass(cat) {
+        if (!cat) return '';
+        var c = cat.toLowerCase();
+        if (c.indexOf('alkali') >= 0 && c.indexOf('earth') >= 0) return 'cat-alkaline';
+        if (c.indexOf('alkali') >= 0) return 'cat-alkali';
+        if (c.indexOf('transition') >= 0) return 'cat-transition';
+        if (c.indexOf('post') >= 0 || c.indexOf('poor') >= 0) return 'cat-post-transition';
+        if (c.indexOf('metalloid') >= 0 || c.indexOf('semimetal') >= 0) return 'cat-metalloid';
+        if (c.indexOf('nonmetal') >= 0 || c.indexOf('reactive') >= 0) return 'cat-nonmetal';
+        if (c.indexOf('halogen') >= 0) return 'cat-halogen';
+        if (c.indexOf('noble') >= 0) return 'cat-noble';
+        if (c.indexOf('lanthan') >= 0) return 'cat-lanthanide';
+        if (c.indexOf('actin') >= 0) return 'cat-actinide';
+        return 'cat-transition';
+      }
+
+      function loadElements() {
+        fetch('api/elements.php')
+          .then(function(r) { return r.json(); })
+          .then(function(json) {
+            if (json.status === 'success') {
+              allElements = json.data;
+              buildPeriodicTableGrid();
+            }
+          })
+          .catch(function(e) { console.error('Elements load failed:', e); });
+      }
+
+      function buildPeriodicTableGrid() {
+        var grid = document.getElementById('pt-grid');
+
+        // Use xpos/ypos from DB to place elements
+        // Find max row
+        var maxRow = 0;
+        allElements.forEach(function(el) {
+          var y = parseInt(el.ypos);
+          if (y > maxRow) maxRow = y;
+        });
+
+        // Build a map: "row-col" -> element
+        var cellMap = {};
+        allElements.forEach(function(el) {
+          var key = el.ypos + '-' + el.xpos;
+          cellMap[key] = el;
+        });
+
+        var html = '';
+        for (var row = 1; row <= maxRow; row++) {
+          // Gap row between main table (row 7) and lanthanides (row 8)
+          if (row === 8) {
+            for (var g = 0; g < 18; g++) html += '<div class="pt-cell empty" style="height:6px;aspect-ratio:auto"></div>';
+          }
+          for (var col = 1; col <= 18; col++) {
+            var key = row + '-' + col;
+            var el = cellMap[key];
+            if (el) {
+              var catClass = getCategoryClass(el.category);
+              html += '<div class="pt-cell ' + catClass + '" onclick="selectElement(' + el.atomic_number + ')" title="' + el.name + ' (' + el.symbol + ')">';
+              html += '<span class="pt-num">' + el.atomic_number + '</span>';
+              html += '<span class="pt-sym">' + el.symbol + '</span>';
+              html += '</div>';
+            } else {
+              html += '<div class="pt-cell empty"></div>';
+            }
+          }
+        }
+        grid.innerHTML = html;
+      }
+
+      function openPeriodicTable(slot) {
+        selectedSlot = slot;
+        document.getElementById('pt-slot-label').textContent = 'Reaktan ' + slot;
+        document.getElementById('pt-modal').classList.add('open');
+      }
+
+      function closePeriodicTable(e) {
+        if (e && e.target && e.target.id !== 'pt-modal') return;
+        document.getElementById('pt-modal').classList.remove('open');
+      }
+
+      function selectElement(atomicNumber) {
+        var el = allElements.find(function(e) { return e.atomic_number == atomicNumber; });
+        if (!el) return;
+
+        selectedElements[selectedSlot] = el;
+
+        // Update slot UI
+        var slot = document.getElementById('slot-r' + selectedSlot);
+        slot.classList.add('filled');
+        slot.innerHTML = '<span class="rxn-sel-symbol">' + el.symbol + '</span>' +
+                         '<span class="rxn-sel-name">' + el.name + '</span>';
+
+        // Auto-advance to next slot or close
+        if (selectedSlot === 1 && !selectedElements[2]) {
+          selectedSlot = 2;
+          document.getElementById('pt-slot-label').textContent = 'Reaktan 2';
+        } else {
+          document.getElementById('pt-modal').classList.remove('open');
+        }
+      }
+
+      // ===========================
+      // 10. PREDICT FROM SELECTED ELEMENTS
+      // ===========================
+      function predictFromElements() {
+        var el1 = selectedElements[1];
+        var el2 = selectedElements[2];
+        var msg = document.getElementById('predict-msg');
+
+        if (!el1) {
+          msg.textContent = 'Pilih minimal 1 elemen dari tabel periodik';
+          msg.className = 'rxn-predict-msg';
+          return;
+        }
+
+        msg.textContent = 'Mencari reaksi...';
+        msg.className = 'rxn-predict-msg success';
+        document.getElementById('rxn-hint').classList.add('hidden');
+        document.getElementById('rxn-loading').classList.add('active');
+
+        // Search through all reactions for ones containing these elements
+        var sym1 = el1.symbol;
+        var sym2 = el2 ? el2.symbol : null;
+        var matches = [];
+
+        allReactions.forEach(function(rx) {
+          var allFormulas = rx.reactants.concat(rx.products).join(' ');
+          var has1 = allFormulas.indexOf(sym1) >= 0;
+          var has2 = sym2 ? allFormulas.indexOf(sym2) >= 0 : true;
+
+          if (has1 && has2) matches.push(rx);
+        });
+
+        document.getElementById('rxn-loading').classList.remove('active');
+
+        if (matches.length > 0) {
+          // Show first match with 3D animation
+          var rx = matches[0];
+          currentReaction = rx;
+
+          formatEquation(rx.equation);
+          document.getElementById('rxn-equation-bar').classList.add('visible');
+
+          var typeLabels = {
+            synthesis: 'Sintesis', decomposition: 'Dekomposisi',
+            single_replacement: 'Penggantian Tunggal', double_replacement: 'Penggantian Ganda',
+            combustion: 'Pembakaran', acid_base: 'Asam-Basa'
+          };
+          document.getElementById('rxn-info-name').textContent = rx.name;
+          document.getElementById('rxn-info-desc').textContent = rx.description;
+
+          var badgesHtml = '<span class="rxn-badge type-badge">' + (typeLabels[rx.type] || rx.type) + '</span>';
+          badgesHtml += '<span class="rxn-badge ' + (rx.energy === 'exothermic' ? 'energy-exo' : 'energy-endo') + '">' +
+            (rx.energy === 'exothermic' ? '🔥 Eksoterm' : '❄️ Endoterm') + '</span>';
+          if (rx.reversible == 1) badgesHtml += '<span class="rxn-badge reversible-badge">⇌ Reversibel</span>';
+          document.getElementById('rxn-badges').innerHTML = badgesHtml;
+
+          var rowsHtml = '';
+          rowsHtml += '<div class="rxn-info-row"><span class="rxn-info-label">Reaktan</span><span class="rxn-info-value">' + rx.reactants.join(' + ') + '</span></div>';
+          rowsHtml += '<div class="rxn-info-row"><span class="rxn-info-label">Produk</span><span class="rxn-info-value">' + rx.products.join(' + ') + '</span></div>';
+          rowsHtml += '<div class="rxn-info-row"><span class="rxn-info-label">Kondisi</span><span class="rxn-info-value">' + rx.conditions + '</span></div>';
+          document.getElementById('rxn-info-rows').innerHTML = rowsHtml;
+
+          document.getElementById('rxn-info-panel').classList.add('visible');
+
+          document.querySelectorAll('.rxn-card').forEach(function(c) { c.classList.remove('active'); });
+          var card = document.querySelector('.rxn-card[data-id="' + rx.id + '"]');
+          if (card) card.classList.add('active');
+
+          buildReaction3D(rx);
+
+          var matchText = matches.length > 1 ? ' (' + matches.length + ' reaksi ditemukan)' : '';
+          msg.textContent = '✓ ' + rx.name + matchText;
+          msg.className = 'rxn-predict-msg success';
+        } else {
+          var names = sym1 + (sym2 ? ' & ' + sym2 : '');
+          msg.textContent = 'Belum ada reaksi untuk ' + names + ' di database. Coba kombinasi lain!';
+          msg.className = 'rxn-predict-msg';
+        }
+      }
+
+      // ===========================
+      // INIT
+      // ===========================
+      initScene();
+      loadReactions();
+      loadExperiments();
+      loadElements();
+    </script>
+  </body>
+</html>
