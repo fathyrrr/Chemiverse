@@ -1,3 +1,29 @@
+:root {
+    /* Primary Background - Tinted dark violet-slate for high-end professional dark theme (Advice 1) */
+    --bg-main: #06050e;
+    --bg-footer: #030206;
+    
+    /* Softer, desaturated cyan/teal for smoother premium vibe (Advice 3) */
+    --accent-primary: #3cdfdc;
+    --accent-primary-rgb: 60, 223, 220;
+    
+    /* White with opacity variables (Advice 4) */
+    --border-white-light: rgba(255, 255, 255, 0.08);
+    --border-white-medium: rgba(255, 255, 255, 0.15);
+    --bg-white-ultra-light: rgba(255, 255, 255, 0.02);
+    --bg-white-light: rgba(255, 255, 255, 0.04);
+    --bg-white-medium: rgba(255, 255, 255, 0.07);
+    
+    /* Translucent panel backgrounds */
+    --bg-panel: rgba(13, 11, 28, 0.65);
+    --bg-panel-solid: #0d0b1c;
+    
+    /* Text colors */
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.65); /* white with opacity (Advice 4) */
+    --text-muted: rgba(255, 255, 255, 0.4);
+}
+
 html, body {
     margin: 0;
     padding: 0;
@@ -6,9 +32,8 @@ html, body {
 
 body {
     font-family: 'Montserrat', 'Inter', sans-serif;
-    color: #ffffff;
-    /* Pitch black for maximum contrast with silver object */
-    background: #000000;
+    color: var(--text-primary);
+    background: var(--bg-main);
     background-attachment: fixed;
 }
 
@@ -26,7 +51,7 @@ body {
     z-index: 100;
     font-family: 'Montserrat', sans-serif;
     pointer-events: auto; /* Memungkinkan interaksi navbar meski background 3D */
-    background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+    background: linear-gradient(to bottom, rgba(6, 5, 14, 0.9) 0%, rgba(6, 5, 14, 0) 100%);
 }
 
 .nav-brand {
@@ -51,7 +76,7 @@ body {
 }
 
 .nav-links a {
-    color: #8a8d98;
+    color: var(--text-secondary);
     text-decoration: none;
     font-size: 13px;
     letter-spacing: 2px;
@@ -61,7 +86,8 @@ body {
 }
 
 .nav-links a:hover, .nav-links a.active {
-    color: #ffffff;
+    color: var(--text-primary);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.4); /* Subtle active glow (Advice 5) */
 }
 
 .nav-links a::after {
@@ -72,7 +98,8 @@ body {
     transform: translateX(-50%);
     width: 0;
     height: 1px;
-    background: #ffffff;
+    background: var(--accent-primary);
+    box-shadow: 0 0 8px var(--accent-primary);
     transition: width 0.3s ease;
 }
 
@@ -81,9 +108,9 @@ body {
 }
 
 .nav-cta .btn-primary {
-    background: rgba(255, 255, 255, 0.05);
-    color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: var(--bg-white-light);
+    color: var(--text-primary);
+    border: 1px solid var(--border-white-light);
     padding: 12px 28px;
     border-radius: 30px;
     text-decoration: none;
@@ -97,9 +124,10 @@ body {
 }
 
 .nav-cta .btn-primary:hover {
-    background: #ffffff;
+    background: var(--accent-primary);
     color: #000000;
-    box-shadow: 0 0 20px rgba(255,255,255,0.4);
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 20px rgba(var(--accent-primary-rgb), 0.45); /* Accented glow on hover (Advice 5) */
 }
 
 /* Decorative Tech Text (HUD Elements) */
@@ -107,7 +135,7 @@ body {
     position: fixed;
     font-family: 'Courier New', Courier, monospace; /* Tampilan terminal teknis */
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.35);
+    color: var(--text-muted);
     letter-spacing: 3px;
     line-height: 1.8;
     z-index: 5;
@@ -144,14 +172,15 @@ body {
     top: 50%;
     right: 5%; /* Pindah ke sisi kanan agar elegan */
     transform: translateY(-50%) translateX(50px);
-    background: rgba(10, 15, 30, 0.7);
+    background: var(--bg-panel);
     z-index: 10;
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-white-light);
     padding: 40px;
     border-radius: 20px;
     pointer-events: none;
-    box-shadow: 0 20px 50px 0 rgba(0, 0, 0, 0.8);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(255, 255, 255, 0.05); /* Inset highlight border (Advice 4) */
     opacity: 0;
     min-width: 320px;
     transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -207,27 +236,27 @@ body {
 #info-panel h2 {
     margin: 0 0 5px 0;
     font-size: 32px;
-    color: #ffffff;
+    color: var(--text-primary);
     font-weight: 300;
     letter-spacing: 2px;
 }
 
 .divider {
     height: 1px;
-    background: linear-gradient(90deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%);
+    background: linear-gradient(90deg, var(--border-white-medium) 0%, rgba(255,255,255,0) 100%);
     margin: 15px 0 25px 0;
 }
 
 #info-panel p {
     margin: 12px 0;
     font-size: 16px;
-    color: #b0b5c0;
+    color: var(--text-secondary);
     display: flex;
     justify-content: space-between;
 }
 
 #info-panel p strong {
-    color: #ffffff;
+    color: var(--text-primary);
     font-weight: 400;
 }
 
@@ -235,8 +264,8 @@ body {
     font-size: 72px;
     font-weight: 300;
     margin: 10px 0 20px 0;
-    color: #ffffff;
-    text-shadow: 0 0 20px rgba(255,255,255,0.2);
+    color: var(--text-primary);
+    text-shadow: 0 0 20px rgba(255,255,255,0.12);
 }
 
 /* Content Overlay */
@@ -276,7 +305,7 @@ body {
     font-style: italic;
     font-weight: 300;
     font-size: 2vw;
-    color: #b0b5c0;
+    color: var(--text-secondary);
     letter-spacing: 2px;
 }
 
@@ -284,7 +313,7 @@ body {
     font-family: 'Montserrat', sans-serif;
     font-size: 1.1vw;
     font-weight: 300;
-    color: #8a8d98;
+    color: var(--text-secondary);
     margin-top: 30px;
     letter-spacing: 1px;
     max-width: 550px;
@@ -311,14 +340,15 @@ body {
     top: 50%;
     left: 5%;
     transform: translateY(-50%) translateX(-50px);
-    background: rgba(10, 15, 30, 0.7);
+    background: var(--bg-panel);
     z-index: 10;
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-white-light);
     padding: 35px;
     border-radius: 20px;
     pointer-events: none;
-    box-shadow: 0 20px 50px 0 rgba(0, 0, 0, 0.8);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(255, 255, 255, 0.05);
     opacity: 0;
     width: 320px;
     max-height: 55vh;
@@ -366,7 +396,7 @@ body {
 #detail-content {
     font-size: 14px;
     line-height: 1.8;
-    color: #a0a5b5;
+    color: var(--text-secondary);
     margin: 0;
 }
 #detail-content p {
@@ -455,7 +485,7 @@ body {
     margin: 0 0 30px 0;
     letter-spacing: 4px;
     line-height: 1.1;
-    text-shadow: 0px 4px 20px rgba(0,0,0,0.9), 0px 0px 30px rgba(0,255,255,0.4);
+    text-shadow: 0px 4px 20px rgba(0,0,0,0.9), 0px 0px 30px rgba(var(--accent-primary-rgb), 0.35); /* Desaturated accent glow (Advice 3) */
     text-transform: uppercase;
 }
 
@@ -464,7 +494,8 @@ body {
     display: inline-block;
     width: 3px;
     height: 1em;
-    background: #00ffff;
+    background: var(--accent-primary);
+    box-shadow: 0 0 8px var(--accent-primary);
     margin-left: 4px;
     vertical-align: text-bottom;
     animation: blink-caret 0.7s step-end infinite;
@@ -478,7 +509,7 @@ body {
 .editorial-text {
     font-family: 'Montserrat', sans-serif;
     font-size: 18px;
-    color: #c0c5d5;
+    color: var(--text-secondary);
     line-height: 1.8;
     margin-bottom: 20px;
     font-weight: 300;
@@ -511,34 +542,35 @@ body {
 }
 
 .stat-card {
-    background: rgba(0, 255, 255, 0.03);
-    border: 1px solid rgba(0, 255, 255, 0.12);
+    background: rgba(var(--accent-primary-rgb), 0.02);
+    border: 1px solid rgba(var(--accent-primary-rgb), 0.1);
     border-radius: 16px;
     padding: 28px 22px;
     display: flex;
     flex-direction: column;
     gap: 6px;
-    transition: border-color 0.4s ease, background 0.4s ease;
+    transition: all 0.4s ease;
 }
 
 .stat-card:hover {
-    border-color: rgba(0, 255, 255, 0.35);
-    background: rgba(0, 255, 255, 0.06);
+    border-color: var(--accent-primary);
+    background: rgba(var(--accent-primary-rgb), 0.06);
+    box-shadow: 0 12px 30px rgba(var(--accent-primary-rgb), 0.05); /* Professional hover glow (Advice 5) */
 }
 
 .stat-number {
     font-family: 'Cormorant Garamond', serif;
     font-size: 42px;
-    color: #00ffff;
+    color: var(--accent-primary);
     font-weight: 700;
     line-height: 1;
-    text-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+    text-shadow: 0 0 20px rgba(var(--accent-primary-rgb), 0.25);
 }
 
 .stat-label {
     font-family: 'Montserrat', sans-serif;
     font-size: 13px;
-    color: #ffffff;
+    color: var(--text-primary);
     font-weight: 400;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -547,7 +579,7 @@ body {
 .stat-detail {
     font-family: 'Montserrat', sans-serif;
     font-size: 12px;
-    color: #6a6d78;
+    color: var(--text-muted);
     font-weight: 300;
 }
 
@@ -572,15 +604,16 @@ body {
     gap: 18px;
     align-items: flex-start;
     padding: 20px;
-    background: rgba(255, 255, 255, 0.02);
-    border-left: 2px solid rgba(0, 255, 255, 0.25);
+    background: var(--bg-white-ultra-light);
+    border-left: 2px solid rgba(var(--accent-primary-rgb), 0.25);
     border-radius: 0 12px 12px 0;
-    transition: background 0.4s ease, border-color 0.4s ease;
+    transition: all 0.4s ease;
 }
 
 .fact-item:hover {
-    background: rgba(0, 255, 255, 0.04);
-    border-left-color: rgba(0, 255, 255, 0.6);
+    background: rgba(var(--accent-primary-rgb), 0.04);
+    border-left-color: var(--accent-primary);
+    box-shadow: 0 8px 24px rgba(var(--accent-primary-rgb), 0.04);
 }
 
 .fact-icon {
@@ -591,14 +624,14 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 255, 255, 0.06);
+    background: rgba(var(--accent-primary-rgb), 0.06);
     border-radius: 10px;
 }
 
 .fact-body h4 {
     font-family: 'Montserrat', sans-serif;
     font-size: 15px;
-    color: #ffffff;
+    color: var(--text-primary);
     margin: 0 0 6px 0;
     font-weight: 400;
     letter-spacing: 0.5px;
@@ -607,7 +640,7 @@ body {
 .fact-body p {
     font-family: 'Montserrat', sans-serif;
     font-size: 13px;
-    color: #8a8d98;
+    color: var(--text-secondary);
     margin: 0;
     line-height: 1.6;
     font-weight: 300;
@@ -636,13 +669,13 @@ body {
     margin: 0 0 24px 0;
     letter-spacing: 3px;
     text-transform: uppercase;
-    text-shadow: 0px 0px 30px rgba(0, 255, 255, 0.3);
+    text-shadow: 0px 0px 30px rgba(var(--accent-primary-rgb), 0.25);
 }
 
 .cta-text {
     font-family: 'Montserrat', sans-serif;
     font-size: 16px;
-    color: #8a8d98;
+    color: var(--text-secondary);
     line-height: 1.8;
     margin-bottom: 40px;
     font-weight: 300;
@@ -652,27 +685,27 @@ body {
     display: inline-block;
     font-family: 'Montserrat', sans-serif;
     font-size: 14px;
-    color: #00ffff;
+    color: var(--accent-primary);
     text-decoration: none;
     letter-spacing: 2px;
     text-transform: uppercase;
     padding: 16px 40px;
-    border: 1px solid rgba(0, 255, 255, 0.3);
+    border: 1px solid rgba(var(--accent-primary-rgb), 0.3);
     border-radius: 50px;
     transition: all 0.4s ease;
     pointer-events: auto;
 }
 
 .cta-button:hover {
-    background: rgba(0, 255, 255, 0.1);
-    border-color: rgba(0, 255, 255, 0.6);
-    box-shadow: 0 0 30px rgba(0, 255, 255, 0.15);
+    background: rgba(var(--accent-primary-rgb), 0.08);
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 30px rgba(var(--accent-primary-rgb), 0.2);
 }
 
 /* Footer */
 #tech-footer {
-    background: #020205;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--bg-footer);
+    border-top: 1px solid var(--border-white-light);
     padding: 60px 0 30px 0;
     pointer-events: auto;
 }
@@ -697,7 +730,8 @@ body {
 }
 
 .footer-logo .logo-icon {
-    color: #00ffff;
+    color: var(--accent-primary);
+    text-shadow: 0 0 10px rgba(var(--accent-primary-rgb), 0.3);
 }
 
 .footer-links {
@@ -706,21 +740,22 @@ body {
 }
 
 .footer-links a {
-    color: #8a8d98;
+    color: var(--text-secondary);
     text-decoration: none;
     font-family: 'Inter', sans-serif;
     font-size: 13px;
     letter-spacing: 1px;
     text-transform: uppercase;
-    transition: color 0.3s;
+    transition: all 0.3s ease;
 }
 
 .footer-links a:hover {
-    color: #00ffff;
+    color: var(--accent-primary);
+    text-shadow: 0 0 8px rgba(var(--accent-primary-rgb), 0.3);
 }
 
 .footer-copy {
-    color: #4a4d58;
+    color: var(--text-muted);
     font-family: 'Montserrat', sans-serif;
     font-size: 11px;
     letter-spacing: 2px;
