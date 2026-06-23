@@ -1013,7 +1013,7 @@
         const FADE_IN_DURATION = 0.4;
         const FADE_OUT_DURATION = 0.4;
         const FADE_IN_END = enterProg + FADE_IN_DURATION;
-        const FADE_OUT_START = exitProg - FADE_OUT_DURATION;
+        const FADE_OUT_START = enterProg + 1.0; // Fade out precisely when sticky ends
 
         if (currentProg >= enterProg && currentProg <= exitProg) {
           if (currentProg <= FADE_IN_END) {
@@ -1166,28 +1166,23 @@
           let camY = 7000;
 
           // Scroll mapping:
-          // 0-1: Hero (100vh)
-          // 1-1.5: Table safe zone (50vh)
-          // 1.5-3.5: Carbon section (200vh)
-          // 3.5-5.5: Diamond section (200vh)
-          // 5.5-7.5: DNA section (200vh)
           if (totalScrollProgress <= 1) {
             camY = 7000 - totalScrollProgress * 7000;
-          } else if (totalScrollProgress <= 1.5) {
+          } else if (totalScrollProgress <= 1.2) {
             camY = 0;
-          } else if (totalScrollProgress <= 2.5) {
+          } else if (totalScrollProgress <= 1.6) {
             // Transit to Carbon Core
-            camY = 0 - ((totalScrollProgress - 1.5) / 1.0) * 8000;
-          } else if (totalScrollProgress <= 3.5) {
+            camY = 0 - ((totalScrollProgress - 1.2) / 0.4) * 8000;
+          } else if (totalScrollProgress <= 2.8) {
             camY = -8000;
-          } else if (totalScrollProgress <= 4.5) {
+          } else if (totalScrollProgress <= 3.6) {
             // Transit to Diamond Lattice
-            camY = -8000 - ((totalScrollProgress - 3.5) / 1.0) * 8000;
-          } else if (totalScrollProgress <= 5.5) {
+            camY = -8000 - ((totalScrollProgress - 2.8) / 0.8) * 8000;
+          } else if (totalScrollProgress <= 4.8) {
             camY = -16000;
-          } else if (totalScrollProgress <= 6.5) {
+          } else if (totalScrollProgress <= 5.6) {
             // Transit to DNA
-            camY = -16000 - ((totalScrollProgress - 5.5) / 1.0) * 8000;
+            camY = -16000 - ((totalScrollProgress - 4.8) / 0.8) * 8000;
           } else {
             camY = -24000;
           }
@@ -1209,35 +1204,35 @@
 
         // --- 3D OBJECT SLIDE IN/OUT (Three.js world) ---
         // Push 3D far to the sides so they NEVER overlap text
-        // Carbon: slides from right (x=4000) to far right (x=1800)
+        // Carbon: 1.5 to 3.5 (Sticky: 1.5 to 2.5)
         let carbonTargetX = 4000;
-        if (totalScrollProgress >= 1.8 && totalScrollProgress <= 3.2) {
-          carbonTargetX = 1800;
+        if (totalScrollProgress >= 1.5 && totalScrollProgress <= 2.6) {
+          carbonTargetX = 1500;
           singleAtomGroup.visible = true;
         } else {
-          singleAtomGroup.visible = totalScrollProgress > 1.3 && totalScrollProgress < 3.7;
+          singleAtomGroup.visible = totalScrollProgress > 1.2 && totalScrollProgress < 3.0;
         }
-        singleAtomGroup.position.x += (carbonTargetX - singleAtomGroup.position.x) * 0.06;
+        singleAtomGroup.position.x += (carbonTargetX - singleAtomGroup.position.x) * 0.08;
 
-        // Diamond: slides from left (x=-4000) to far left (x=-1800)
+        // Diamond: 3.5 to 5.5 (Sticky: 3.5 to 4.5)
         let diamondTargetX = -4000;
-        if (totalScrollProgress >= 3.8 && totalScrollProgress <= 5.2) {
-          diamondTargetX = -1800;
+        if (totalScrollProgress >= 3.5 && totalScrollProgress <= 4.6) {
+          diamondTargetX = -1500;
           latticeGroup.visible = true;
         } else {
-          latticeGroup.visible = totalScrollProgress > 3.3 && totalScrollProgress < 5.7;
+          latticeGroup.visible = totalScrollProgress > 3.2 && totalScrollProgress < 5.0;
         }
-        latticeGroup.position.x += (diamondTargetX - latticeGroup.position.x) * 0.06;
+        latticeGroup.position.x += (diamondTargetX - latticeGroup.position.x) * 0.08;
 
-        // DNA: slides from right (x=4000) to far right (x=1800)
+        // DNA: 5.5 to 7.5 (Sticky: 5.5 to 6.5)
         let dnaTargetX = 4000;
-        if (totalScrollProgress >= 5.8 && totalScrollProgress <= 7.2) {
-          dnaTargetX = 1800;
+        if (totalScrollProgress >= 5.5 && totalScrollProgress <= 6.6) {
+          dnaTargetX = 1500;
           dnaGroup.visible = true;
         } else {
-          dnaGroup.visible = totalScrollProgress > 5.3 && totalScrollProgress < 7.7;
+          dnaGroup.visible = totalScrollProgress > 5.2 && totalScrollProgress < 7.0;
         }
-        dnaGroup.position.x += (dnaTargetX - dnaGroup.position.x) * 0.06;
+        dnaGroup.position.x += (dnaTargetX - dnaGroup.position.x) * 0.08;
 
         // --- NARRATIVE SECTION HANDLERS ---
         handleAllNarratives(totalScrollProgress);
