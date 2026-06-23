@@ -195,10 +195,10 @@
         camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
         camera.position.set(0, 80, 500);
 
-        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.setClearColor(0x020208, 1);
+        renderer.setClearColor(0x000000, 0);
         container.appendChild(renderer.domElement);
 
         // OrbitControls
@@ -1076,5 +1076,7 @@
       loadExperiments();
       loadElements();
     </script>
+    <!-- WebGL Flowing Background Shader -->
+    <script src="js/bg-liquid-shader.js"></script>
   </body>
 </html>

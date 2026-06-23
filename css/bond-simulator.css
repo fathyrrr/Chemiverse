@@ -4,7 +4,7 @@
 /* ===== PAGE LAYOUT ===== */
 .bond-page {
     min-height: 100vh;
-    background: var(--bg-main);
+    background: transparent;
     padding-top: 100px;
 }
 

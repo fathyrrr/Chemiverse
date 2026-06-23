@@ -39,31 +39,18 @@ body {
 }
 
 body::before {
-    content: '';
-    position: fixed;
-    top: -5%;
-    left: -5%;
-    width: 110%;
-    height: 110%;
-    background-image: url('../images/bg-liquid.png');
-    background-size: cover;
-    background-position: center;
-    z-index: -1;
-    pointer-events: none;
-    animation: liquidFlow 40s ease-in-out infinite alternate;
-    opacity: 0.65; /* Blended with neutral dark base to keep it subtle and elegant */
+    display: none; /* Hide the old static background image */
 }
 
-@keyframes liquidFlow {
-    0% {
-        transform: translate(0, 0) scale(1);
-    }
-    50% {
-        transform: translate(-1.5%, 1.5%) scale(1.04);
-    }
-    100% {
-        transform: translate(1.5%, -1.5%) scale(1.01);
-    }
+#bg-liquid-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -2;
+    pointer-events: none;
+    background: #08080c; /* fallback color matching --bg-main */
 }
 
 /* Navigation Bar */
