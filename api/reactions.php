@@ -174,12 +174,20 @@ switch ($action) {
     case 'experiments':
         $stmt = $pdo->query("
             SELECT e.id, e.reaction_id, e.notes, e.created_at,
-                   r.name as reaction_name, r.equation, r.type
+                   r.name as reaction_name, r.equation, r.type, r.energy,
+                   r.reversible, r.conditions, r.reactants, r.products, r.description
             FROM reaction_experiments e
             JOIN reactions r ON e.reaction_id = r.id
             ORDER BY e.created_at DESC
         ");
         $experiments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // Decode JSON fields for display
+        foreach ($experiments as &$exp) {
+            $reactants = json_decode($exp['reactants'], true);
+            $products = json_decode($exp['products'], true);
+            $exp['reactants'] = is_array($reactants) ? implode(' + ', $reactants) : $exp['reactants'];
+            $exp['products'] = is_array($products) ? implode(' + ', $products) : $exp['products'];
+        }
         echo json_encode(["status" => "success", "data" => $experiments]);
         break;
     

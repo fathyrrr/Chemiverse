@@ -6,7 +6,7 @@
     <title>Reaction Lab — Chemiverse</title>
     <meta name="description" content="Simulasikan reaksi kimia secara interaktif. Lihat reaktan bertemu dan berubah menjadi produk dalam visualisasi 3D real-time." />
     <link rel="stylesheet" href="css/style.css?v=22" />
-    <link rel="stylesheet" href="css/reaction-lab.css?v=3" />
+    <link rel="stylesheet" href="css/reaction-lab.css?v=4" />
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,700;1,300&family=Montserrat:wght@300;400&display=swap" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -46,19 +46,47 @@
       <div class="rxn-left-panel rxn-glass" id="rxn-selector">
         <h2 class="rxn-panel-title">Reaction Lab</h2>
 
-        <!-- Element Selector -->
+        <!-- Compound Builder -->
         <div class="rxn-custom-input">
-          <div class="rxn-custom-label">Pilih Reaktan dari Tabel Periodik</div>
-          <div class="rxn-selected-elements">
-            <div class="rxn-sel-slot" id="slot-r1" onclick="openPeriodicTable(1)">
-              <span class="rxn-sel-placeholder">Reaktan 1</span>
+          <div class="rxn-custom-label">Bangun Senyawa Reaktan</div>
+
+          <!-- Reactant 1 -->
+          <div class="cmpd-card" id="cmpd-card-1">
+            <div class="cmpd-header">
+              <span class="cmpd-title">Reaktan 1</span>
+              <button class="cmpd-clear" onclick="clearCompound(1)" title="Hapus">✕</button>
             </div>
-            <span class="rxn-input-plus">+</span>
-            <div class="rxn-sel-slot" id="slot-r2" onclick="openPeriodicTable(2)">
-              <span class="rxn-sel-placeholder">Reaktan 2</span>
+            <div class="cmpd-chips" id="cmpd-chips-1">
+              <button class="cmpd-add-btn" onclick="openPeriodicTable(1)" title="Tambah elemen">+ Elemen</button>
+            </div>
+            <div class="cmpd-footer">
+              <span class="cmpd-formula-label">Formula:</span>
+              <span class="cmpd-formula" id="cmpd-formula-1">—</span>
+              <span class="cmpd-coeff-label">Koefisien:</span>
+              <input type="number" class="cmpd-coeff" id="cmpd-coeff-1" value="1" min="1" max="20" />
             </div>
           </div>
-          <button class="rxn-react-btn" id="btn-react" onclick="predictFromElements()">
+
+          <div class="cmpd-plus-divider"><span>+</span></div>
+
+          <!-- Reactant 2 -->
+          <div class="cmpd-card" id="cmpd-card-2">
+            <div class="cmpd-header">
+              <span class="cmpd-title">Reaktan 2</span>
+              <button class="cmpd-clear" onclick="clearCompound(2)" title="Hapus">✕</button>
+            </div>
+            <div class="cmpd-chips" id="cmpd-chips-2">
+              <button class="cmpd-add-btn" onclick="openPeriodicTable(2)" title="Tambah elemen">+ Elemen</button>
+            </div>
+            <div class="cmpd-footer">
+              <span class="cmpd-formula-label">Formula:</span>
+              <span class="cmpd-formula" id="cmpd-formula-2">—</span>
+              <span class="cmpd-coeff-label">Koefisien:</span>
+              <input type="number" class="cmpd-coeff" id="cmpd-coeff-2" value="1" min="1" max="20" />
+            </div>
+          </div>
+
+          <button class="rxn-react-btn" id="btn-react" onclick="predictFromCompounds()">
             ⚡ Reaksikan!
           </button>
           <div class="rxn-predict-msg" id="predict-msg"></div>
@@ -102,14 +130,25 @@
         </div>
       </div>
 
-      <!-- Bottom Left: Saved Experiments -->
-      <div class="rxn-exp-toggle rxn-glass" id="rxn-exp-panel">
-        <div class="rxn-exp-header" onclick="toggleExperiments()">
-          <span class="rxn-exp-header-text">Eksperimen Tersimpan (<span id="exp-count">0</span>)</span>
-          <span class="rxn-exp-header-icon" id="exp-icon">▼</span>
-        </div>
-        <div class="rxn-exp-list" id="exp-list"></div>
+      <!-- Bottom Left: Journal Button -->
+      <div class="rxn-journal-btn rxn-glass" id="rxn-journal-btn" onclick="openJournal()">
+        <span class="rxn-journal-icon">📓</span>
+        <span class="rxn-journal-text">Experiment Journal (<span id="exp-count">0</span>)</span>
       </div>
+
+      <!-- Experiment Journal Modal -->
+      <div class="journal-overlay" id="journal-overlay" onclick="closeJournal(event)">
+        <div class="journal-modal rxn-glass" onclick="event.stopPropagation()">
+          <div class="journal-header">
+            <h2 class="journal-title">📓 Experiment Journal</h2>
+            <button class="journal-close" onclick="closeJournal()">&times;</button>
+          </div>
+          <div class="journal-list" id="journal-list">
+            <div class="journal-empty">Belum ada eksperimen tersimpan</div>
+          </div>
+        </div>
+      </div>
+
       <!-- Periodic Table Modal Overlay -->
       <div class="pt-modal-overlay" id="pt-modal" onclick="closePeriodicTable(event)">
         <div class="pt-modal rxn-glass" onclick="event.stopPropagation()">
@@ -636,7 +675,6 @@
             if (json.status === 'success') {
               document.getElementById('rxn-save-notes').value = '';
               loadExperiments();
-              // Quick flash the button
               var btn = document.getElementById('rxn-save-btn');
               btn.textContent = '✓ Tersimpan';
               btn.style.color = '#66ff66';
@@ -652,54 +690,12 @@
       }
 
       // ===========================
-      // 8. LOAD EXPERIMENTS
-      // ===========================
-      function loadExperiments() {
-        fetch(API + '?action=experiments')
-          .then(function(r) { return r.json(); })
-          .then(function(json) {
-            if (json.status !== 'success') return;
-            var exps = json.data;
-            document.getElementById('exp-count').textContent = exps.length;
-
-            var html = exps.map(function(exp) {
-              return '<div class="rxn-exp-item">' +
-                '<div class="rxn-exp-info">' +
-                  '<div class="rxn-exp-name">' + exp.reaction_name + '</div>' +
-                  '<div class="rxn-exp-note">' + (exp.notes || 'Tanpa catatan') + '</div>' +
-                '</div>' +
-                '<button class="rxn-exp-del" onclick="deleteExperiment(' + exp.id + ')">✕</button>' +
-              '</div>';
-            }).join('');
-            document.getElementById('exp-list').innerHTML = html;
-          });
-      }
-
-      function deleteExperiment(id) {
-        var formData = new FormData();
-        formData.append('action', 'delete');
-        formData.append('id', id);
-
-        fetch(API, { method: 'POST', body: formData })
-          .then(function(r) { return r.json(); })
-          .then(function(json) {
-            if (json.status === 'success') loadExperiments();
-          });
-      }
-
-      function toggleExperiments() {
-        var list = document.getElementById('exp-list');
-        var icon = document.getElementById('exp-icon');
-        list.classList.toggle('open');
-        icon.classList.toggle('open');
-      }
-
-      // ===========================
       // 9. PERIODIC TABLE MODAL
       // ===========================
-      var selectedSlot = 1; // which slot we're filling (1 or 2)
-      var selectedElements = { 1: null, 2: null };
+      var selectedSlot = 1;
       var allElements = [];
+      // Compound state: { 1: [{symbol, count, name, en},...], 2: [...] }
+      var compounds = { 1: [], 2: [] };
 
       function getCategoryClass(cat) {
         if (!cat) return '';
@@ -731,16 +727,11 @@
 
       function buildPeriodicTableGrid() {
         var grid = document.getElementById('pt-grid');
-
-        // Use xpos/ypos from DB to place elements
-        // Find max row
         var maxRow = 0;
         allElements.forEach(function(el) {
           var y = parseInt(el.ypos);
           if (y > maxRow) maxRow = y;
         });
-
-        // Build a map: "row-col" -> element
         var cellMap = {};
         allElements.forEach(function(el) {
           var key = el.ypos + '-' + el.xpos;
@@ -749,7 +740,6 @@
 
         var html = '';
         for (var row = 1; row <= maxRow; row++) {
-          // Gap row between main table (row 7) and lanthanides (row 8)
           if (row === 8) {
             for (var g = 0; g < 18; g++) html += '<div class="pt-cell empty" style="height:6px;aspect-ratio:auto"></div>';
           }
@@ -781,37 +771,108 @@
         document.getElementById('pt-modal').classList.remove('open');
       }
 
+      // ===========================
+      // 10. COMPOUND BUILDER LOGIC
+      // ===========================
       function selectElement(atomicNumber) {
         var el = allElements.find(function(e) { return e.atomic_number == atomicNumber; });
         if (!el) return;
 
-        selectedElements[selectedSlot] = el;
-
-        // Update slot UI
-        var slot = document.getElementById('slot-r' + selectedSlot);
-        slot.classList.add('filled');
-        slot.innerHTML = '<span class="rxn-sel-symbol">' + el.symbol + '</span>' +
-                         '<span class="rxn-sel-name">' + el.name + '</span>';
-
-        // Auto-advance to next slot or close
-        if (selectedSlot === 1 && !selectedElements[2]) {
-          selectedSlot = 2;
-          document.getElementById('pt-slot-label').textContent = 'Reaktan 2';
+        // Add element to current compound (or increment if already exists)
+        var cmpd = compounds[selectedSlot];
+        var existing = cmpd.find(function(c) { return c.symbol === el.symbol; });
+        if (existing) {
+          existing.count++;
         } else {
-          document.getElementById('pt-modal').classList.remove('open');
+          cmpd.push({
+            symbol: el.symbol,
+            name: el.name,
+            count: 1,
+            en: parseFloat(el.electronegativity || 0),
+            mass: parseFloat(el.atomic_mass || 0)
+          });
         }
+
+        renderCompoundChips(selectedSlot);
+
+        // Keep modal open so user can add more elements
+        // Don't auto-close
+      }
+
+      function renderCompoundChips(slot) {
+        var container = document.getElementById('cmpd-chips-' + slot);
+        var cmpd = compounds[slot];
+
+        var html = '';
+        cmpd.forEach(function(item, idx) {
+          html += '<div class="cmpd-chip">';
+          html += '<span class="cmpd-chip-sym">' + item.symbol + '</span>';
+          html += '<div class="cmpd-chip-sub">';
+          html += '<button onclick="adjustSubscript(' + slot + ',' + idx + ',1)">▲</button>';
+          html += '<button onclick="adjustSubscript(' + slot + ',' + idx + ',-1)">▼</button>';
+          html += '</div>';
+          html += '<span class="cmpd-chip-count">' + (item.count > 1 ? item.count : '') + '</span>';
+          html += '<button class="cmpd-chip-del" onclick="removeChip(' + slot + ',' + idx + ')">✕</button>';
+          html += '</div>';
+        });
+
+        html += '<button class="cmpd-add-btn" onclick="openPeriodicTable(' + slot + ')" title="Tambah elemen">+ Elemen</button>';
+        container.innerHTML = html;
+
+        // Update formula display
+        updateFormula(slot);
+      }
+
+      function adjustSubscript(slot, idx, delta) {
+        var item = compounds[slot][idx];
+        item.count = Math.max(1, Math.min(20, item.count + delta));
+        renderCompoundChips(slot);
+      }
+
+      function removeChip(slot, idx) {
+        compounds[slot].splice(idx, 1);
+        renderCompoundChips(slot);
+      }
+
+      function clearCompound(slot) {
+        compounds[slot] = [];
+        renderCompoundChips(slot);
+        document.getElementById('cmpd-coeff-' + slot).value = 1;
+      }
+
+      function updateFormula(slot) {
+        var cmpd = compounds[slot];
+        var formulaEl = document.getElementById('cmpd-formula-' + slot);
+        if (cmpd.length === 0) {
+          formulaEl.textContent = '—';
+          return;
+        }
+        var formula = cmpd.map(function(item) {
+          return item.symbol + (item.count > 1 ? item.count : '');
+        }).join('');
+        formulaEl.textContent = formula;
+      }
+
+      function getFormulaString(slot) {
+        var cmpd = compounds[slot];
+        if (cmpd.length === 0) return '';
+        return cmpd.map(function(item) {
+          return item.symbol + (item.count > 1 ? item.count : '');
+        }).join('');
       }
 
       // ===========================
-      // 10. PREDICT FROM SELECTED ELEMENTS
+      // 11. PREDICT FROM COMPOUNDS
       // ===========================
-      function predictFromElements() {
-        var el1 = selectedElements[1];
-        var el2 = selectedElements[2];
+      function predictFromCompounds() {
+        var f1 = getFormulaString(1);
+        var f2 = getFormulaString(2);
+        var coeff1 = parseInt(document.getElementById('cmpd-coeff-1').value) || 1;
+        var coeff2 = parseInt(document.getElementById('cmpd-coeff-2').value) || 1;
         var msg = document.getElementById('predict-msg');
 
-        if (!el1) {
-          msg.textContent = 'Pilih minimal 1 elemen dari tabel periodik';
+        if (!f1) {
+          msg.textContent = 'Bangun minimal 1 senyawa dengan memilih elemen';
           msg.className = 'rxn-predict-msg';
           return;
         }
@@ -821,65 +882,190 @@
         document.getElementById('rxn-hint').classList.add('hidden');
         document.getElementById('rxn-loading').classList.add('active');
 
-        // Search through all reactions for ones containing these elements
-        var sym1 = el1.symbol;
-        var sym2 = el2 ? el2.symbol : null;
-        var matches = [];
+        // Build the API URL
+        var url = API + '?action=predict&r1=' + encodeURIComponent(f1);
+        if (f2) url += '&r2=' + encodeURIComponent(f2);
 
+        fetch(url)
+          .then(function(r) { return r.json(); })
+          .then(function(json) {
+            document.getElementById('rxn-loading').classList.remove('active');
+
+            if (json.status === 'success' && json.data.length > 0) {
+              var rx = json.data[0];
+              currentReaction = rx;
+              showReactionResult(rx);
+              msg.textContent = '✓ ' + rx.name;
+              msg.className = 'rxn-predict-msg success';
+            } else {
+              // Try client-side element symbol matching as fallback
+              var matches = searchByElements(f1, f2);
+              if (matches.length > 0) {
+                var rx = matches[0];
+                currentReaction = rx;
+                showReactionResult(rx);
+                var matchText = matches.length > 1 ? ' (' + matches.length + ' ditemukan)' : '';
+                msg.textContent = '✓ ' + rx.name + matchText;
+                msg.className = 'rxn-predict-msg success';
+              } else {
+                msg.textContent = 'Reaksi untuk ' + f1 + (f2 ? ' + ' + f2 : '') + ' belum tersedia di database';
+                msg.className = 'rxn-predict-msg';
+              }
+            }
+          })
+          .catch(function(e) {
+            document.getElementById('rxn-loading').classList.remove('active');
+            msg.textContent = 'Gagal menghubungi server';
+            msg.className = 'rxn-predict-msg';
+          });
+      }
+
+      // Fallback: search by element symbols present in formulas
+      function searchByElements(f1, f2) {
+        var matches = [];
         allReactions.forEach(function(rx) {
           var allFormulas = rx.reactants.concat(rx.products).join(' ');
-          var has1 = allFormulas.indexOf(sym1) >= 0;
-          var has2 = sym2 ? allFormulas.indexOf(sym2) >= 0 : true;
-
+          // Extract element symbols from user formula
+          var syms1 = f1.match(/[A-Z][a-z]*/g) || [];
+          var has1 = syms1.every(function(s) { return allFormulas.indexOf(s) >= 0; });
+          var has2 = true;
+          if (f2) {
+            var syms2 = f2.match(/[A-Z][a-z]*/g) || [];
+            has2 = syms2.every(function(s) { return allFormulas.indexOf(s) >= 0; });
+          }
           if (has1 && has2) matches.push(rx);
         });
+        return matches;
+      }
 
-        document.getElementById('rxn-loading').classList.remove('active');
+      // Show reaction result in UI (reusable)
+      function showReactionResult(rx) {
+        formatEquation(rx.equation);
+        document.getElementById('rxn-equation-bar').classList.add('visible');
 
-        if (matches.length > 0) {
-          // Show first match with 3D animation
-          var rx = matches[0];
-          currentReaction = rx;
+        var typeLabels = {
+          synthesis: 'Sintesis', decomposition: 'Dekomposisi',
+          single_replacement: 'Penggantian Tunggal', double_replacement: 'Penggantian Ganda',
+          combustion: 'Pembakaran', acid_base: 'Asam-Basa'
+        };
+        document.getElementById('rxn-info-name').textContent = rx.name;
+        document.getElementById('rxn-info-desc').textContent = rx.description;
 
-          formatEquation(rx.equation);
-          document.getElementById('rxn-equation-bar').classList.add('visible');
+        var badgesHtml = '<span class="rxn-badge type-badge">' + (typeLabels[rx.type] || rx.type) + '</span>';
+        badgesHtml += '<span class="rxn-badge ' + (rx.energy === 'exothermic' ? 'energy-exo' : 'energy-endo') + '">' +
+          (rx.energy === 'exothermic' ? '🔥 Eksoterm' : '❄️ Endoterm') + '</span>';
+        if (rx.reversible == 1) badgesHtml += '<span class="rxn-badge reversible-badge">⇌ Reversibel</span>';
+        document.getElementById('rxn-badges').innerHTML = badgesHtml;
 
-          var typeLabels = {
-            synthesis: 'Sintesis', decomposition: 'Dekomposisi',
-            single_replacement: 'Penggantian Tunggal', double_replacement: 'Penggantian Ganda',
-            combustion: 'Pembakaran', acid_base: 'Asam-Basa'
-          };
-          document.getElementById('rxn-info-name').textContent = rx.name;
-          document.getElementById('rxn-info-desc').textContent = rx.description;
+        var rowsHtml = '';
+        rowsHtml += '<div class="rxn-info-row"><span class="rxn-info-label">Reaktan</span><span class="rxn-info-value">' + rx.reactants.join(' + ') + '</span></div>';
+        rowsHtml += '<div class="rxn-info-row"><span class="rxn-info-label">Produk</span><span class="rxn-info-value">' + rx.products.join(' + ') + '</span></div>';
+        rowsHtml += '<div class="rxn-info-row"><span class="rxn-info-label">Kondisi</span><span class="rxn-info-value">' + rx.conditions + '</span></div>';
+        document.getElementById('rxn-info-rows').innerHTML = rowsHtml;
 
-          var badgesHtml = '<span class="rxn-badge type-badge">' + (typeLabels[rx.type] || rx.type) + '</span>';
-          badgesHtml += '<span class="rxn-badge ' + (rx.energy === 'exothermic' ? 'energy-exo' : 'energy-endo') + '">' +
-            (rx.energy === 'exothermic' ? '🔥 Eksoterm' : '❄️ Endoterm') + '</span>';
-          if (rx.reversible == 1) badgesHtml += '<span class="rxn-badge reversible-badge">⇌ Reversibel</span>';
-          document.getElementById('rxn-badges').innerHTML = badgesHtml;
+        document.getElementById('rxn-info-panel').classList.add('visible');
 
-          var rowsHtml = '';
-          rowsHtml += '<div class="rxn-info-row"><span class="rxn-info-label">Reaktan</span><span class="rxn-info-value">' + rx.reactants.join(' + ') + '</span></div>';
-          rowsHtml += '<div class="rxn-info-row"><span class="rxn-info-label">Produk</span><span class="rxn-info-value">' + rx.products.join(' + ') + '</span></div>';
-          rowsHtml += '<div class="rxn-info-row"><span class="rxn-info-label">Kondisi</span><span class="rxn-info-value">' + rx.conditions + '</span></div>';
-          document.getElementById('rxn-info-rows').innerHTML = rowsHtml;
+        document.querySelectorAll('.rxn-card').forEach(function(c) { c.classList.remove('active'); });
+        var card = document.querySelector('.rxn-card[data-id="' + rx.id + '"]');
+        if (card) card.classList.add('active');
 
-          document.getElementById('rxn-info-panel').classList.add('visible');
+        buildReaction3D(rx);
+      }
 
-          document.querySelectorAll('.rxn-card').forEach(function(c) { c.classList.remove('active'); });
-          var card = document.querySelector('.rxn-card[data-id="' + rx.id + '"]');
-          if (card) card.classList.add('active');
+      // ===========================
+      // 12. EXPERIMENT JOURNAL
+      // ===========================
+      function openJournal() {
+        loadExperiments();
+        document.getElementById('journal-overlay').classList.add('open');
+      }
 
-          buildReaction3D(rx);
+      function closeJournal(e) {
+        if (e && e.target && e.target.id !== 'journal-overlay') return;
+        document.getElementById('journal-overlay').classList.remove('open');
+      }
 
-          var matchText = matches.length > 1 ? ' (' + matches.length + ' reaksi ditemukan)' : '';
-          msg.textContent = '✓ ' + rx.name + matchText;
-          msg.className = 'rxn-predict-msg success';
-        } else {
-          var names = sym1 + (sym2 ? ' & ' + sym2 : '');
-          msg.textContent = 'Belum ada reaksi untuk ' + names + ' di database. Coba kombinasi lain!';
-          msg.className = 'rxn-predict-msg';
-        }
+      function loadExperiments() {
+        fetch(API + '?action=experiments')
+          .then(function(r) { return r.json(); })
+          .then(function(json) {
+            if (json.status !== 'success') return;
+            var exps = json.data;
+            document.getElementById('exp-count').textContent = exps.length;
+
+            if (exps.length === 0) {
+              document.getElementById('journal-list').innerHTML = '<div class="journal-empty">Belum ada eksperimen tersimpan. Jalankan reaksi dan klik Simpan!</div>';
+              return;
+            }
+
+            var typeLabels = {
+              synthesis: 'Sintesis', decomposition: 'Dekomposisi',
+              single_replacement: 'Penggantian Tunggal', double_replacement: 'Penggantian Ganda',
+              combustion: 'Pembakaran', acid_base: 'Asam-Basa'
+            };
+
+            var html = exps.map(function(exp, idx) {
+              var dateStr = exp.created_at ? new Date(exp.created_at).toLocaleString('id-ID', {
+                day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+              }) : '';
+
+              var typeName = typeLabels[exp.type] || exp.type;
+              var energyClass = exp.energy === 'exothermic' ? 'energy-exo' : 'energy-endo';
+              var energyLabel = exp.energy === 'exothermic' ? '🔥 Eksoterm' : '❄️ Endoterm';
+
+              var card = '<div class="journal-card">';
+              card += '<div class="journal-card-header">';
+              card += '<div class="journal-card-name">#' + (idx + 1) + ' — ' + exp.reaction_name + '</div>';
+              card += '<div class="journal-card-date">' + dateStr + '</div>';
+              card += '</div>';
+
+              card += '<div class="journal-card-eq">' + exp.equation + '</div>';
+
+              card += '<div class="journal-card-badges">';
+              card += '<span class="journal-badge type">' + typeName + '</span>';
+              card += '<span class="journal-badge ' + energyClass + '">' + energyLabel + '</span>';
+              card += '</div>';
+
+              // Details grid
+              card += '<div class="journal-card-details">';
+              card += '<div class="journal-detail"><span class="journal-detail-label">Reaktan</span><span class="journal-detail-value">' + (exp.reactants || '—') + '</span></div>';
+              card += '<div class="journal-detail"><span class="journal-detail-label">Produk</span><span class="journal-detail-value">' + (exp.products || '—') + '</span></div>';
+              card += '<div class="journal-detail"><span class="journal-detail-label">Kondisi</span><span class="journal-detail-value">' + (exp.conditions || '—') + '</span></div>';
+              card += '<div class="journal-detail"><span class="journal-detail-label">Tipe</span><span class="journal-detail-value">' + typeName + '</span></div>';
+              card += '</div>';
+
+              if (exp.notes) {
+                card += '<div class="journal-card-notes">"' + exp.notes + '"</div>';
+              }
+
+              card += '<div class="journal-card-actions">';
+              card += '<button class="journal-action-btn replay" onclick="replayExperiment(' + exp.reaction_id + ')">▶ Replay</button>';
+              card += '<button class="journal-action-btn delete" onclick="deleteExperiment(' + exp.id + ')">🗑️ Hapus</button>';
+              card += '</div>';
+              card += '</div>';
+              return card;
+            }).join('');
+
+            document.getElementById('journal-list').innerHTML = html;
+          });
+      }
+
+      function replayExperiment(reactionId) {
+        document.getElementById('journal-overlay').classList.remove('open');
+        selectReaction(reactionId);
+      }
+
+      function deleteExperiment(id) {
+        if (!confirm('Hapus eksperimen ini?')) return;
+        var formData = new FormData();
+        formData.append('action', 'delete');
+        formData.append('id', id);
+
+        fetch(API, { method: 'POST', body: formData })
+          .then(function(r) { return r.json(); })
+          .then(function(json) {
+            if (json.status === 'success') loadExperiments();
+          });
       }
 
       // ===========================
