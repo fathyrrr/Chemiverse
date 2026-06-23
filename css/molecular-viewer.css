@@ -45,7 +45,7 @@
     padding: 24px;
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: rgba(0,255,255,0.2) transparent;
+    scrollbar-color: rgba(var(--accent-primary-rgb), 0.2) transparent;
 }
 
 .mol-selector-panel::-webkit-scrollbar {
@@ -53,7 +53,7 @@
 }
 
 .mol-selector-panel::-webkit-scrollbar-thumb {
-    background: rgba(0,255,255,0.2);
+    background: rgba(var(--accent-primary-rgb), 0.2);
     border-radius: 2px;
 }
 
@@ -139,7 +139,7 @@
 .mol-card-formula {
     font-family: 'Montserrat', sans-serif;
     font-size: 12px;
-    color: #00ffff;
+    color: var(--text-secondary);
     letter-spacing: 1px;
 }
 
@@ -335,8 +335,8 @@
 .mol-spinner {
     width: 40px;
     height: 40px;
-    border: 2px solid rgba(0,255,255,0.1);
-    border-top-color: #00ffff;
+    border: 2px solid rgba(var(--accent-primary-rgb), 0.1);
+    border-top-color: var(--accent-primary);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }

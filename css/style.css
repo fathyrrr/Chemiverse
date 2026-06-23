@@ -1,11 +1,11 @@
 :root {
-    /* Primary Background - Tinted dark violet-slate for high-end professional dark theme (Advice 1) */
-    --bg-main: #06050e;
-    --bg-footer: #030206;
+    /* Primary Background - Dark greyish-black matching the black-and-white fluid look (Advice 1) */
+    --bg-main: #08080c;
+    --bg-footer: #040406;
     
-    /* Softer, desaturated cyan/teal for smoother premium vibe (Advice 3) */
-    --accent-primary: #3cdfdc;
-    --accent-primary-rgb: 60, 223, 220;
+    /* Softer, professional white and silver accents for black-and-white styling */
+    --accent-primary: #ffffff;
+    --accent-primary-rgb: 255, 255, 255;
     
     /* White with opacity variables (Advice 4) */
     --border-white-light: rgba(255, 255, 255, 0.08);
@@ -14,9 +14,9 @@
     --bg-white-light: rgba(255, 255, 255, 0.04);
     --bg-white-medium: rgba(255, 255, 255, 0.07);
     
-    /* Translucent panel backgrounds */
-    --bg-panel: rgba(13, 11, 28, 0.65);
-    --bg-panel-solid: #0d0b1c;
+    /* Translucent panel backgrounds - neutral slate-black */
+    --bg-panel: rgba(10, 10, 12, 0.72);
+    --bg-panel-solid: #0a0a0c;
     
     /* Text colors */
     --text-primary: #ffffff;
@@ -35,6 +35,35 @@ body {
     color: var(--text-primary);
     background: var(--bg-main);
     background-attachment: fixed;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: -5%;
+    left: -5%;
+    width: 110%;
+    height: 110%;
+    background-image: url('../images/bg-liquid.png');
+    background-size: cover;
+    background-position: center;
+    z-index: -1;
+    pointer-events: none;
+    animation: liquidFlow 40s ease-in-out infinite alternate;
+    opacity: 0.65; /* Blended with neutral dark base to keep it subtle and elegant */
+}
+
+@keyframes liquidFlow {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+    50% {
+        transform: translate(-1.5%, 1.5%) scale(1.04);
+    }
+    100% {
+        transform: translate(1.5%, -1.5%) scale(1.01);
+    }
 }
 
 /* Navigation Bar */

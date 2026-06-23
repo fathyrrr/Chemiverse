@@ -22,7 +22,7 @@
     letter-spacing: 6px;
     text-transform: uppercase;
     margin: 0 0 16px 0;
-    text-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+    text-shadow: 0 0 30px rgba(var(--accent-primary-rgb), 0.3);
 }
 
 .bond-hero .tagline {
@@ -149,7 +149,7 @@
 .element-info-mini .el-en {
     font-family: 'Montserrat', sans-serif;
     font-size: 11px;
-    color: #00ffff;
+    color: var(--accent-primary);
     letter-spacing: 1px;
 }
 
