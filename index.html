@@ -11,6 +11,91 @@
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Montserrat:wght@300;400&display=swap"
       rel="stylesheet"
     />
+    <style>
+      #preloader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #050510;
+        z-index: 999999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.8s;
+      }
+      #preloader.fade-out {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+      .preloader-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+        text-align: center;
+      }
+      .molecular-canvas-container {
+        position: relative;
+        width: 200px;
+        height: 200px;
+      }
+      #preloader-canvas {
+        width: 200px;
+        height: 200px;
+      }
+      .loading-text-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        font-family: 'Montserrat', sans-serif;
+      }
+      .preloader-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 42px;
+        color: #ffffff;
+        text-transform: uppercase;
+        letter-spacing: 6px;
+        text-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+        margin: 0;
+        font-weight: 300;
+        line-height: 1;
+      }
+      #preloader-status {
+        font-size: 11px;
+        letter-spacing: 3px;
+        color: #00ffff;
+        text-transform: uppercase;
+        opacity: 0.8;
+        font-weight: 400;
+        min-height: 16px;
+      }
+      .progress-bar-bg {
+        width: 220px;
+        height: 2px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 1px;
+        overflow: hidden;
+        position: relative;
+      }
+      #progress-bar-fill {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(90deg, #00ffff, #ff00ff);
+        box-shadow: 0 0 10px #00ffff;
+        transition: width 0.15s ease-out;
+      }
+      #preloader-percentage {
+        font-size: 13px;
+        font-weight: 300;
+        color: #ffffff;
+        opacity: 0.6;
+        letter-spacing: 1px;
+      }
+    </style>
   </head>
   <script>
     // Fix scroll restoration: always land at top on refresh
@@ -20,6 +105,263 @@
     window.scrollTo(0, 0);
   </script>
   <body>
+    <!-- Glowing Molecular Preloader -->
+    <div id="preloader">
+      <div class="preloader-content">
+        <div class="molecular-canvas-container">
+          <canvas id="preloader-canvas"></canvas>
+        </div>
+        <div class="loading-text-container">
+          <div class="preloader-title">Cv</div>
+          <div id="preloader-status">Initializing Atomic Matrix...</div>
+          <div class="progress-bar-bg">
+            <div id="progress-bar-fill"></div>
+          </div>
+          <div id="preloader-percentage">0%</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Global preloader load tracking
+      window.preloaderFlags = {
+        pageLoaded: false,
+        dataLoaded: false
+      };
+
+      window.addEventListener('load', () => {
+        window.preloaderFlags.pageLoaded = true;
+      });
+
+      (function() {
+        const canvas = document.getElementById('preloader-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        canvas.width = 200;
+        canvas.height = 200;
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+
+        const nodes = [];
+        const numNodes = 6;
+        const radius = 60;
+        for (let i = 0; i < numNodes; i++) {
+          const angle = (i * Math.PI * 2) / numNodes;
+          const yVal = 20 * (i % 2 === 0 ? 1 : -1); // Alternating Y (chair conformation)
+          nodes.push({
+            x: radius * Math.cos(angle),
+            y: yVal,
+            z: radius * Math.sin(angle),
+            currentOpacity: 0
+          });
+        }
+
+        const bonds = [
+          { from: 0, to: 1, currentDraw: 0 },
+          { from: 1, to: 2, currentDraw: 0 },
+          { from: 2, to: 3, currentDraw: 0 },
+          { from: 3, to: 4, currentDraw: 0 },
+          { from: 4, to: 5, currentDraw: 0 },
+          { from: 5, to: 0, currentDraw: 0 }
+        ];
+
+        const particles = [
+          { progress: 0.0, speed: 0.015, bondIndex: 0 },
+          { progress: 0.25, speed: 0.012, bondIndex: 1 },
+          { progress: 0.5, speed: 0.018, bondIndex: 3 },
+          { progress: 0.75, speed: 0.014, bondIndex: 4 }
+        ];
+
+        let currentProgress = 0;
+        let targetProgress = 0;
+        let angleX = 0;
+        let angleY = 0;
+
+        const progressBarFill = document.getElementById('progress-bar-fill');
+        const preloaderPercentage = document.getElementById('preloader-percentage');
+        const preloaderStatus = document.getElementById('preloader-status');
+
+        const statusTexts = [
+          { threshold: 25, text: "Initializing Atomic Matrix..." },
+          { threshold: 50, text: "Gathering Carbon Valence Electrons..." },
+          { threshold: 75, text: "Synthesizing Covalent Orbitals..." },
+          { threshold: 90, text: "Stabilizing Benzene Ring Structure..." },
+          { threshold: 101, text: "Molecular Architecture Configured." }
+        ];
+
+        function updateLoaderStatus(progress) {
+          for (const status of statusTexts) {
+            if (progress < status.threshold) {
+              preloaderStatus.textContent = status.text;
+              break;
+            }
+          }
+        }
+
+        function renderPreloader() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          // Progress calculation
+          if (targetProgress < 90) {
+            targetProgress += 0.35 + Math.random() * 0.25;
+          } else if (window.preloaderFlags.pageLoaded && window.preloaderFlags.dataLoaded) {
+            targetProgress = 100;
+          }
+
+          if (targetProgress > 100) targetProgress = 100;
+
+          if (currentProgress < targetProgress) {
+            currentProgress += (targetProgress - currentProgress) * 0.08;
+            if (targetProgress - currentProgress < 0.1) {
+              currentProgress = targetProgress;
+            }
+          }
+
+          const dispProgress = Math.floor(currentProgress);
+          if (progressBarFill) progressBarFill.style.width = dispProgress + '%';
+          if (preloaderPercentage) preloaderPercentage.textContent = dispProgress + '%';
+          updateLoaderStatus(dispProgress);
+
+          // Update atom node opacities based on progress
+          nodes.forEach((node, i) => {
+            const nodeStart = 5 + i * 10;
+            const nodeEnd = nodeStart + 8;
+            let nodeOpacity = 0;
+            if (currentProgress > nodeStart) {
+              nodeOpacity = Math.min((currentProgress - nodeStart) / (nodeEnd - nodeStart), 1);
+            }
+            node.currentOpacity = nodeOpacity;
+          });
+
+          // Update bond draw progress based on progress
+          bonds.forEach((bond, k) => {
+            const bondStart = 65 + k * 4;
+            const bondEnd = bondStart + 4;
+            let bondDraw = 0;
+            if (currentProgress > bondStart) {
+              bondDraw = Math.min((currentProgress - bondStart) / (bondEnd - bondStart), 1);
+            }
+            bond.currentDraw = bondDraw;
+          });
+
+          // 3D rotations
+          angleY += 0.012;
+          angleX += 0.007;
+
+          const cosY = Math.cos(angleY), sinY = Math.sin(angleY);
+          const cosX = Math.cos(angleX), sinX = Math.sin(angleX);
+
+          // Project nodes from 3D to 2D
+          const projected = nodes.map((node) => {
+            let x1 = node.x * cosY - node.z * sinY;
+            let z1 = node.z * cosY + node.x * sinY;
+            let y2 = node.y * cosX - z1 * sinX;
+            let z2 = z1 * cosX + node.y * sinX;
+
+            const dist = 180;
+            const fov = 150;
+            const scale = fov / (z2 + dist);
+            const px = centerX + x1 * scale;
+            const py = centerY + y2 * scale;
+
+            return { x: px, y: py, z: z2, opacity: node.currentOpacity };
+          });
+
+          // Draw Bonds
+          bonds.forEach((bond) => {
+            if (bond.currentDraw <= 0) return;
+            const pFrom = projected[bond.from];
+            const pTo = projected[bond.to];
+
+            const avgOpacity = (pFrom.opacity + pTo.opacity) / 2 * bond.currentDraw;
+            if (avgOpacity <= 0) return;
+
+            ctx.beginPath();
+            ctx.moveTo(pFrom.x, pFrom.y);
+
+            if (bond.currentDraw < 1) {
+              const dx = pTo.x - pFrom.x;
+              const dy = pTo.y - pFrom.y;
+              ctx.lineTo(pFrom.x + dx * bond.currentDraw, pFrom.y + dy * bond.currentDraw);
+            } else {
+              ctx.lineTo(pTo.x, pTo.y);
+            }
+
+            ctx.strokeStyle = `rgba(0, 255, 255, ${avgOpacity * 0.4})`;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Glow backing
+            if (bond.currentDraw > 0.8) {
+              ctx.save();
+              ctx.strokeStyle = `rgba(0, 255, 255, ${avgOpacity * 0.15})`;
+              ctx.lineWidth = 6;
+              ctx.stroke();
+              ctx.restore();
+            }
+          });
+
+          // Draw Nodes (Atoms)
+          projected.forEach((p) => {
+            if (p.opacity <= 0) return;
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(0, 255, 255, ${p.opacity * 0.15})`;
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
+            ctx.fill();
+          });
+
+          // Draw flow particles once molecule structure stabilizes
+          if (currentProgress > 89) {
+            particles.forEach((p) => {
+              p.progress += p.speed;
+              if (p.progress >= 1.0) {
+                p.progress = 0.0;
+                p.bondIndex = (p.bondIndex + 1) % bonds.length;
+              }
+
+              const bond = bonds[p.bondIndex];
+              const pFrom = projected[bond.from];
+              const pTo = projected[bond.to];
+
+              const px = pFrom.x + (pTo.x - pFrom.x) * p.progress;
+              const py = pFrom.y + (pTo.y - pFrom.y) * p.progress;
+
+              ctx.beginPath();
+              ctx.arc(px, py, 2.5, 0, Math.PI * 2);
+              ctx.fillStyle = "#ff00ff";
+              ctx.fill();
+
+              ctx.beginPath();
+              ctx.arc(px, py, 5, 0, Math.PI * 2);
+              ctx.fillStyle = "rgba(255, 0, 255, 0.3)";
+              ctx.fill();
+            });
+          }
+
+          if (currentProgress >= 100) {
+            const preloader = document.getElementById('preloader');
+            if (preloader && !preloader.classList.contains('fade-out')) {
+              preloader.classList.add('fade-out');
+              setTimeout(() => {
+                preloader.remove();
+              }, 800);
+            }
+            return;
+          }
+
+          requestAnimationFrame(renderPreloader);
+        }
+
+        renderPreloader();
+      })();
+    </script>
+
     <!-- 3D Background Canvas -->
     <div id="canvas-container"></div>
 
@@ -540,10 +882,11 @@
           }
         } catch (error) {
           console.error("Network or parsing error:", error);
-          // We don't alert here to avoid stopping the experience if it's just slow
           console.warn(
             "Failed to fetch data from API. Please ensure MySQL is running and the database is imported.",
           );
+        } finally {
+          if (window.preloaderFlags) window.preloaderFlags.dataLoaded = true;
         }
       }
 
