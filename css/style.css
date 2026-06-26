@@ -446,7 +446,7 @@ body::before {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: 60px;
+    gap: 100px; /* Increased from 60px for better whitespace balance */
     padding: 0 8vw;
     height: 100%;
 }
@@ -457,7 +457,7 @@ body::before {
 
 .narrative-text-side {
     flex: 1;
-    max-width: 550px;
+    max-width: 500px; /* Reduced from 550px for better vertical layout */
     opacity: 0;
     will-change: transform, opacity;
 }
@@ -473,49 +473,38 @@ body::before {
     will-change: transform, opacity;
 }
 
-/* Slide-in from left (start off-screen left) */
+/* Slide classes are overridden dynamically in JS via translateY and scale */
 .narrative-from-left {
-    transform: translateX(-120px);
+    transform: translateY(40px);
 }
 
-/* Slide-in from right (start off-screen right) */
 .narrative-from-right {
-    transform: translateX(120px);
-}
-
-/* Active state: slide into center */
-.narrative-from-left.narrative-active {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-.narrative-from-right.narrative-active {
-    opacity: 1;
-    transform: translateX(0);
+    transform: translateY(40px);
 }
 
 .editorial-title {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 64px;
+    font-size: 46px; /* Reduced from 64px for editorial elegance */
     color: #ffffff;
-    margin: 0 0 10px 0;
+    margin: 0 0 12px 0;
     letter-spacing: 4px;
-    line-height: 1.1;
-    text-shadow: 0px 4px 20px rgba(0,0,0,0.9), 0px 0px 30px rgba(var(--accent-primary-rgb), 0.35); /* Desaturated accent glow (Advice 3) */
+    line-height: 1.2;
+    text-shadow: 0px 4px 20px rgba(0,0,0,0.9), 0px 0px 30px rgba(var(--accent-primary-rgb), 0.35);
     text-transform: uppercase;
 }
 
 .editorial-subtitle {
     font-family: 'Montserrat', sans-serif;
-    font-size: 11px;
-    letter-spacing: 3px;
+    font-size: 10px; /* Reduced from 11px for better wrapping */
+    letter-spacing: 2.5px;
     color: var(--accent-primary);
     text-transform: uppercase;
-    margin-bottom: 30px;
+    margin-bottom: 24px;
     font-weight: 400;
-    opacity: 0.8;
+    opacity: 0.85;
     text-shadow: 0 0 8px rgba(var(--accent-primary-rgb), 0.3);
-    line-height: 1.6;
+    line-height: 1.5;
+    max-width: 480px;
 }
 
 /* Typewriter cursor blink */
@@ -537,12 +526,12 @@ body::before {
 
 .editorial-text {
     font-family: 'Montserrat', sans-serif;
-    font-size: 18px;
+    font-size: 15px; /* Reduced from 18px to balance layout proportions */
     color: var(--text-secondary);
-    line-height: 1.8;
+    line-height: 1.7;
     margin-bottom: 20px;
     font-weight: 300;
-    max-width: 550px;
+    max-width: 500px;
     text-shadow: 0px 2px 10px rgba(0,0,0,1.0);
 }
 

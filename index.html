@@ -430,7 +430,7 @@
       </section>
 
       <section id="diamond-section" class="narrative-section">
-        <div class="narrative-content narrative-layout narrative-reversed">
+        <div class="narrative-content narrative-layout">
           <div class="narrative-3d-side narrative-from-left">
             <!-- 3D Diamond Lattice renders here via Three.js -->
           </div>
@@ -473,7 +473,7 @@
 
       <!-- NEW SECTION: Cosmic Furnace -->
       <section id="cosmic-section" class="narrative-section">
-        <div class="narrative-content narrative-layout narrative-reversed">
+        <div class="narrative-content narrative-layout">
           <div class="narrative-3d-side narrative-from-left">
             <!-- 3D Cosmic Furnace renders here via Three.js -->
           </div>
@@ -949,7 +949,7 @@
 
       // --- STEP 1: Single Carbon Atom ---
       const singleAtomGroup = new THREE.Group();
-      singleAtomGroup.position.set(4000, -8000, 0); // Start off-screen right
+      singleAtomGroup.position.set(1100, -8000, 0); // Aligned with right column
       const nucleusGeometry = new THREE.SphereGeometry(150, 32, 32);
       const nucleusMaterial = new THREE.MeshStandardMaterial({
         color: 0x00ffff,
@@ -998,7 +998,7 @@
  
       // --- STEP 2: Diamond Lattice ---
       const latticeGroup = new THREE.Group();
-      latticeGroup.position.set(-4000, -16000, 0); // Start off-screen left
+      latticeGroup.position.set(-1100, -16000, 0); // Aligned with left column
       const atomPositions = [
         new THREE.Vector3(0, 0, 0), // Center
         new THREE.Vector3(600, 600, -600), // Top Right Back
@@ -1034,7 +1034,7 @@
  
       // --- STEP 3: DNA Helix ---
       const dnaGroup = new THREE.Group();
-      dnaGroup.position.set(4000, -24000, 0); // Start off-screen right
+      dnaGroup.position.set(1100, -24000, 0); // Aligned with right column
       const dnaSphereGeo = new THREE.SphereGeometry(30, 16, 16);
       const dnaMat1 = new THREE.MeshStandardMaterial({
         color: 0x00ffff,
@@ -1085,7 +1085,7 @@
 
       // --- STEP 4: Cosmic Furnace (Glowing Star Core + Fusion Shells) ---
       const cosmicFurnaceGroup = new THREE.Group();
-      cosmicFurnaceGroup.position.set(-4000, -32000, 0); // Start off-screen left
+      cosmicFurnaceGroup.position.set(-1100, -32000, 0); // Aligned with left column
       
       // Star core
       const coreGeo = new THREE.SphereGeometry(150, 32, 32);
@@ -1520,22 +1520,22 @@
       }
 
       // DOM narrative transition helper (Translates and Fades sections)
-      function updateDOMNarrative(sectionId, weight, isReversed) {
+      function updateDOMNarrative(sectionId, weight) {
         const section = document.getElementById(sectionId);
         if (!section) return;
         
         const textSide = section.querySelector('.narrative-text-side') || section.querySelector('.stats-container');
         const visualSide = section.querySelector('.narrative-3d-side') || section.querySelector('.stats-grid') || section.querySelector('.facts-timeline');
         
+        const offset = (1 - weight) * 45; // smooth vertical slide
+        
         if (textSide) {
           textSide.style.opacity = weight;
-          const dir = isReversed ? 1 : -1;
-          textSide.style.transform = `translateX(${dir * (1 - weight) * 120}px)`;
+          textSide.style.transform = `translateY(${offset}px)`;
         }
         if (visualSide) {
           visualSide.style.opacity = weight;
-          const dir = isReversed ? -1 : 1;
-          visualSide.style.transform = `translateX(${dir * (1 - weight) * 120}px)`;
+          visualSide.style.transform = `translateY(${offset}px)`;
         }
       }
 
@@ -1545,8 +1545,9 @@
         const wCarbon = getSmoothWeight(progress, 1.5, 3.5);
         singleAtomGroup.visible = wCarbon > 0.001;
         if (singleAtomGroup.visible) {
-          singleAtomGroup.position.x = 4000 - wCarbon * 2500;
-          singleAtomGroup.scale.setScalar(0.4 + wCarbon * 0.6);
+          singleAtomGroup.position.x = 1100;
+          singleAtomGroup.position.z = (1 - wCarbon) * -1200;
+          singleAtomGroup.scale.setScalar(0.3 + wCarbon * 0.7);
           singleAtomGroup.traverse((child) => {
             if (child.isMesh && child.material) {
               const orig = child.material.userData.originalOpacity !== undefined ? child.material.userData.originalOpacity : 1.0;
@@ -1554,15 +1555,16 @@
             }
           });
         }
-        updateDOMNarrative('carbon-section', wCarbon, false);
+        updateDOMNarrative('carbon-section', wCarbon);
         updateTypewriter('carbon-section', wCarbon);
 
         // Diamond: range [3.5, 5.5]
         const wDiamond = getSmoothWeight(progress, 3.5, 5.5);
         latticeGroup.visible = wDiamond > 0.001;
         if (latticeGroup.visible) {
-          latticeGroup.position.x = -4000 + wDiamond * 2500;
-          latticeGroup.scale.setScalar(0.4 + wDiamond * 0.6);
+          latticeGroup.position.x = -1100;
+          latticeGroup.position.z = (1 - wDiamond) * -1200;
+          latticeGroup.scale.setScalar(0.3 + wDiamond * 0.7);
           latticeGroup.traverse((child) => {
             if ((child.isMesh || child.isLine) && child.material) {
               const orig = child.material.userData.originalOpacity !== undefined ? child.material.userData.originalOpacity : 1.0;
@@ -1570,15 +1572,16 @@
             }
           });
         }
-        updateDOMNarrative('diamond-section', wDiamond, true);
+        updateDOMNarrative('diamond-section', wDiamond);
         updateTypewriter('diamond-section', wDiamond);
 
         // DNA: range [5.5, 7.5]
         const wDNA = getSmoothWeight(progress, 5.5, 7.5);
         dnaGroup.visible = wDNA > 0.001;
         if (dnaGroup.visible) {
-          dnaGroup.position.x = 4000 - wDNA * 2500;
-          dnaGroup.scale.setScalar(0.4 + wDNA * 0.6);
+          dnaGroup.position.x = 1100;
+          dnaGroup.position.z = (1 - wDNA) * -1200;
+          dnaGroup.scale.setScalar(0.3 + wDNA * 0.7);
           dnaGroup.traverse((child) => {
             if ((child.isMesh || child.isLine) && child.material) {
               const orig = child.material.userData.originalOpacity !== undefined ? child.material.userData.originalOpacity : 1.0;
@@ -1586,15 +1589,16 @@
             }
           });
         }
-        updateDOMNarrative('dna-section', wDNA, false);
+        updateDOMNarrative('dna-section', wDNA);
         updateTypewriter('dna-section', wDNA);
 
         // Cosmic Furnace: range [7.5, 9.5]
         const wCosmic = getSmoothWeight(progress, 7.5, 9.5);
         cosmicFurnaceGroup.visible = wCosmic > 0.001;
         if (cosmicFurnaceGroup.visible) {
-          cosmicFurnaceGroup.position.x = -4000 + wCosmic * 2500;
-          cosmicFurnaceGroup.scale.setScalar(0.4 + wCosmic * 0.6);
+          cosmicFurnaceGroup.position.x = -1100;
+          cosmicFurnaceGroup.position.z = (1 - wCosmic) * -1200;
+          cosmicFurnaceGroup.scale.setScalar(0.3 + wCosmic * 0.7);
           cosmicFurnaceGroup.traverse((child) => {
             if (child.isMesh && child.material) {
               const orig = child.material.userData.originalOpacity !== undefined ? child.material.userData.originalOpacity : 1.0;
@@ -1602,17 +1606,17 @@
             }
           });
         }
-        updateDOMNarrative('cosmic-section', wCosmic, true);
+        updateDOMNarrative('cosmic-section', wCosmic);
         updateTypewriter('cosmic-section', wCosmic);
 
         // Stats: range [9.5, 11.5]
         const wStats = getSmoothWeight(progress, 9.5, 11.5);
-        updateDOMNarrative('stats-section', wStats, false);
+        updateDOMNarrative('stats-section', wStats);
         updateTypewriter('stats-section', wStats);
 
         // Facts: range [11.5, 13.5]
         const wFacts = getSmoothWeight(progress, 11.5, 13.5);
-        updateDOMNarrative('facts-section', wFacts, true);
+        updateDOMNarrative('facts-section', wFacts);
         updateTypewriter('facts-section', wFacts);
       }
 
