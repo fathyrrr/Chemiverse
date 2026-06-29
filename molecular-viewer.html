@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Molecular Viewer — Chemiverse</title>
-    <meta name="description" content="Jelajahi struktur 3D molekul secara interaktif. Putar, zoom, dan pelajari bentuk molekul dari Air hingga Kafein." />
+    <title>Molecular Viewer & Sandbox — Chemiverse</title>
+    <meta name="description" content="Jelajahi struktur 3D molekul secara interaktif atau bangun molekul kustom di Sandbox Mode. Putar, zoom, dan pelajari bentuk molekul dari Air hingga Kafein." />
     <link rel="stylesheet" href="css/style.css?v=22" />
-    <link rel="stylesheet" href="css/molecular-viewer.css?v=1" />
+    <link rel="stylesheet" href="css/molecular-viewer.css?v=2" />
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,700;1,300&family=Montserrat:wght@300;400&display=swap" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -23,10 +23,19 @@
         <a href="molecular-viewer.html" class="active">Molecular Viewer</a>
         <a href="reaction-lab.html">Reaction Lab</a>
       </div>
-      <div class="nav-cta">
-        <a href="#" class="btn-primary">Launch Sandbox <span class="arrow">→</span></a>
+      <div class="nav-cta" style="visibility:hidden;width:0;overflow:hidden;padding:0;margin:0;">
       </div>
     </nav>
+
+    <!-- Master Mode Toggle -->
+    <div class="master-toggle" id="master-toggle">
+      <button class="master-toggle-btn active" data-mode="view" id="btn-mode-view">
+        <span class="toggle-icon">🔬</span>View Mode
+      </button>
+      <button class="master-toggle-btn" data-mode="build" id="btn-mode-build">
+        <span class="toggle-icon">🔧</span>Build Mode
+      </button>
+    </div>
 
     <main class="mol-page">
       <!-- Full-screen 3D Canvas -->
@@ -43,6 +52,8 @@
       <div class="mol-loading" id="mol-loading">
         <div class="mol-spinner"></div>
       </div>
+
+      <!-- ==================== VIEW MODE PANELS ==================== -->
 
       <!-- Left Panel: Molecule Selector (Glassmorphism) -->
       <div class="mol-selector-panel glass" id="mol-selector">
@@ -89,15 +100,93 @@
         </div>
         <p class="mol-info-desc" id="info-desc">—</p>
       </div>
+
+      <!-- ==================== BUILD MODE PANELS ==================== -->
+
+      <!-- Left Panel: Build Toolbox -->
+      <div class="build-panel glass" id="build-panel">
+
+        <!-- Element Toolbox -->
+        <div class="build-section-title">Element Toolbox</div>
+        <div class="element-grid" id="element-grid">
+          <!-- Filled by JS -->
+        </div>
+
+        <div class="build-divider"></div>
+
+        <!-- Bond Tools -->
+        <div class="build-section-title">Bond Tools</div>
+        <div class="bond-tools" id="bond-tools">
+          <button class="bond-btn" data-order="1" id="btn-bond-single">Single</button>
+          <button class="bond-btn" data-order="2" id="btn-bond-double">Double</button>
+          <button class="bond-btn" data-order="3" id="btn-bond-triple">Triple</button>
+        </div>
+
+        <div class="build-divider"></div>
+
+        <!-- Actions -->
+        <div class="build-section-title">Actions</div>
+        <div class="build-actions">
+          <button class="build-action-btn" id="btn-delete-mode">🗑 Delete</button>
+          <button class="build-action-btn danger" id="btn-clear-all">🧹 Clear All</button>
+        </div>
+
+        <div class="build-divider"></div>
+
+        <!-- Live Stats -->
+        <div class="build-section-title">Molecule Info</div>
+        <div class="build-stats">
+          <div class="build-formula" id="build-formula">
+            <span class="build-formula-empty">No atoms placed</span>
+          </div>
+          <div class="build-counts">
+            <div class="build-count-item">Atoms: <span id="build-atom-count">0</span></div>
+            <div class="build-count-item">Bonds: <span id="build-bond-count">0</span></div>
+          </div>
+        </div>
+
+        <div class="build-divider"></div>
+
+        <!-- Save Button -->
+        <button class="build-save-btn" id="btn-save-mol" disabled>💾 Save Molecule</button>
+
+        <div class="build-divider"></div>
+
+        <!-- Custom Molecules List -->
+        <div class="build-section-title">My Molecules</div>
+        <div class="custom-mol-list" id="custom-mol-list">
+          <div class="custom-mol-empty">No saved molecules yet</div>
+        </div>
+      </div>
+
+      <!-- Build Mode Contextual Instruction -->
+      <div class="build-instruction" id="build-instruction">
+        Click on canvas to place an atom
+      </div>
+
     </main>
+
+    <!-- Save Modal -->
+    <div class="save-modal-overlay" id="save-modal">
+      <div class="save-modal">
+        <div class="save-modal-title">Save Molecule</div>
+        <div class="save-modal-subtitle">Give your creation a name</div>
+        <input type="text" class="save-modal-input" id="save-mol-name" placeholder="e.g. My Water Molecule" maxlength="100" />
+        <div class="save-modal-actions">
+          <button class="save-modal-btn cancel" id="btn-save-cancel">Cancel</button>
+          <button class="save-modal-btn confirm" id="btn-save-confirm">Save</button>
+        </div>
+      </div>
+    </div>
 
     <script>
       // ===================================================================
-      // MOLECULAR VIEWER — JavaScript
-      // Full-screen Three.js + OrbitControls + PHP API
+      // MOLECULAR VIEWER + BUILD MODE — JavaScript
+      // Full-screen Three.js + OrbitControls + Raycaster + PHP API
       // ===================================================================
 
       const API_MOLECULES = 'api/molecules.php';
+      const MAX_ATOMS = 30;
 
       // CPK Atom Colors & Radii
       const ATOM_COLORS = {
@@ -111,14 +200,45 @@
         Br: 1.14, I: 1.33, S: 1.05, P: 1.07, Na: 1.66, K: 2.03,
         Ca: 1.76, Fe: 1.24, Mg: 1.41, Zn: 1.22
       };
+      const ATOMIC_WEIGHTS = {
+        H:1.008, C:12.011, N:14.007, O:15.999, F:18.998, Cl:35.453,
+        Br:79.904, I:126.904, S:32.065, P:30.974, Na:22.990, K:39.098,
+        Ca:40.078, Fe:55.845, Mg:24.305, Zn:65.38
+      };
+      const ELEMENT_NAMES = {
+        C:'Carbon', H:'Hydrogen', O:'Oxygen', N:'Nitrogen',
+        S:'Sulfur', P:'Phosphorus', Cl:'Chlorine', F:'Fluorine',
+        Br:'Bromine', Na:'Sodium', K:'Potassium', Fe:'Iron'
+      };
+      const BUILD_ELEMENTS = ['C','H','O','N','S','P','Cl','F','Br','Na','K','Fe'];
 
+      // ===========================
+      // STATE
+      // ===========================
       let allMolecules = [];
       let currentMolecule = null;
-      let currentMode = 'ball-stick';
+      let currentMode = 'ball-stick'; // view mode render style
+      let currentAppMode = 'view';    // 'view' or 'build'
+
+      // Build Mode State
+      const buildState = {
+        selectedElement: 'C',
+        interactionMode: 'place', // 'place', 'bond', 'delete'
+        bondOrder: 1,
+        atoms: [],    // [{el, mesh, position:{x,y,z}}]
+        bonds: [],    // [{a, b, order, meshes:[]}]
+        bondFirstAtom: null, // index of first atom clicked in bond mode
+        customMolecules: [],
+        isDragging: false,
+        dragAtomIndex: -1,
+      };
 
       // Three.js globals
       let scene, camera, renderer, controls, molGroup;
       let animFrameId;
+      let raycaster, mouse;
+      let groundPlane;
+      let highlightRing = null;
 
       // ===========================
       // 1. INIT THREE.JS SCENE
@@ -179,12 +299,29 @@
         molGroup = new THREE.Group();
         scene.add(molGroup);
 
+        // Raycaster for Build Mode
+        raycaster = new THREE.Raycaster();
+        mouse = new THREE.Vector2();
+
+        // Invisible ground plane for placing atoms (z=0)
+        const planeGeo = new THREE.PlaneGeometry(4000, 4000);
+        const planeMat = new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide });
+        groundPlane = new THREE.Mesh(planeGeo, planeMat);
+        groundPlane.name = 'groundPlane';
+        scene.add(groundPlane);
+
         // Handle resize
         window.addEventListener('resize', function() {
           camera.aspect = window.innerWidth / window.innerHeight;
           camera.updateProjectionMatrix();
           renderer.setSize(window.innerWidth, window.innerHeight);
         });
+
+        // Build Mode click handler
+        renderer.domElement.addEventListener('click', onCanvasClick);
+        renderer.domElement.addEventListener('mousedown', onCanvasMouseDown);
+        renderer.domElement.addEventListener('mousemove', onCanvasMouseMove);
+        renderer.domElement.addEventListener('mouseup', onCanvasMouseUp);
 
         animate();
       }
@@ -214,7 +351,7 @@
       function renderMoleculeList(molecules) {
         const list = document.getElementById('mol-list');
         list.innerHTML = molecules.map(function(mol) {
-          const catLabel = { essential: 'Essential', organic: 'Organic', drug: 'Drug', macro: 'Macro' };
+          const catLabel = { essential: 'Essential', organic: 'Organic', drug: 'Drug', macro: 'Macro', custom: 'Custom' };
           return '<div class="mol-card' + (currentMolecule && currentMolecule.id == mol.id ? ' active' : '') + '" data-id="' + mol.id + '" onclick="selectMolecule(' + mol.id + ')">' +
             '<div class="mol-card-name">' + mol.name + '</div>' +
             '<div class="mol-card-formula">' + mol.formula + '</div>' +
@@ -284,16 +421,11 @@
       }
 
       // ===========================
-      // 5. BUILD 3D MOLECULE
+      // 5. BUILD 3D MOLECULE (View Mode)
       // ===========================
       function buildMolecule3D(structureData, mode) {
         // Clear previous
-        while (molGroup.children.length > 0) {
-          var child = molGroup.children[0];
-          if (child.geometry) child.geometry.dispose();
-          if (child.material) child.material.dispose();
-          molGroup.remove(child);
-        }
+        clearMolGroup();
 
         var atoms = structureData.atoms;
         var bonds = structureData.bonds;
@@ -401,6 +533,16 @@
         cyl.setRotationFromQuaternion(quaternion);
 
         molGroup.add(cyl);
+        return cyl;
+      }
+
+      function clearMolGroup() {
+        while (molGroup.children.length > 0) {
+          var child = molGroup.children[0];
+          if (child.geometry) child.geometry.dispose();
+          if (child.material) child.material.dispose();
+          molGroup.remove(child);
+        }
       }
 
       // ===========================
@@ -421,10 +563,848 @@
       });
 
       // ===========================
+      // 7. MASTER MODE TOGGLE
+      // ===========================
+      document.getElementById('master-toggle').addEventListener('click', function(e) {
+        var btn = e.target.closest('.master-toggle-btn');
+        if (!btn) return;
+        var mode = btn.getAttribute('data-mode');
+        if (mode === currentAppMode) return;
+
+        currentAppMode = mode;
+        document.querySelectorAll('.master-toggle-btn').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+
+        if (mode === 'view') {
+          enterViewMode();
+        } else {
+          enterBuildMode();
+        }
+      });
+
+      function enterViewMode() {
+        // Show view panels
+        document.getElementById('mol-selector').style.display = '';
+        document.getElementById('mol-hint').classList.remove('hidden');
+        if (currentMolecule) {
+          document.getElementById('mol-info').classList.add('visible');
+          document.getElementById('view-toggle').style.display = 'flex';
+          document.getElementById('mol-hint').classList.add('hidden');
+        }
+
+        // Hide build panels
+        document.getElementById('build-panel').classList.remove('visible');
+        document.getElementById('build-instruction').classList.remove('visible');
+
+        // Enable auto-rotate
+        controls.autoRotate = true;
+
+        // Reload the view molecule if one was selected
+        if (currentMolecule) {
+          buildMolecule3D(currentMolecule.structure_data, currentMode);
+        } else {
+          clearMolGroup();
+        }
+      }
+
+      function enterBuildMode() {
+        // Hide view panels
+        document.getElementById('mol-selector').style.display = 'none';
+        document.getElementById('mol-info').classList.remove('visible');
+        document.getElementById('view-toggle').style.display = 'none';
+        document.getElementById('mol-hint').classList.add('hidden');
+
+        // Show build panels
+        document.getElementById('build-panel').classList.add('visible');
+        updateBuildInstruction();
+        document.getElementById('build-instruction').classList.add('visible');
+
+        // Disable auto-rotate for easier building
+        controls.autoRotate = false;
+
+        // Clear canvas and rebuild from buildState
+        clearMolGroup();
+        rebuildBuildScene();
+
+        // Load custom molecules list
+        loadCustomMolecules();
+      }
+
+      // ===========================
+      // 8. ELEMENT TOOLBOX
+      // ===========================
+      function initElementGrid() {
+        var grid = document.getElementById('element-grid');
+        grid.innerHTML = BUILD_ELEMENTS.map(function(el) {
+          var isActive = el === buildState.selectedElement ? ' active' : '';
+          return '<button class="element-btn' + isActive + '" data-el="' + el + '">' +
+            '<span class="el-symbol">' + el + '</span>' +
+            '<span class="el-name">' + (ELEMENT_NAMES[el] || el) + '</span>' +
+          '</button>';
+        }).join('');
+
+        grid.addEventListener('click', function(e) {
+          var btn = e.target.closest('.element-btn');
+          if (!btn) return;
+
+          var el = btn.getAttribute('data-el');
+          buildState.selectedElement = el;
+          buildState.interactionMode = 'place';
+          buildState.bondFirstAtom = null;
+          removeHighlightRing();
+
+          // Update active states
+          grid.querySelectorAll('.element-btn').forEach(function(b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+
+          // Deactivate bond and delete buttons
+          document.querySelectorAll('.bond-btn').forEach(function(b) { b.classList.remove('active'); });
+          document.getElementById('btn-delete-mode').style.borderColor = '';
+          document.getElementById('btn-delete-mode').style.color = '';
+
+          updateBuildInstruction();
+        });
+      }
+
+      // ===========================
+      // 9. BOND TOOLS
+      // ===========================
+      document.getElementById('bond-tools').addEventListener('click', function(e) {
+        var btn = e.target.closest('.bond-btn');
+        if (!btn) return;
+
+        buildState.interactionMode = 'bond';
+        buildState.bondOrder = parseInt(btn.getAttribute('data-order'));
+        buildState.bondFirstAtom = null;
+        removeHighlightRing();
+
+        // Update active states
+        document.querySelectorAll('.bond-btn').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+
+        // Deactivate element buttons and delete
+        document.querySelectorAll('.element-btn').forEach(function(b) { b.classList.remove('active'); });
+        document.getElementById('btn-delete-mode').style.borderColor = '';
+        document.getElementById('btn-delete-mode').style.color = '';
+
+        updateBuildInstruction();
+      });
+
+      // ===========================
+      // 10. DELETE MODE
+      // ===========================
+      document.getElementById('btn-delete-mode').addEventListener('click', function() {
+        if (buildState.interactionMode === 'delete') {
+          // Toggle off — return to place mode
+          buildState.interactionMode = 'place';
+          this.style.borderColor = '';
+          this.style.color = '';
+          // Re-activate last element
+          var elBtn = document.querySelector('.element-btn[data-el="' + buildState.selectedElement + '"]');
+          if (elBtn) elBtn.classList.add('active');
+        } else {
+          buildState.interactionMode = 'delete';
+          buildState.bondFirstAtom = null;
+          removeHighlightRing();
+          this.style.borderColor = '#ff4444';
+          this.style.color = '#ff4444';
+
+          // Deactivate element and bond buttons
+          document.querySelectorAll('.element-btn').forEach(function(b) { b.classList.remove('active'); });
+          document.querySelectorAll('.bond-btn').forEach(function(b) { b.classList.remove('active'); });
+        }
+        updateBuildInstruction();
+      });
+
+      // ===========================
+      // 11. CLEAR ALL
+      // ===========================
+      document.getElementById('btn-clear-all').addEventListener('click', function() {
+        if (buildState.atoms.length === 0) return;
+        if (!confirm('Clear all atoms and bonds?')) return;
+        buildState.atoms = [];
+        buildState.bonds = [];
+        buildState.bondFirstAtom = null;
+        removeHighlightRing();
+        clearMolGroup();
+        updateBuildStats();
+        updateBuildInstruction();
+      });
+
+      // ===========================
+      // 12. CANVAS CLICK — BUILD MODE
+      // ===========================
+      function onCanvasClick(event) {
+        if (currentAppMode !== 'build') return;
+        if (buildState.isDragging) return;
+
+        // Calculate mouse position in normalized device coordinates
+        var rect = renderer.domElement.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, camera);
+
+        if (buildState.interactionMode === 'place') {
+          handlePlaceAtom(event);
+        } else if (buildState.interactionMode === 'bond') {
+          handleBondAtom();
+        } else if (buildState.interactionMode === 'delete') {
+          handleDeleteAtom();
+        }
+      }
+
+      // --- Place Atom ---
+      function handlePlaceAtom(event) {
+        if (buildState.atoms.length >= MAX_ATOMS) {
+          alert('Maximum ' + MAX_ATOMS + ' atoms reached!');
+          return;
+        }
+
+        // Raycast against ground plane
+        var intersects = raycaster.intersectObject(groundPlane);
+        if (intersects.length === 0) return;
+
+        var point = intersects[0].point;
+        var el = buildState.selectedElement;
+
+        // Create atom mesh
+        var atomData = createBuildAtomMesh(el, point.x, point.y, point.z);
+        buildState.atoms.push(atomData);
+
+        // Animate scale-up
+        atomData.mesh.scale.set(0, 0, 0);
+        animateScale(atomData.mesh, 1.0, 300);
+
+        updateBuildStats();
+      }
+
+      function createBuildAtomMesh(el, x, y, z) {
+        var color = ATOM_COLORS[el] || 0xcccccc;
+        var baseRadius = ATOM_RADII[el] || 0.7;
+        var radius = baseRadius * 30;
+
+        var geo = new THREE.SphereGeometry(radius, 32, 32);
+        var mat = new THREE.MeshStandardMaterial({
+          color: color,
+          emissive: color,
+          emissiveIntensity: 0.15,
+          roughness: 0.3,
+          metalness: 0.5
+        });
+        var mesh = new THREE.Mesh(geo, mat);
+        mesh.position.set(x, y, z);
+        mesh.userData.buildAtomIndex = buildState.atoms.length;
+        mesh.userData.isBuildAtom = true;
+        molGroup.add(mesh);
+
+        return { el: el, mesh: mesh, position: { x: x, y: y, z: z } };
+      }
+
+      // --- Bond Atom ---
+      function handleBondAtom() {
+        // Raycast against all atom meshes
+        var atomMeshes = buildState.atoms.map(function(a) { return a.mesh; });
+        var intersects = raycaster.intersectObjects(atomMeshes);
+
+        if (intersects.length === 0) {
+          // Clicked empty space — reset
+          buildState.bondFirstAtom = null;
+          removeHighlightRing();
+          return;
+        }
+
+        var clickedMesh = intersects[0].object;
+        var clickedIndex = buildState.atoms.findIndex(function(a) { return a.mesh === clickedMesh; });
+
+        if (buildState.bondFirstAtom === null) {
+          // First atom selected
+          buildState.bondFirstAtom = clickedIndex;
+          addHighlightRing(clickedMesh);
+          updateBuildInstruction();
+        } else {
+          // Second atom selected — create bond
+          var first = buildState.bondFirstAtom;
+          var second = clickedIndex;
+
+          if (first === second) {
+            buildState.bondFirstAtom = null;
+            removeHighlightRing();
+            updateBuildInstruction();
+            return;
+          }
+
+          // Check if bond already exists
+          var existing = buildState.bonds.findIndex(function(b) {
+            return (b.a === first && b.b === second) || (b.a === second && b.b === first);
+          });
+
+          if (existing >= 0) {
+            // Update bond order
+            var oldBond = buildState.bonds[existing];
+            oldBond.meshes.forEach(function(m) {
+              if (m.geometry) m.geometry.dispose();
+              if (m.material) m.material.dispose();
+              molGroup.remove(m);
+            });
+            buildState.bonds.splice(existing, 1);
+          }
+
+          // Create bond
+          var a1 = buildState.atoms[first];
+          var a2 = buildState.atoms[second];
+          var start = new THREE.Vector3(a1.position.x, a1.position.y, a1.position.z);
+          var end = new THREE.Vector3(a2.position.x, a2.position.y, a2.position.z);
+          var meshes = [];
+
+          for (var i = 0; i < buildState.bondOrder; i++) {
+            var offset = 0;
+            if (buildState.bondOrder === 2) offset = (i - 0.5) * 8;
+            if (buildState.bondOrder === 3) offset = (i - 1) * 8;
+            var cyl = createBondCylinder(start, end, offset);
+            meshes.push(cyl);
+          }
+
+          buildState.bonds.push({ a: first, b: second, order: buildState.bondOrder, meshes: meshes });
+
+          buildState.bondFirstAtom = null;
+          removeHighlightRing();
+          updateBuildStats();
+          updateBuildInstruction();
+        }
+      }
+
+      // --- Delete Atom ---
+      function handleDeleteAtom() {
+        var atomMeshes = buildState.atoms.map(function(a) { return a.mesh; });
+        var intersects = raycaster.intersectObjects(atomMeshes);
+
+        if (intersects.length === 0) return;
+
+        var clickedMesh = intersects[0].object;
+        var clickedIndex = buildState.atoms.findIndex(function(a) { return a.mesh === clickedMesh; });
+        if (clickedIndex < 0) return;
+
+        // Remove atom mesh
+        var atom = buildState.atoms[clickedIndex];
+        if (atom.mesh.geometry) atom.mesh.geometry.dispose();
+        if (atom.mesh.material) atom.mesh.material.dispose();
+        molGroup.remove(atom.mesh);
+
+        // Remove all bonds connected to this atom
+        var bondsToRemove = [];
+        buildState.bonds.forEach(function(bond, bi) {
+          if (bond.a === clickedIndex || bond.b === clickedIndex) {
+            bondsToRemove.push(bi);
+          }
+        });
+        // Remove in reverse order
+        for (var i = bondsToRemove.length - 1; i >= 0; i--) {
+          var bond = buildState.bonds[bondsToRemove[i]];
+          bond.meshes.forEach(function(m) {
+            if (m.geometry) m.geometry.dispose();
+            if (m.material) m.material.dispose();
+            molGroup.remove(m);
+          });
+          buildState.bonds.splice(bondsToRemove[i], 1);
+        }
+
+        // Remove atom from array
+        buildState.atoms.splice(clickedIndex, 1);
+
+        // Update bond indices (shift indices that were > clickedIndex)
+        buildState.bonds.forEach(function(bond) {
+          if (bond.a > clickedIndex) bond.a--;
+          if (bond.b > clickedIndex) bond.b--;
+        });
+
+        updateBuildStats();
+      }
+
+      // ===========================
+      // 13. DRAG ATOMS
+      // ===========================
+      var dragStartPos = null;
+      var dragPlane = new THREE.Plane();
+
+      function onCanvasMouseDown(event) {
+        if (currentAppMode !== 'build') return;
+        if (buildState.interactionMode !== 'place') return;
+
+        var rect = renderer.domElement.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+
+        var atomMeshes = buildState.atoms.map(function(a) { return a.mesh; });
+        var intersects = raycaster.intersectObjects(atomMeshes);
+
+        if (intersects.length > 0) {
+          var clickedMesh = intersects[0].object;
+          var idx = buildState.atoms.findIndex(function(a) { return a.mesh === clickedMesh; });
+          if (idx >= 0) {
+            buildState.dragAtomIndex = idx;
+            dragStartPos = { x: event.clientX, y: event.clientY };
+            controls.enabled = false; // Disable orbit while dragging
+          }
+        }
+      }
+
+      function onCanvasMouseMove(event) {
+        if (currentAppMode !== 'build') return;
+        if (buildState.dragAtomIndex < 0) return;
+
+        // Check if mouse moved enough to count as drag
+        if (dragStartPos) {
+          var dx = event.clientX - dragStartPos.x;
+          var dy = event.clientY - dragStartPos.y;
+          if (Math.sqrt(dx*dx + dy*dy) > 5) {
+            buildState.isDragging = true;
+            dragStartPos = null;
+          } else {
+            return;
+          }
+        }
+
+        var rect = renderer.domElement.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+
+        var intersects = raycaster.intersectObject(groundPlane);
+        if (intersects.length > 0) {
+          var point = intersects[0].point;
+          var atom = buildState.atoms[buildState.dragAtomIndex];
+          atom.mesh.position.set(point.x, point.y, point.z);
+          atom.position = { x: point.x, y: point.y, z: point.z };
+
+          // Update connected bonds
+          updateConnectedBonds(buildState.dragAtomIndex);
+        }
+      }
+
+      function onCanvasMouseUp(event) {
+        if (currentAppMode !== 'build') return;
+
+        if (buildState.isDragging) {
+          // Small delay to prevent click event from firing
+          setTimeout(function() { buildState.isDragging = false; }, 50);
+        }
+
+        buildState.dragAtomIndex = -1;
+        dragStartPos = null;
+        controls.enabled = true;
+      }
+
+      function updateConnectedBonds(atomIndex) {
+        buildState.bonds.forEach(function(bond) {
+          if (bond.a === atomIndex || bond.b === atomIndex) {
+            // Remove old bond meshes
+            bond.meshes.forEach(function(m) {
+              if (m.geometry) m.geometry.dispose();
+              if (m.material) m.material.dispose();
+              molGroup.remove(m);
+            });
+
+            // Recreate bond meshes
+            var a1 = buildState.atoms[bond.a];
+            var a2 = buildState.atoms[bond.b];
+            var start = new THREE.Vector3(a1.position.x, a1.position.y, a1.position.z);
+            var end = new THREE.Vector3(a2.position.x, a2.position.y, a2.position.z);
+            var newMeshes = [];
+
+            for (var i = 0; i < bond.order; i++) {
+              var offset = 0;
+              if (bond.order === 2) offset = (i - 0.5) * 8;
+              if (bond.order === 3) offset = (i - 1) * 8;
+              var cyl = createBondCylinder(start, end, offset);
+              newMeshes.push(cyl);
+            }
+
+            bond.meshes = newMeshes;
+          }
+        });
+      }
+
+      // ===========================
+      // 14. HIGHLIGHT RING (Bond Mode First Atom)
+      // ===========================
+      function addHighlightRing(mesh) {
+        removeHighlightRing();
+        var radius = mesh.geometry.parameters.radius * 1.5;
+        var ringGeo = new THREE.RingGeometry(radius, radius + 3, 32);
+        var ringMat = new THREE.MeshBasicMaterial({
+          color: 0xff6b9d,
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: 0.6
+        });
+        highlightRing = new THREE.Mesh(ringGeo, ringMat);
+        highlightRing.position.copy(mesh.position);
+        highlightRing.lookAt(camera.position);
+        molGroup.add(highlightRing);
+
+        // Animate pulse
+        (function pulseRing() {
+          if (!highlightRing) return;
+          highlightRing.lookAt(camera.position);
+          var s = 1 + Math.sin(Date.now() * 0.005) * 0.15;
+          highlightRing.scale.set(s, s, s);
+          requestAnimationFrame(pulseRing);
+        })();
+      }
+
+      function removeHighlightRing() {
+        if (highlightRing) {
+          if (highlightRing.geometry) highlightRing.geometry.dispose();
+          if (highlightRing.material) highlightRing.material.dispose();
+          molGroup.remove(highlightRing);
+          highlightRing = null;
+        }
+      }
+
+      // ===========================
+      // 15. AUTO-CALCULATE FORMULA & STATS
+      // ===========================
+      function updateBuildStats() {
+        var formulaEl = document.getElementById('build-formula');
+        var atomCountEl = document.getElementById('build-atom-count');
+        var bondCountEl = document.getElementById('build-bond-count');
+        var saveBtn = document.getElementById('btn-save-mol');
+
+        atomCountEl.textContent = buildState.atoms.length;
+        bondCountEl.textContent = buildState.bonds.length;
+
+        if (buildState.atoms.length === 0) {
+          formulaEl.innerHTML = '<span class="build-formula-empty">No atoms placed</span>';
+          saveBtn.disabled = true;
+          return;
+        }
+
+        // Calculate formula (Hill system)
+        var counts = {};
+        buildState.atoms.forEach(function(a) {
+          counts[a.el] = (counts[a.el] || 0) + 1;
+        });
+
+        // Sort: C first, H second, then alphabetical
+        var keys = Object.keys(counts).sort(function(a, b) {
+          if (a === 'C') return -1;
+          if (b === 'C') return 1;
+          if (a === 'H') return -1;
+          if (b === 'H') return 1;
+          return a.localeCompare(b);
+        });
+
+        var formula = '';
+        keys.forEach(function(el) {
+          formula += el;
+          if (counts[el] > 1) {
+            // Use subscript
+            formula += '<sub>' + counts[el] + '</sub>';
+          }
+        });
+
+        formulaEl.innerHTML = formula;
+        saveBtn.disabled = false;
+      }
+
+      // ===========================
+      // 16. CONTEXTUAL INSTRUCTION
+      // ===========================
+      function updateBuildInstruction() {
+        var el = document.getElementById('build-instruction');
+        if (currentAppMode !== 'build') {
+          el.classList.remove('visible');
+          return;
+        }
+        el.classList.add('visible');
+
+        switch (buildState.interactionMode) {
+          case 'place':
+            el.textContent = '🎯 Click canvas to place ' + buildState.selectedElement + ' atom · Drag existing atoms to reposition';
+            break;
+          case 'bond':
+            if (buildState.bondFirstAtom !== null) {
+              el.textContent = '🔗 Click second atom to create bond · Click empty space to cancel';
+            } else {
+              var bondLabels = { 1: 'Single', 2: 'Double', 3: 'Triple' };
+              el.textContent = '🔗 Click first atom to start ' + bondLabels[buildState.bondOrder] + ' bond';
+            }
+            break;
+          case 'delete':
+            el.textContent = '🗑 Click an atom to delete it and its bonds';
+            break;
+        }
+      }
+
+      // ===========================
+      // 17. REBUILD BUILD SCENE FROM STATE
+      // ===========================
+      function rebuildBuildScene() {
+        // Re-add atom meshes
+        buildState.atoms.forEach(function(atom) {
+          if (!molGroup.children.includes(atom.mesh)) {
+            molGroup.add(atom.mesh);
+          }
+        });
+
+        // Re-add bond meshes
+        buildState.bonds.forEach(function(bond) {
+          bond.meshes.forEach(function(m) {
+            if (!molGroup.children.includes(m)) {
+              molGroup.add(m);
+            }
+          });
+        });
+      }
+
+      // ===========================
+      // 18. SAVE MOLECULE
+      // ===========================
+      document.getElementById('btn-save-mol').addEventListener('click', function() {
+        if (buildState.atoms.length === 0) return;
+        document.getElementById('save-modal').classList.add('visible');
+        document.getElementById('save-mol-name').value = '';
+        setTimeout(function() {
+          document.getElementById('save-mol-name').focus();
+        }, 100);
+      });
+
+      document.getElementById('btn-save-cancel').addEventListener('click', function() {
+        document.getElementById('save-modal').classList.remove('visible');
+      });
+
+      document.getElementById('btn-save-confirm').addEventListener('click', saveMolecule);
+
+      document.getElementById('save-mol-name').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') saveMolecule();
+        if (e.key === 'Escape') document.getElementById('save-modal').classList.remove('visible');
+      });
+
+      async function saveMolecule() {
+        var name = document.getElementById('save-mol-name').value.trim();
+        if (!name) {
+          document.getElementById('save-mol-name').style.borderColor = '#ff4444';
+          setTimeout(function() {
+            document.getElementById('save-mol-name').style.borderColor = '';
+          }, 1000);
+          return;
+        }
+
+        var atoms = buildState.atoms.map(function(a) {
+          return { el: a.el, x: parseFloat((a.position.x / 100).toFixed(3)), y: parseFloat((a.position.y / 100).toFixed(3)), z: parseFloat((a.position.z / 100).toFixed(3)) };
+        });
+
+        var bonds = buildState.bonds.map(function(b) {
+          return { a: b.a, b: b.b, order: b.order };
+        });
+
+        try {
+          var res = await fetch(API_MOLECULES + '?action=save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name, atoms: atoms, bonds: bonds })
+          });
+          var json = await res.json();
+          if (json.status === 'success') {
+            document.getElementById('save-modal').classList.remove('visible');
+            loadCustomMolecules();
+            // Also refresh the main molecule list for View Mode
+            loadMolecules();
+          } else {
+            alert('Save failed: ' + (json.message || 'Unknown error'));
+          }
+        } catch (e) {
+          console.error('Failed to save molecule:', e);
+          alert('Save failed: Network error');
+        }
+      }
+
+      // ===========================
+      // 19. LOAD CUSTOM MOLECULES LIST
+      // ===========================
+      async function loadCustomMolecules() {
+        try {
+          var res = await fetch(API_MOLECULES + '?action=list_custom');
+          var json = await res.json();
+          if (json.status === 'success') {
+            buildState.customMolecules = json.data;
+            renderCustomMoleculeList();
+          }
+        } catch (e) {
+          console.error('Failed to load custom molecules:', e);
+        }
+      }
+
+      function renderCustomMoleculeList() {
+        var list = document.getElementById('custom-mol-list');
+        if (buildState.customMolecules.length === 0) {
+          list.innerHTML = '<div class="custom-mol-empty">No saved molecules yet</div>';
+          return;
+        }
+
+        list.innerHTML = buildState.customMolecules.map(function(mol) {
+          return '<div class="custom-mol-item" data-id="' + mol.id + '">' +
+            '<div>' +
+              '<div class="custom-mol-name">' + mol.name + '</div>' +
+              '<div class="custom-mol-formula">' + mol.formula + '</div>' +
+            '</div>' +
+            '<div class="custom-mol-actions">' +
+              '<button class="custom-mol-action load-action" data-id="' + mol.id + '" title="Load">📂</button>' +
+              '<button class="custom-mol-action delete-action" data-id="' + mol.id + '" title="Delete">🗑</button>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+
+        // Attach event listeners
+        list.querySelectorAll('.load-action').forEach(function(btn) {
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            loadCustomMolecule(parseInt(this.getAttribute('data-id')));
+          });
+        });
+
+        list.querySelectorAll('.delete-action').forEach(function(btn) {
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            deleteCustomMolecule(parseInt(this.getAttribute('data-id')));
+          });
+        });
+      }
+
+      // ===========================
+      // 20. LOAD CUSTOM MOLECULE INTO BUILD MODE
+      // ===========================
+      async function loadCustomMolecule(id) {
+        try {
+          var res = await fetch(API_MOLECULES + '?action=get&id=' + id);
+          var json = await res.json();
+          if (json.status !== 'success') return;
+
+          var mol = json.data;
+          var structureData = mol.structure_data;
+          var SCALE = 100;
+
+          // Clear current build state
+          buildState.atoms = [];
+          buildState.bonds = [];
+          buildState.bondFirstAtom = null;
+          removeHighlightRing();
+          clearMolGroup();
+
+          // Calculate center of mass
+          var cx = 0, cy = 0, cz = 0;
+          structureData.atoms.forEach(function(a) { cx += a.x; cy += a.y; cz += a.z; });
+          cx /= structureData.atoms.length;
+          cy /= structureData.atoms.length;
+          cz /= structureData.atoms.length;
+
+          // Recreate atoms
+          structureData.atoms.forEach(function(atom) {
+            var x = (atom.x - cx) * SCALE;
+            var y = (atom.y - cy) * SCALE;
+            var z = (atom.z - cz) * SCALE;
+            var atomData = createBuildAtomMesh(atom.el, x, y, z);
+            buildState.atoms.push(atomData);
+          });
+
+          // Recreate bonds
+          structureData.bonds.forEach(function(bond) {
+            var a1 = buildState.atoms[bond.a];
+            var a2 = buildState.atoms[bond.b];
+            var start = new THREE.Vector3(a1.position.x, a1.position.y, a1.position.z);
+            var end = new THREE.Vector3(a2.position.x, a2.position.y, a2.position.z);
+            var meshes = [];
+            var order = bond.order || 1;
+
+            for (var i = 0; i < order; i++) {
+              var offset = 0;
+              if (order === 2) offset = (i - 0.5) * 8;
+              if (order === 3) offset = (i - 1) * 8;
+              var cyl = createBondCylinder(start, end, offset);
+              meshes.push(cyl);
+            }
+
+            buildState.bonds.push({ a: bond.a, b: bond.b, order: order, meshes: meshes });
+          });
+
+          // Fit camera
+          var maxDist = 0;
+          buildState.atoms.forEach(function(a) {
+            var d = Math.sqrt(a.position.x * a.position.x + a.position.y * a.position.y + a.position.z * a.position.z);
+            if (d > maxDist) maxDist = d;
+          });
+          var camDist = Math.max(maxDist * 3, 300);
+          camera.position.set(0, 0, camDist);
+          controls.target.set(0, 0, 0);
+          controls.update();
+
+          updateBuildStats();
+
+        } catch (e) {
+          console.error('Failed to load custom molecule:', e);
+        }
+      }
+
+      // ===========================
+      // 21. DELETE CUSTOM MOLECULE
+      // ===========================
+      async function deleteCustomMolecule(id) {
+        if (!confirm('Delete this molecule permanently?')) return;
+
+        try {
+          var res = await fetch(API_MOLECULES + '?action=delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id })
+          });
+          var json = await res.json();
+          if (json.status === 'success') {
+            loadCustomMolecules();
+            loadMolecules(); // Refresh main list
+          }
+        } catch (e) {
+          console.error('Failed to delete molecule:', e);
+        }
+      }
+
+      // ===========================
+      // UTILITY: Animate Scale
+      // ===========================
+      function animateScale(mesh, targetScale, duration) {
+        var startTime = Date.now();
+        var startScale = mesh.scale.x;
+        (function step() {
+          var elapsed = Date.now() - startTime;
+          var t = Math.min(elapsed / duration, 1);
+          // Ease out cubic
+          t = 1 - Math.pow(1 - t, 3);
+          var s = startScale + (targetScale - startScale) * t;
+          mesh.scale.set(s, s, s);
+          if (elapsed < duration) {
+            requestAnimationFrame(step);
+          }
+        })();
+      }
+
+      // ===========================
       // INIT
       // ===========================
       initScene();
       loadMolecules();
+      initElementGrid();
+
+      // Check URL for ?mode=build
+      (function() {
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('mode') === 'build') {
+          currentAppMode = 'build';
+          document.querySelectorAll('.master-toggle-btn').forEach(function(b) { b.classList.remove('active'); });
+          document.getElementById('btn-mode-build').classList.add('active');
+          enterBuildMode();
+        }
+      })();
     </script>
     <!-- WebGL Flowing Background Shader -->
     <script src="js/bg-liquid-shader.js"></script>
