@@ -421,12 +421,11 @@
       </section>
       <section id="table-section">
         <!-- Ruang kosong untuk menscroll ke bawah menuju tabel -->
-      </section>
-
-      <!-- Narrative Sections: Alternating Layout -->
+      </section>      <!-- Narrative Sections: Alternating Layout -->
       <section id="carbon-section" class="narrative-section">
         <div class="narrative-content narrative-layout">
           <div class="narrative-text-side narrative-from-left">
+            <div class="section-badge">01 // BASIC ATOMIC CORE</div>
             <h2 class="editorial-title typewrite-target">The Carbon Core</h2>
             <div class="editorial-subtitle">STRUCTURAL TETRAVALENCY AND SP³ HYBRIDIZATION HYPOTHESES IN ORGANIC ARCHITECTURE</div>
             <p class="editorial-text">
@@ -451,6 +450,7 @@
             <!-- 3D Diamond Lattice renders here via Three.js -->
           </div>
           <div class="narrative-text-side narrative-from-right">
+            <div class="section-badge">02 // CRYSTALLINE GRID SYMMETRY</div>
             <h2 class="editorial-title typewrite-target">Diamond Lattice</h2>
             <div class="editorial-subtitle">TETRAHEDRAL COVALENT SYMMETRY AND STRESS-STRAIN KINETICS OF PURE CARBON ALLOTROPES</div>
             <p class="editorial-text">
@@ -469,6 +469,7 @@
       <section id="dna-section" class="narrative-section">
         <div class="narrative-content narrative-layout">
           <div class="narrative-text-side narrative-from-left">
+            <div class="section-badge">03 // BIOLOGICAL ALGORITHMS</div>
             <h2 class="editorial-title typewrite-target">The Code of Life</h2>
             <div class="editorial-subtitle">GENETIC SEQUENCING INFORMATION STORAGE ENVELOPED IN WATSON-CRICK HELICAL HYDROGEN BONDING</div>
             <p class="editorial-text">
@@ -494,6 +495,7 @@
             <!-- 3D Cosmic Furnace renders here via Three.js -->
           </div>
           <div class="narrative-text-side narrative-from-right">
+            <div class="section-badge">04 // STELLAR NUCLEOSYNTHESIS</div>
             <h2 class="editorial-title typewrite-target">The Cosmic Furnace</h2>
             <div class="editorial-subtitle">STELLAR NUCLEOSYNTHESIS THERMONUCLEAR FUSION PROCESS FORGING HEAVY ELEMENTS</div>
             <p class="editorial-text">
@@ -513,6 +515,7 @@
       <section id="stats-section" class="narrative-section stats-special">
         <div class="narrative-content narrative-layout">
           <div class="stats-container narrative-from-left">
+            <div class="section-badge">05 // FUNDAMENTAL METRICS</div>
             <h2 class="editorial-title typewrite-target">The Universe in Numbers</h2>
             <div class="editorial-subtitle">QUANTITATIVE MEASUREMENT METRICS OF FUNDAMENTAL SUBATOMIC PARTICLES AND COSMIC DATA</div>
             <p class="editorial-text">
@@ -574,6 +577,7 @@
             </div>
           </div>
           <div class="narrative-text-side narrative-from-right">
+            <div class="section-badge">06 // QUANTUM ANOMALIES</div>
             <h2 class="editorial-title typewrite-target">Did You Know?</h2>
             <div class="editorial-subtitle">EMPIRICAL QUANTUM ANOMALIES AND COSMOLOGICAL REVELATIONS BEYOND STANDARD PHENOMENON</div>
             <p class="editorial-text">
@@ -1561,9 +1565,14 @@
         const wCarbon = getSmoothWeight(progress, 1.5, 3.5);
         singleAtomGroup.visible = wCarbon > 0.001;
         if (singleAtomGroup.visible) {
-          singleAtomGroup.position.x = 1100;
+          singleAtomGroup.position.x = 1100 + (1 - wCarbon) * 500;
           singleAtomGroup.position.z = (1 - wCarbon) * -1200;
-          singleAtomGroup.scale.setScalar(0.3 + wCarbon * 0.7);
+          singleAtomGroup.scale.setScalar(wCarbon);
+          
+          // Spiral spin rotation transition
+          singleAtomGroup.rotation.y = (1 - wCarbon) * Math.PI + (singleAtomGroup.userData.autoSpinY || 0);
+          singleAtomGroup.rotation.x = (1 - wCarbon) * 0.5 + (singleAtomGroup.userData.autoSpinX || 0);
+          
           singleAtomGroup.traverse((child) => {
             if (child.isMesh && child.material) {
               const orig = child.material.userData.originalOpacity !== undefined ? child.material.userData.originalOpacity : 1.0;
@@ -1578,9 +1587,14 @@
         const wDiamond = getSmoothWeight(progress, 3.5, 5.5);
         latticeGroup.visible = wDiamond > 0.001;
         if (latticeGroup.visible) {
-          latticeGroup.position.x = -1100;
+          latticeGroup.position.x = -1100 - (1 - wDiamond) * 500;
           latticeGroup.position.z = (1 - wDiamond) * -1200;
-          latticeGroup.scale.setScalar(0.3 + wDiamond * 0.7);
+          latticeGroup.scale.setScalar(wDiamond);
+          
+          // Spiral spin rotation transition
+          latticeGroup.rotation.y = (1 - wDiamond) * -Math.PI + (latticeGroup.userData.autoSpinY || 0);
+          latticeGroup.rotation.z = (1 - wDiamond) * 0.5 + (latticeGroup.userData.autoSpinZ || 0);
+          
           latticeGroup.traverse((child) => {
             if ((child.isMesh || child.isLine) && child.material) {
               const orig = child.material.userData.originalOpacity !== undefined ? child.material.userData.originalOpacity : 1.0;
@@ -1595,9 +1609,13 @@
         const wDNA = getSmoothWeight(progress, 5.5, 7.5);
         dnaGroup.visible = wDNA > 0.001;
         if (dnaGroup.visible) {
-          dnaGroup.position.x = 1100;
+          dnaGroup.position.x = 1100 + (1 - wDNA) * 500;
           dnaGroup.position.z = (1 - wDNA) * -1200;
-          dnaGroup.scale.setScalar(0.3 + wDNA * 0.7);
+          dnaGroup.scale.setScalar(wDNA);
+          
+          // Spiral spin rotation transition
+          dnaGroup.rotation.y = (1 - wDNA) * Math.PI * 1.5 + (dnaGroup.userData.autoSpinY || 0);
+          
           dnaGroup.traverse((child) => {
             if ((child.isMesh || child.isLine) && child.material) {
               const orig = child.material.userData.originalOpacity !== undefined ? child.material.userData.originalOpacity : 1.0;
@@ -1612,9 +1630,13 @@
         const wCosmic = getSmoothWeight(progress, 7.5, 9.5);
         cosmicFurnaceGroup.visible = wCosmic > 0.001;
         if (cosmicFurnaceGroup.visible) {
-          cosmicFurnaceGroup.position.x = -1100;
+          cosmicFurnaceGroup.position.x = -1100 - (1 - wCosmic) * 500;
           cosmicFurnaceGroup.position.z = (1 - wCosmic) * -1200;
-          cosmicFurnaceGroup.scale.setScalar(0.3 + wCosmic * 0.7);
+          cosmicFurnaceGroup.scale.setScalar(wCosmic);
+          
+          // Spiral spin rotation transition
+          cosmicFurnaceGroup.rotation.y = (1 - wCosmic) * -Math.PI + (cosmicFurnaceGroup.userData.autoSpinY || 0);
+          
           cosmicFurnaceGroup.traverse((child) => {
             if (child.isMesh && child.material) {
               const orig = child.material.userData.originalOpacity !== undefined ? child.material.userData.originalOpacity : 1.0;
@@ -1685,12 +1707,12 @@
           o.mesh.rotation.z += o.speed;
         });
 
-        // Auto-spin base
-        singleAtomGroup.rotation.y += 0.005;
-        singleAtomGroup.rotation.x += 0.002;
-        latticeGroup.rotation.y += 0.003;
-        latticeGroup.rotation.z += 0.001;
-        dnaGroup.rotation.y += 0.01;
+        // Auto-spin base (accumulating in userData for scroll-transition synergy)
+        singleAtomGroup.userData.autoSpinY = (singleAtomGroup.userData.autoSpinY || 0) + 0.005;
+        singleAtomGroup.userData.autoSpinX = (singleAtomGroup.userData.autoSpinX || 0) + 0.002;
+        latticeGroup.userData.autoSpinY = (latticeGroup.userData.autoSpinY || 0) + 0.003;
+        latticeGroup.userData.autoSpinZ = (latticeGroup.userData.autoSpinZ || 0) + 0.001;
+        dnaGroup.userData.autoSpinY = (dnaGroup.userData.autoSpinY || 0) + 0.01;
 
         // Orbiting Cosmic Furnace particles
         cosmicParticles.forEach((p) => {
@@ -1702,7 +1724,7 @@
         ring1.rotation.z += 0.005;
         ring2.rotation.z -= 0.003;
         starCore.rotation.y += 0.01;
-        cosmicFurnaceGroup.rotation.y += 0.002;
+        cosmicFurnaceGroup.userData.autoSpinY = (cosmicFurnaceGroup.userData.autoSpinY || 0) + 0.002;
 
         // Cinematic Lighting Follow Camera
         cineLight.position.y = camera.position.y + 2000;
