@@ -107,6 +107,11 @@
   <body>
     <!-- Glowing Molecular Preloader -->
     <div id="preloader">
+      <script>
+        if (sessionStorage.getItem('chemiverse_preloader_shown') === 'true') {
+          document.getElementById('preloader').style.display = 'none';
+        }
+      </script>
       <div class="preloader-content">
         <div class="molecular-canvas-container">
           <canvas id="preloader-canvas"></canvas>
@@ -133,7 +138,17 @@
         window.preloaderFlags.pageLoaded = true;
       });
 
+      if (sessionStorage.getItem('chemiverse_preloader_shown') === 'true') {
+        window.preloaderFlags.pageLoaded = true;
+        window.preloaderFlags.dataLoaded = true;
+        const preloader = document.getElementById('preloader');
+        if (preloader) preloader.remove();
+      }
+
       (function() {
+        if (sessionStorage.getItem('chemiverse_preloader_shown') === 'true') {
+          return;
+        }
         const canvas = document.getElementById('preloader-canvas');
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
@@ -348,6 +363,7 @@
             const preloader = document.getElementById('preloader');
             if (preloader && !preloader.classList.contains('fade-out')) {
               preloader.classList.add('fade-out');
+              sessionStorage.setItem('chemiverse_preloader_shown', 'true');
               setTimeout(() => {
                 preloader.remove();
               }, 800);
